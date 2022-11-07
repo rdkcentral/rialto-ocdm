@@ -98,7 +98,7 @@ OpenCDMError opencdm_get_key_store_hash_ext(struct OpenCDMSystem *system, uint8_
     if (keyStoreHashVec.size() > keyStoreHashLength)
     {
         TRACE_L1("Failed to get key store hash - return of size %u does not fit in buffer of size %u",
-            keyStoreHashVec.size(), keyStoreHashLength);
+                 keyStoreHashVec.size(), keyStoreHashLength);
         return ERROR_FAIL;
     }
     memcpy(keyStoreHash, keyStoreHashVec.data(), keyStoreHashVec.size());
@@ -123,7 +123,7 @@ OpenCDMError opencdm_get_secure_store_hash_ext(struct OpenCDMSystem *system, uin
     if (secureStoreHashVec.size() > secureStoreHashLength)
     {
         TRACE_L1("Failed to get key store hash - return size %u does not fit in buffer of size %u",
-            secureStoreHashVec.size(), secureStoreHashLength);
+                 secureStoreHashVec.size(), secureStoreHashLength);
         return ERROR_FAIL;
     }
     memcpy(secureStoreHash, secureStoreHashVec.data(), secureStoreHashVec.size());

@@ -19,11 +19,11 @@
 
 #include <opencdm/open_cdm.h>
 
+#include "ActiveSessions.h"
 #include <OpenCDMSession.h>
 #include <OpenCDMSystem.h>
 #include <Utils.h>
 #include <WPEFramework/core/Trace.h>
-#include "ActiveSessions.h"
 
 OpenCDMSystem *opencdm_create_system(const char keySystem[])
 {
@@ -96,8 +96,7 @@ OpenCDMError opencdm_system_get_version(struct OpenCDMSystem *system, char versi
 
 OpenCDMError opencdm_system_get_drm_time(struct OpenCDMSystem *system, uint64_t *time)
 {
-    if ((system->getCdmBackend()->getMediaKeys()->getDrmTime(*time) !=
-        firebolt::rialto::MediaKeyErrorStatus::OK))
+    if ((system->getCdmBackend()->getMediaKeys()->getDrmTime(*time) != firebolt::rialto::MediaKeyErrorStatus::OK))
     {
         TRACE_L1("Failed to get DRM Time");
         return ERROR_FAIL;

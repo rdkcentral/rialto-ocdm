@@ -22,13 +22,13 @@
 
 G_BEGIN_DECLS
 
-#define GST_RIALTO_PROTECTION_METADATA_GET_TYPE  (rialto_eme_protection_metadata_get_type())
-#define GST_RIALTO_PROTECTION_METADATA_INFO  (rialto_mse_protection_metadata_get_info())
+#define GST_RIALTO_PROTECTION_METADATA_GET_TYPE (rialto_eme_protection_metadata_get_type())
+#define GST_RIALTO_PROTECTION_METADATA_INFO (rialto_mse_protection_metadata_get_info())
 
 struct _GstRialtoProtectionMetadata
 {
-  GstMeta parent;
-  GstStructure *info;
+    GstMeta parent;
+    GstStructure *info;
 };
 
 typedef struct _GstRialtoProtectionMetadata GstRialtoProtectionMetadata;

@@ -23,11 +23,11 @@
 #include "IMediaKeysClient.h"
 #include <CdmBackend.h>
 #include <MediaCommon.h>
+#include <functional>
+#include <map>
+#include <memory>
 #include <opencdm/open_cdm.h>
 #include <vector>
-#include <map>
-#include <functional>
-#include <memory>
 
 struct _GstBuffer;
 typedef struct _GstBuffer GstBuffer;
@@ -36,17 +36,17 @@ class OpenCDMSession : public firebolt::rialto::IMediaKeysClient
 {
 public:
     typedef std::function<void(const std::vector<uint8_t> &license_renewal_message, uint64_t session_id)> LicenseRenewalCallback;
-    typedef std::function<
-        void(const std::vector<std::pair<std::vector<uint8_t>, firebolt::rialto::KeyStatus>> &key_statuses,
-             uint64_t session_id)>
+    typedef std::function<void(const std::vector<std::pair<std::vector<uint8_t>, firebolt::rialto::KeyStatus>> &key_statuses,
+                               uint64_t session_id)>
         KeyStatusesChangedCallback;
 
-    OpenCDMSession(std::weak_ptr<CdmBackend> cdm, const std::string &keySystem,
-                   const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks, void *context,
-                   const std::string &initDataType, const std::vector<uint8_t> &initData);
+    OpenCDMSession(std::weak_ptr<CdmBackend> cdm, const std::string &keySystem, const LicenseType &sessionType,
+                   OpenCDMSessionCallbacks *callbacks, void *context, const std::string &initDataType,
+                   const std::vector<uint8_t> &initData);
     ~OpenCDMSession();
 
-    void onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage, const std::string &url) override;
+    void onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage,
+                          const std::string &url) override;
     void onLicenseRenewal(int32_t keySessionId, const std::vector<unsigned char> &licenseRenewalMessage) override;
     void onKeyStatusesChanged(int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses) override;
 

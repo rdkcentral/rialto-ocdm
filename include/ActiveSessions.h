@@ -29,9 +29,9 @@ class ActiveSessions
 public:
     static ActiveSessions &instance();
 
-    OpenCDMSession *create(std::weak_ptr<CdmBackend> cdm, const std::string &keySystem,
-                           const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks, void *context,
-                           const std::string &initDataType, const std::vector<uint8_t> &initData);
+    OpenCDMSession *create(std::weak_ptr<CdmBackend> cdm, const std::string &keySystem, const LicenseType &sessionType,
+                           OpenCDMSessionCallbacks *callbacks, void *context, const std::string &initDataType,
+                           const std::vector<uint8_t> &initData);
     OpenCDMSession *get(const std::vector<uint8_t> &keyId);
     void remove(OpenCDMSession *session);
 

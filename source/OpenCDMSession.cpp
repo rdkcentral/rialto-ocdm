@@ -18,12 +18,12 @@
  */
 
 #include "MediaKeysClient.h"
+#include "RialtoGStreamerEMEProtectionMetadata.h"
 #include <OpenCDMSession.h>
 #include <WPEFramework/core/Trace.h>
 #include <gst/base/base.h>
 #include <gst/gst.h>
 #include <gst/gstprotection.h>
-#include "RialtoGStreamerEMEProtectionMetadata.h"
 
 namespace
 {
@@ -62,11 +62,11 @@ const KeyStatus convertKeyStatus(const firebolt::rialto::KeyStatus &keyStatus)
 const std::string kDefaultSessionId{"0"};
 } // namespace
 
-OpenCDMSession::OpenCDMSession(std::weak_ptr<CdmBackend> cdm,
-                               const std::string &keySystem, const LicenseType &sessionType,
-                               OpenCDMSessionCallbacks *callbacks, void *context, const std::string &initDataType,
-                               const std::vector<uint8_t> &initData)
-    : mCDMBackend(cdm), mKeySystem(keySystem), mCallbacks(callbacks), mRialtoSessionId(firebolt::rialto::kInvalidSessionId), mContext(context),
+OpenCDMSession::OpenCDMSession(std::weak_ptr<CdmBackend> cdm, const std::string &keySystem,
+                               const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks, void *context,
+                               const std::string &initDataType, const std::vector<uint8_t> &initData)
+    : mCDMBackend(cdm), mKeySystem(keySystem), mCallbacks(callbacks),
+      mRialtoSessionId(firebolt::rialto::kInvalidSessionId), mContext(context),
       mSessionType(getRialtoSessionType(sessionType)), mInitDataType(getRialtoInitDataType(initDataType)),
       mInitData(initData), mIsInitialized{false}
 {
@@ -127,9 +127,7 @@ bool OpenCDMSession::generateRequest(const std::string &initDataType, const std:
     firebolt::rialto::InitDataType dataType = getRialtoInitDataType(initDataType);
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
-    if ((dataType != firebolt::rialto::InitDataType::UNKNOWN) &&
-        (-1 != mRialtoSessionId) &&
-        (cdm))
+    if ((dataType != firebolt::rialto::InitDataType::UNKNOWN) && (-1 != mRialtoSessionId) && (cdm))
     {
         firebolt::rialto::MediaKeyErrorStatus status =
             cdm->getMediaKeys()->generateRequest(mRialtoSessionId, dataType, initData);
@@ -154,8 +152,7 @@ bool OpenCDMSession::loadSession()
     bool result = false;
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
-    if ((-1 != mRialtoSessionId) &&
-        (cdm))
+    if ((-1 != mRialtoSessionId) && (cdm))
     {
         firebolt::rialto::MediaKeyErrorStatus status = cdm->getMediaKeys()->loadSession(mRialtoSessionId);
 
@@ -178,8 +175,7 @@ bool OpenCDMSession::updateSession(const std::vector<uint8_t> &license)
     bool result = false;
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
-    if ((-1 != mRialtoSessionId) &&
-        (cdm))
+    if ((-1 != mRialtoSessionId) && (cdm))
     {
         firebolt::rialto::MediaKeyErrorStatus status = cdm->getMediaKeys()->updateSession(mRialtoSessionId, license);
 
@@ -213,17 +209,12 @@ bool OpenCDMSession::getChallengeData(std::vector<uint8_t> &challengeData)
 void OpenCDMSession::addProtectionMeta(GstBuffer *buffer, GstBuffer *subSample, const uint32_t subSampleCount,
                                        GstBuffer *IV, GstBuffer *keyID, uint32_t initWithLast15)
 {
-    GstStructure *info = gst_structure_new(
-        "application/x-cenc",
-        "encrypted", G_TYPE_BOOLEAN, TRUE,
-        "mks_id", G_TYPE_INT, mRialtoSessionId,
-        "kid", GST_TYPE_BUFFER, keyID,
-        "iv_size", G_TYPE_UINT, gst_buffer_get_size(IV),
-        "iv", GST_TYPE_BUFFER, IV,
-        "subsample_count", G_TYPE_UINT, subSampleCount,
-        "subsamples", GST_TYPE_BUFFER, subSample,
-        "encryption_scheme", G_TYPE_UINT, 0, // AES Counter
-        "init_with_last_15", G_TYPE_UINT, initWithLast15, NULL);
+    GstStructure *info = gst_structure_new("application/x-cenc", "encrypted", G_TYPE_BOOLEAN, TRUE, "mks_id", G_TYPE_INT,
+                                           mRialtoSessionId, "kid", GST_TYPE_BUFFER, keyID, "iv_size", G_TYPE_UINT,
+                                           gst_buffer_get_size(IV), "iv", GST_TYPE_BUFFER, IV, "subsample_count",
+                                           G_TYPE_UINT, subSampleCount, "subsamples", GST_TYPE_BUFFER, subSample,
+                                           "encryption_scheme", G_TYPE_UINT, 0, // AES Counter
+                                           "init_with_last_15", G_TYPE_UINT, initWithLast15, NULL);
     rialto_mse_add_protection_metadata(buffer, info);
 }
 
@@ -232,8 +223,7 @@ bool OpenCDMSession::closeSession()
     bool result = false;
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
-    if ((-1 != mRialtoSessionId) &&
-        (cdm))
+    if ((-1 != mRialtoSessionId) && (cdm))
     {
         firebolt::rialto::MediaKeyErrorStatus status = cdm->getMediaKeys()->closeKeySession(mRialtoSessionId);
         if (status == firebolt::rialto::MediaKeyErrorStatus::OK)
@@ -258,8 +248,7 @@ bool OpenCDMSession::removeSession()
     bool result = false;
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
-    if ((-1 != mRialtoSessionId) &&
-        (cdm))
+    if ((-1 != mRialtoSessionId) && (cdm))
     {
         firebolt::rialto::MediaKeyErrorStatus status = cdm->getMediaKeys()->removeKeySession(mRialtoSessionId);
         if (status == firebolt::rialto::MediaKeyErrorStatus::OK)
@@ -281,8 +270,7 @@ bool OpenCDMSession::containsKey(const std::vector<uint8_t> &keyId)
     bool result{false};
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
-    if ((-1 != mRialtoSessionId) &&
-        (cdm))
+    if ((-1 != mRialtoSessionId) && (cdm))
     {
         result = cdm->getMediaKeys()->containsKey(mRialtoSessionId, keyId);
     }
@@ -294,8 +282,7 @@ bool OpenCDMSession::setDrmHeader(const std::vector<uint8_t> &drmHeader)
     bool result{false};
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
-    if ((-1 != mRialtoSessionId) &&
-        (cdm))
+    if ((-1 != mRialtoSessionId) && (cdm))
     {
         result = cdm->getMediaKeys()->setDrmHeader(mRialtoSessionId, drmHeader) ==
                  firebolt::rialto::MediaKeyErrorStatus::OK;
@@ -307,7 +294,7 @@ bool OpenCDMSession::selectKeyId(const std::vector<uint8_t> &keyId)
 {
     bool result{false};
 
-    //TODO LLDEV-23468: Implement or remove
+    // TODO LLDEV-23468: Implement or remove
 
     return result;
 }
@@ -318,15 +305,15 @@ bool OpenCDMSession::storeLicenseData(const std::vector<uint8_t> &requestData, s
     return false;
 }
 
-void OpenCDMSession::onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage, const std::string &url)
+void OpenCDMSession::onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage,
+                                      const std::string &url)
 {
     if (keySessionId == mRialtoSessionId)
     {
         // Update challenge in object
         mChallengeData = licenseRequestMessage;
 
-        if((mCallbacks) &&
-           (mCallbacks->process_challenge_callback))
+        if ((mCallbacks) && (mCallbacks->process_challenge_callback))
         {
             mCallbacks->process_challenge_callback(this, mContext, url.c_str(), licenseRequestMessage.data(),
                                                    licenseRequestMessage.size());
@@ -341,8 +328,7 @@ void OpenCDMSession::onLicenseRenewal(int32_t keySessionId, const std::vector<un
         // Update challenge in object
         mChallengeData = licenseRenewalMessage;
 
-        if((mCallbacks) &&
-           (mCallbacks->process_challenge_callback))
+        if ((mCallbacks) && (mCallbacks->process_challenge_callback))
         {
             mCallbacks->process_challenge_callback(this, mContext, "" /*URL*/, licenseRenewalMessage.data(),
                                                    licenseRenewalMessage.size());
@@ -352,9 +338,7 @@ void OpenCDMSession::onLicenseRenewal(int32_t keySessionId, const std::vector<un
 
 void OpenCDMSession::onKeyStatusesChanged(int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses)
 {
-    if ((keySessionId == mRialtoSessionId) &&
-        (mCallbacks) &&
-        (mCallbacks->key_update_callback))
+    if ((keySessionId == mRialtoSessionId) && (mCallbacks) && (mCallbacks->key_update_callback))
     {
         for (const std::pair<std::vector<uint8_t>, firebolt::rialto::KeyStatus> &keyStatus : keyStatuses)
         {
@@ -395,7 +379,7 @@ void OpenCDMSession::initializeCdmKeySessionId()
     if ((-1 != mRialtoSessionId) && (cdm))
     {
         result = cdm->getMediaKeys()->getCdmKeySessionId(mRialtoSessionId, mCdmKeySessionId) ==
-                    firebolt::rialto::MediaKeyErrorStatus::OK;
+                 firebolt::rialto::MediaKeyErrorStatus::OK;
     }
     if (!result)
     {

@@ -64,7 +64,7 @@ target_link_libraries(
         ocdmRialto
 
         PRIVATE
-        RialtoClient
+        Rialto::RialtoClient
         ${GStreamerApp_LIBRARIES}
         )
 

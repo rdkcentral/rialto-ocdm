@@ -21,11 +21,12 @@
 
 std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities> CdmBackend::m_mediaKeysCapabilities;
 
-const std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities>& CdmBackend::getMediaKeysCapabilities()
+const std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities> &CdmBackend::getMediaKeysCapabilities()
 {
     if (!m_mediaKeysCapabilities)
     {
-        std::shared_ptr<firebolt::rialto::IMediaKeysCapabilitiesFactory> factory = firebolt::rialto::IMediaKeysCapabilitiesFactory::createFactory();
+        std::shared_ptr<firebolt::rialto::IMediaKeysCapabilitiesFactory> factory =
+            firebolt::rialto::IMediaKeysCapabilitiesFactory::createFactory();
         if (!factory)
         {
             return nullptr;
@@ -37,7 +38,7 @@ const std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities>& CdmBackend::get
     return m_mediaKeysCapabilities;
 }
 
-const std::unique_ptr<firebolt::rialto::IMediaKeys>& CdmBackend::getMediaKeys() const
+const std::unique_ptr<firebolt::rialto::IMediaKeys> &CdmBackend::getMediaKeys() const
 {
     return m_mediaKeys;
 }
@@ -47,7 +48,7 @@ std::shared_ptr<MediaKeysClient> CdmBackend::getMediaKeysClient()
     return m_mediaKeysClient;
 }
 
-bool CdmBackend::createMediaKeys(const std::string& keySystem)
+bool CdmBackend::createMediaKeys(const std::string &keySystem)
 {
     std::shared_ptr<firebolt::rialto::IMediaKeysFactory> factory = firebolt::rialto::IMediaKeysFactory::createFactory();
     if (!factory)

@@ -26,7 +26,7 @@ ActiveSessions &ActiveSessions::instance()
     return activeSessions;
 }
 
-OpenCDMSession *ActiveSessions::create(std::weak_ptr<const CdmBackend> cdm, const std::string &keySystem,
+OpenCDMSession *ActiveSessions::create(std::weak_ptr<CdmBackend> cdm, const std::string &keySystem,
                        const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks, void *context,
                        const std::string &initDataType, const std::vector<uint8_t> &initData)
 {

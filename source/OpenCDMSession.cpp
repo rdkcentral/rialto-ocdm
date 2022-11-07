@@ -62,7 +62,7 @@ const KeyStatus convertKeyStatus(const firebolt::rialto::KeyStatus &keyStatus)
 const std::string kDefaultSessionId{"0"};
 } // namespace
 
-OpenCDMSession::OpenCDMSession(std::weak_ptr<const CdmBackend> cdm,
+OpenCDMSession::OpenCDMSession(std::weak_ptr<CdmBackend> cdm,
                                const std::string &keySystem, const LicenseType &sessionType,
                                OpenCDMSessionCallbacks *callbacks, void *context, const std::string &initDataType,
                                const std::vector<uint8_t> &initData)
@@ -76,13 +76,15 @@ OpenCDMSession::~OpenCDMSession() {}
 
 bool OpenCDMSession::initialize()
 {
-    std::shared_ptr<const CdmBackend> cdm = mCDMBackend.lock();
+    std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
     if (!mIsInitialized && cdm)
     {
-        mMediaKeysClient = std::make_shared<MediaKeysClient>(this);
+        auto mediaKeysClient = cdm->getMediaKeysClient();
 
         firebolt::rialto::MediaKeyErrorStatus status =
-            cdm->getMediaKeys()->createKeySession(mSessionType, mMediaKeysClient, false, mRialtoSessionId);
+            cdm->getMediaKeys()->createKeySession(mSessionType, mediaKeysClient, false, mRialtoSessionId);
+
+        mediaKeysClient->addHandler(mRialtoSessionId, this);
 
         if (status != firebolt::rialto::MediaKeyErrorStatus::OK)
         {
@@ -97,13 +99,15 @@ bool OpenCDMSession::initialize()
 
 bool OpenCDMSession::initialize(bool isLDL)
 {
-    std::shared_ptr<const CdmBackend> cdm = mCDMBackend.lock();
+    std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
     if (!mIsInitialized && cdm)
     {
-        mMediaKeysClient = std::make_shared<MediaKeysClient>(this);
+        auto mediaKeysClient = cdm->getMediaKeysClient();
 
         firebolt::rialto::MediaKeyErrorStatus status =
-            cdm->getMediaKeys()->createKeySession(mSessionType, mMediaKeysClient, isLDL, mRialtoSessionId);
+            cdm->getMediaKeys()->createKeySession(mSessionType, mediaKeysClient, isLDL, mRialtoSessionId);
+
+        mediaKeysClient->addHandler(mRialtoSessionId, this);
 
         if (status != firebolt::rialto::MediaKeyErrorStatus::OK)
         {
@@ -121,7 +125,7 @@ bool OpenCDMSession::generateRequest(const std::string &initDataType, const std:
 {
     bool result = false;
     firebolt::rialto::InitDataType dataType = getRialtoInitDataType(initDataType);
-    std::shared_ptr<const CdmBackend> cdm = mCDMBackend.lock();
+    std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
     if ((dataType != firebolt::rialto::InitDataType::UNKNOWN) &&
         (-1 != mRialtoSessionId) &&
@@ -148,7 +152,7 @@ bool OpenCDMSession::generateRequest(const std::string &initDataType, const std:
 bool OpenCDMSession::loadSession()
 {
     bool result = false;
-    std::shared_ptr<const CdmBackend> cdm = mCDMBackend.lock();
+    std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
     if ((-1 != mRialtoSessionId) &&
         (cdm))
@@ -172,7 +176,7 @@ bool OpenCDMSession::loadSession()
 bool OpenCDMSession::updateSession(const std::vector<uint8_t> &license)
 {
     bool result = false;
-    std::shared_ptr<const CdmBackend> cdm = mCDMBackend.lock();
+    std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
     if ((-1 != mRialtoSessionId) &&
         (cdm))
@@ -226,7 +230,7 @@ void OpenCDMSession::addProtectionMeta(GstBuffer *buffer, GstBuffer *subSample, 
 bool OpenCDMSession::closeSession()
 {
     bool result = false;
-    std::shared_ptr<const CdmBackend> cdm = mCDMBackend.lock();
+    std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
     if ((-1 != mRialtoSessionId) &&
         (cdm))
@@ -235,7 +239,7 @@ bool OpenCDMSession::closeSession()
         if (status == firebolt::rialto::MediaKeyErrorStatus::OK)
         {
             TRACE_L2("Successfully closed the session");
-            mMediaKeysClient.reset();
+            cdm->getMediaKeysClient()->removeHandler(mRialtoSessionId);
             mChallengeData.clear();
             mKeyStatuses.clear();
             result = true;
@@ -252,7 +256,7 @@ bool OpenCDMSession::closeSession()
 bool OpenCDMSession::removeSession()
 {
     bool result = false;
-    std::shared_ptr<const CdmBackend> cdm = mCDMBackend.lock();
+    std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
     if ((-1 != mRialtoSessionId) &&
         (cdm))
@@ -275,7 +279,7 @@ bool OpenCDMSession::removeSession()
 bool OpenCDMSession::containsKey(const std::vector<uint8_t> &keyId)
 {
     bool result{false};
-    std::shared_ptr<const CdmBackend> cdm = mCDMBackend.lock();
+    std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
     if ((-1 != mRialtoSessionId) &&
         (cdm))
@@ -288,7 +292,7 @@ bool OpenCDMSession::containsKey(const std::vector<uint8_t> &keyId)
 bool OpenCDMSession::setDrmHeader(const std::vector<uint8_t> &drmHeader)
 {
     bool result{false};
-    std::shared_ptr<const CdmBackend> cdm = mCDMBackend.lock();
+    std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
     if ((-1 != mRialtoSessionId) &&
         (cdm))
@@ -386,7 +390,7 @@ const std::string &OpenCDMSession::getSessionId() const
 void OpenCDMSession::initializeCdmKeySessionId()
 {
     bool result{false};
-    std::shared_ptr<const CdmBackend> cdm = mCDMBackend.lock();
+    std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
     if ((-1 != mRialtoSessionId) && (cdm))
     {
@@ -402,7 +406,7 @@ void OpenCDMSession::initializeCdmKeySessionId()
 uint32_t OpenCDMSession::getLastDrmError() const
 {
     uint32_t err = 0;
-    std::shared_ptr<const CdmBackend> cdm = mCDMBackend.lock();
+    std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
 
     if (cdm)
     {

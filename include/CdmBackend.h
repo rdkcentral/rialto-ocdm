@@ -22,6 +22,7 @@
 
 #include <IMediaKeys.h>
 #include <IMediaKeysCapabilities.h>
+#include "MediaKeysClient.h"
 
 class CdmBackend
 {
@@ -31,6 +32,7 @@ public:
 
     static const std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities>& getMediaKeysCapabilities();
     const std::unique_ptr<firebolt::rialto::IMediaKeys>& getMediaKeys() const;
+    std::shared_ptr<MediaKeysClient> getMediaKeysClient();
 
     bool createMediaKeys(const std::string& keySystem);
     void destroyMediaKeys();
@@ -38,6 +40,7 @@ public:
 private:
     static std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities> m_mediaKeysCapabilities;
     std::unique_ptr<firebolt::rialto::IMediaKeys> m_mediaKeys;
+    std::shared_ptr<MediaKeysClient> m_mediaKeysClient;
 };
 
 #endif // CDMBACKEND_H

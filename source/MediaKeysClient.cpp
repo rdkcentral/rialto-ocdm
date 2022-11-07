@@ -19,25 +19,45 @@
 
 #include "MediaKeysClient.h"
 
-MediaKeysClient::MediaKeysClient(firebolt::rialto::IMediaKeysClient *handler)
-    : m_handler{handler}
+void MediaKeysClient::addHandler(int32_t keySessionId, firebolt::rialto::IMediaKeysClient *handler)
 {
+    std::unique_lock<std::mutex> lock{m_mutex};
+    m_handlers.emplace(std::make_pair(keySessionId, handler));
 }
 
-MediaKeysClient::~MediaKeysClient() {}
+void MediaKeysClient::removeHandler(int32_t keySessionId)
+{
+    std::unique_lock<std::mutex> lock{m_mutex};
+    m_handlers.erase(keySessionId);
+}
 
 void MediaKeysClient::onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage,
                                        const std::string &url)
 {
-    m_handler->onLicenseRequest(keySessionId, licenseRequestMessage, url);
+    std::unique_lock<std::mutex> lock{m_mutex};
+    auto handler{m_handlers.find(keySessionId)};
+    if (handler != m_handlers.end())
+    {
+        handler->second->onLicenseRequest(keySessionId, licenseRequestMessage, url);
+    }
 }
 
 void MediaKeysClient::onLicenseRenewal(int32_t keySessionId, const std::vector<unsigned char> &licenseRenewalMessage)
 {
-    m_handler->onLicenseRenewal(keySessionId, licenseRenewalMessage);
+    std::unique_lock<std::mutex> lock{m_mutex};
+    auto handler{m_handlers.find(keySessionId)};
+    if (handler != m_handlers.end())
+    {
+        handler->second->onLicenseRenewal(keySessionId, licenseRenewalMessage);
+    }
 }
 
 void MediaKeysClient::onKeyStatusesChanged(int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses)
 {
-    m_handler->onKeyStatusesChanged(keySessionId, keyStatuses);
+    std::unique_lock<std::mutex> lock{m_mutex};
+    auto handler{m_handlers.find(keySessionId)};
+    if (handler != m_handlers.end())
+    {
+        handler->second->onKeyStatusesChanged(keySessionId, keyStatuses);
+    }
 }

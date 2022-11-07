@@ -41,7 +41,7 @@ public:
              uint64_t session_id)>
         KeyStatusesChangedCallback;
 
-    OpenCDMSession(std::weak_ptr<const CdmBackend> cdm, const std::string &keySystem,
+    OpenCDMSession(std::weak_ptr<CdmBackend> cdm, const std::string &keySystem,
                    const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks, void *context,
                    const std::string &initDataType, const std::vector<uint8_t> &initData);
     ~OpenCDMSession();
@@ -75,7 +75,7 @@ private:
 
 private:
     void *mContext;
-    std::weak_ptr<const CdmBackend> mCDMBackend;
+    std::weak_ptr<CdmBackend> mCDMBackend;
     std::string mKeySystem;
     int32_t mRialtoSessionId;
     std::string mCdmKeySessionId;
@@ -84,7 +84,6 @@ private:
     firebolt::rialto::InitDataType mInitDataType;
     std::vector<uint8_t> mInitData;
     bool mIsInitialized;
-    std::shared_ptr<IMediaKeysClient> mMediaKeysClient;
     std::vector<uint8_t> mChallengeData;
     std::map<std::vector<unsigned char>, firebolt::rialto::KeyStatus> mKeyStatuses;
 

@@ -21,15 +21,19 @@
 #define MEDIA_KEYS_CLIENT_H_
 
 #include "IMediaKeysClient.h"
-#include <memory>
+#include <map>
+#include <mutex>
 #include <string>
 #include <vector>
 
 class MediaKeysClient : public firebolt::rialto::IMediaKeysClient
 {
 public:
-    MediaKeysClient(firebolt::rialto::IMediaKeysClient *handler);
-    ~MediaKeysClient() override;
+    MediaKeysClient() = default;
+    ~MediaKeysClient() override = default;
+
+    void addHandler(int32_t keySessionId, firebolt::rialto::IMediaKeysClient *handler);
+    void removeHandler(int32_t keySessionId);
 
     void onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage,
                           const std::string &url) override;
@@ -37,7 +41,8 @@ public:
     void onKeyStatusesChanged(int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses) override;
 
 private:
-    firebolt::rialto::IMediaKeysClient *m_handler;
+    std::mutex m_mutex;
+    std::map<int32_t, firebolt::rialto::IMediaKeysClient *> m_handlers;
 };
 
 #endif // MEDIA_KEYS_CLIENT_H_

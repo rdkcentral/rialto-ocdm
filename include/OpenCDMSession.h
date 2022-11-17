@@ -23,9 +23,11 @@
 #include "IMediaKeysClient.h"
 #include <CdmBackend.h>
 #include <MediaCommon.h>
+#include <condition_variable>
 #include <functional>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <opencdm/open_cdm.h>
 #include <vector>
 
@@ -59,7 +61,6 @@ public:
     bool getChallengeData(std::vector<uint8_t> &challengeData);
     bool containsKey(const std::vector<uint8_t> &keyId);
     bool setDrmHeader(const std::vector<uint8_t> &drmHeader);
-    bool storeLicenseData(const std::vector<uint8_t> &requestData, std::vector<uint8_t> &secureStopID);
     bool selectKeyId(const std::vector<uint8_t> &keyId);
     void addProtectionMeta(GstBuffer *buffer, GstBuffer *subSample, const uint32_t subSampleCount, GstBuffer *IV,
                            GstBuffer *keyID, uint32_t initWithLast15);
@@ -72,8 +73,11 @@ public:
 
 private:
     void initializeCdmKeySessionId();
+    void updateChallenge(const std::vector<unsigned char> &challenge);
 
 private:
+    std::mutex mMutex;
+    std::condition_variable mChallengeCv;
     void *mContext;
     std::weak_ptr<CdmBackend> mCDMBackend;
     std::string mKeySystem;

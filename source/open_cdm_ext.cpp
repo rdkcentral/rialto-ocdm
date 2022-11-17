@@ -213,21 +213,23 @@ OpenCDMError opencdm_session_cancel_challenge_data(struct OpenCDMSession *mOpenC
 OpenCDMError opencdm_session_store_license_data(struct OpenCDMSession *mOpenCDMSession, const uint8_t licenseData[],
                                                 uint32_t licenseDataSize, uint8_t *secureStopId)
 {
-    constexpr size_t SECURE_STOP_BUFFER_SIZE{16};
-    if (!mOpenCDMSession || !secureStopId)
+    OpenCDMError result = ERROR_INVALID_SESSION;
+    std::vector<uint8_t> license(licenseData, licenseData + licenseDataSize);
+
+    if (mOpenCDMSession)
     {
-        TRACE_L1("Failed to store license data - arguments are not valid");
-        return ERROR_FAIL;
+        if (mOpenCDMSession->updateSession(license))
+        {
+            result = ERROR_NONE;
+        }
+        else
+        {
+            TRACE_L1("Failed to update the session");
+            result = ERROR_FAIL;
+        }
     }
-    std::vector<uint8_t> licenseDataVec(licenseData, licenseData + licenseDataSize);
-    std::vector<uint8_t> secureStopIdVec(secureStopId, secureStopId + SECURE_STOP_BUFFER_SIZE);
-    if (!mOpenCDMSession->storeLicenseData(licenseDataVec, secureStopIdVec))
-    {
-        TRACE_L1("Failed to store license data - operation returned NOK status");
-        return ERROR_FAIL;
-    }
-    memcpy(secureStopId, secureStopIdVec.data(), secureStopIdVec.size());
-    return ERROR_NONE;
+
+    return result;
 }
 
 OpenCDMError opencdm_session_select_key_id(struct OpenCDMSession *mOpenCDMSession, uint8_t keyLength,

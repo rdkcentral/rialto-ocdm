@@ -40,9 +40,9 @@ OpenCDMSession *ActiveSessions::create(std::weak_ptr<CdmBackend> cdm, const std:
 OpenCDMSession *ActiveSessions::get(const std::vector<uint8_t> &keyId)
 {
     std::unique_lock<std::mutex> lock{mMutex};
-    auto sessionIter{std::find_if(mActiveSessions.begin(), mActiveSessions.end(), [&](const auto &iter) {
-        return iter.first->status(keyId) != KeyStatus::InternalError;
-    })};
+    auto sessionIter{std::find_if(mActiveSessions.begin(), mActiveSessions.end(),
+                                  [&](const auto &iter)
+                                  { return iter.first->status(keyId) != KeyStatus::InternalError; })};
     if (sessionIter != mActiveSessions.end())
     {
         ++sessionIter->second;

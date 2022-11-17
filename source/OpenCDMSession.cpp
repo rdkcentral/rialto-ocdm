@@ -394,7 +394,7 @@ uint32_t OpenCDMSession::getLastDrmError() const
 
     if (cdm)
     {
-        (void)cdm->getMediaKeys()->getLastDrmError(err);
+        (void)cdm->getMediaKeys()->getLastDrmError(mRialtoSessionId, err);
     }
 
     return err;

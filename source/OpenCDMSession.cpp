@@ -195,7 +195,27 @@ bool OpenCDMSession::updateSession(const std::vector<uint8_t> &license)
 
 bool OpenCDMSession::getChallengeData(std::vector<uint8_t> &challengeData)
 {
-    bool result = false;
+    std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
+    if ((mInitDataType != firebolt::rialto::InitDataType::UNKNOWN) && (-1 != mRialtoSessionId) && (cdm))
+    {
+        firebolt::rialto::MediaKeyErrorStatus status =
+            cdm->getMediaKeys()->generateRequest(mRialtoSessionId, mInitDataType, mInitData);
+
+        if (status == firebolt::rialto::MediaKeyErrorStatus::OK)
+        {
+            TRACE_L2("Successfully generated the request for the session");
+            initializeCdmKeySessionId();
+        }
+        else
+        {
+            TRACE_L1("Failed to request for the session. Got status %u and drm error %u", status, getLastDrmError());
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
     std::unique_lock<std::mutex> lock{mMutex};
     mChallengeCv.wait(lock, [this]() { return !mChallengeData.empty(); });
     challengeData = mChallengeData;

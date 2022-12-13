@@ -17,6 +17,7 @@
  */
 
 #include "RialtoGStreamerEMEProtectionMetadata.h"
+#include <gst/gstconfig.h>
 
 static gboolean rialto_eme_protection_metadata_init(GstMeta *meta, gpointer params, GstBuffer *buffer)
 {
@@ -39,7 +40,7 @@ static gboolean rialto_eme_protection_metadata_free(GstMeta *meta, GstBuffer *bu
     return TRUE;
 }
 
-GType rialto_eme_protection_metadata_get_type()
+GST_EXPORT GType rialto_eme_protection_metadata_get_type()
 {
     static volatile GType g_type;
     static const gchar *api_tags[] = {"rialto", "protection", NULL};

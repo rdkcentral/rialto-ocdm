@@ -77,7 +77,12 @@ OpenCDMSession::~OpenCDMSession() {}
 bool OpenCDMSession::initialize()
 {
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
-    if (!mIsInitialized && cdm)
+    if (!cdm || !cdm->getMediaKeys() || !cdm->getMediaKeysClient())
+    {
+        TRACE_L1("Cdm is NULL or not initialized");
+        return false;
+    }
+    if (!mIsInitialized)
     {
         auto mediaKeysClient = cdm->getMediaKeysClient();
 
@@ -100,7 +105,12 @@ bool OpenCDMSession::initialize()
 bool OpenCDMSession::initialize(bool isLDL)
 {
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
-    if (!mIsInitialized && cdm)
+    if (!cdm || !cdm->getMediaKeys() || !cdm->getMediaKeysClient())
+    {
+        TRACE_L1("Cdm is NULL or not initialized");
+        return false;
+    }
+    if (!mIsInitialized)
     {
         auto mediaKeysClient = cdm->getMediaKeysClient();
 
@@ -126,6 +136,11 @@ bool OpenCDMSession::generateRequest(const std::string &initDataType, const std:
     bool result = false;
     firebolt::rialto::InitDataType dataType = getRialtoInitDataType(initDataType);
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
+    if (!cdm || !cdm->getMediaKeys())
+    {
+        TRACE_L1("Cdm is NULL or not initialized");
+        return false;
+    }
 
     if ((dataType != firebolt::rialto::InitDataType::UNKNOWN) && (-1 != mRialtoSessionId) && (cdm))
     {
@@ -151,8 +166,13 @@ bool OpenCDMSession::loadSession()
 {
     bool result = false;
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
+    if (!cdm || !cdm->getMediaKeys())
+    {
+        TRACE_L1("Cdm is NULL or not initialized");
+        return false;
+    }
 
-    if ((-1 != mRialtoSessionId) && (cdm))
+    if (-1 != mRialtoSessionId)
     {
         firebolt::rialto::MediaKeyErrorStatus status = cdm->getMediaKeys()->loadSession(mRialtoSessionId);
 
@@ -174,8 +194,13 @@ bool OpenCDMSession::updateSession(const std::vector<uint8_t> &license)
 {
     bool result = false;
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
+    if (!cdm || !cdm->getMediaKeys())
+    {
+        TRACE_L1("Cdm is NULL or not initialized");
+        return false;
+    }
 
-    if ((-1 != mRialtoSessionId) && (cdm))
+    if (-1 != mRialtoSessionId)
     {
         firebolt::rialto::MediaKeyErrorStatus status = cdm->getMediaKeys()->updateSession(mRialtoSessionId, license);
 
@@ -196,6 +221,11 @@ bool OpenCDMSession::updateSession(const std::vector<uint8_t> &license)
 bool OpenCDMSession::getChallengeData(std::vector<uint8_t> &challengeData)
 {
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
+    if (!cdm || !cdm->getMediaKeys())
+    {
+        TRACE_L1("Cdm is NULL or not initialized");
+        return false;
+    }
     if ((mInitDataType != firebolt::rialto::InitDataType::UNKNOWN) && (-1 != mRialtoSessionId) && (cdm))
     {
         firebolt::rialto::MediaKeyErrorStatus status =
@@ -238,8 +268,13 @@ bool OpenCDMSession::closeSession()
 {
     bool result = false;
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
+    if (!cdm || !cdm->getMediaKeys() || !cdm->getMediaKeysClient())
+    {
+        TRACE_L1("Cdm is NULL or not initialized");
+        return false;
+    }
 
-    if ((-1 != mRialtoSessionId) && (cdm))
+    if (-1 != mRialtoSessionId)
     {
         firebolt::rialto::MediaKeyErrorStatus status = cdm->getMediaKeys()->closeKeySession(mRialtoSessionId);
         if (status == firebolt::rialto::MediaKeyErrorStatus::OK)
@@ -263,8 +298,13 @@ bool OpenCDMSession::removeSession()
 {
     bool result = false;
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
+    if (!cdm || !cdm->getMediaKeys())
+    {
+        TRACE_L1("Cdm is NULL or not initialized");
+        return false;
+    }
 
-    if ((-1 != mRialtoSessionId) && (cdm))
+    if (-1 != mRialtoSessionId)
     {
         firebolt::rialto::MediaKeyErrorStatus status = cdm->getMediaKeys()->removeKeySession(mRialtoSessionId);
         if (status == firebolt::rialto::MediaKeyErrorStatus::OK)
@@ -285,8 +325,13 @@ bool OpenCDMSession::containsKey(const std::vector<uint8_t> &keyId)
 {
     bool result{false};
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
+    if (!cdm || !cdm->getMediaKeys())
+    {
+        TRACE_L1("Cdm is NULL or not initialized");
+        return false;
+    }
 
-    if ((-1 != mRialtoSessionId) && (cdm))
+    if (-1 != mRialtoSessionId)
     {
         result = cdm->getMediaKeys()->containsKey(mRialtoSessionId, keyId);
     }
@@ -297,8 +342,13 @@ bool OpenCDMSession::setDrmHeader(const std::vector<uint8_t> &drmHeader)
 {
     bool result{false};
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
+    if (!cdm || !cdm->getMediaKeys())
+    {
+        TRACE_L1("Cdm is NULL or not initialized");
+        return false;
+    }
 
-    if ((-1 != mRialtoSessionId) && (cdm))
+    if (-1 != mRialtoSessionId)
     {
         result = cdm->getMediaKeys()->setDrmHeader(mRialtoSessionId, drmHeader) ==
                  firebolt::rialto::MediaKeyErrorStatus::OK;
@@ -311,8 +361,13 @@ bool OpenCDMSession::selectKeyId(const std::vector<uint8_t> &keyId)
     bool result{false};
 
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
+    if (!cdm || !cdm->getMediaKeys())
+    {
+        TRACE_L1("Cdm is NULL or not initialized");
+        return false;
+    }
 
-    if ((-1 != mRialtoSessionId) && (cdm))
+    if (-1 != mRialtoSessionId)
     {
         result = cdm->getMediaKeys()->selectKeyId(mRialtoSessionId, keyId) == firebolt::rialto::MediaKeyErrorStatus::OK;
     }
@@ -395,8 +450,13 @@ void OpenCDMSession::initializeCdmKeySessionId()
 {
     bool result{false};
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
+    if (!cdm || !cdm->getMediaKeys())
+    {
+        TRACE_L1("Cdm is NULL or not initialized");
+        return;
+    }
 
-    if ((-1 != mRialtoSessionId) && (cdm))
+    if (-1 != mRialtoSessionId)
     {
         result = cdm->getMediaKeys()->getCdmKeySessionId(mRialtoSessionId, mCdmKeySessionId) ==
                  firebolt::rialto::MediaKeyErrorStatus::OK;
@@ -411,11 +471,13 @@ uint32_t OpenCDMSession::getLastDrmError() const
 {
     uint32_t err = 0;
     std::shared_ptr<CdmBackend> cdm = mCDMBackend.lock();
-
-    if (cdm)
+    if (!cdm || !cdm->getMediaKeys())
     {
-        (void)cdm->getMediaKeys()->getLastDrmError(mRialtoSessionId, err);
+        TRACE_L1("Cdm is NULL or not initialized");
+        return -1;
     }
+
+    (void)cdm->getMediaKeys()->getLastDrmError(mRialtoSessionId, err);
 
     return err;
 }

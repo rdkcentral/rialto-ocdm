@@ -65,6 +65,11 @@ OpenCDMError opencdm_destruct_system(struct OpenCDMSystem *system)
 
 OpenCDMError opencdm_is_type_supported(const char keySystem[], const char mimeType[])
 {
+    if (!CdmBackend::getMediaKeysCapabilities())
+    {
+        TRACE_L1("Media Keys Capabilities is NULL!");
+        return ERROR_FAIL;
+    }
     if (!CdmBackend::getMediaKeysCapabilities()->supportsKeySystem(std::string(keySystem)))
     {
         return ERROR_KEYSYSTEM_NOT_SUPPORTED;
@@ -83,6 +88,11 @@ OpenCDMError opencdm_system_get_metadata(struct OpenCDMSystem *system, char meta
 OpenCDMError opencdm_system_get_version(struct OpenCDMSystem *system, char versionStr[])
 {
     std::string version;
+    if (!CdmBackend::getMediaKeysCapabilities())
+    {
+        TRACE_L1("Media Keys Capabilities is NULL!");
+        return ERROR_FAIL;
+    }
     if (!CdmBackend::getMediaKeysCapabilities()->getSupportedKeySystemVersion(system->keySystem(), version))
     {
         return ERROR_FAIL;
@@ -96,6 +106,11 @@ OpenCDMError opencdm_system_get_version(struct OpenCDMSystem *system, char versi
 
 OpenCDMError opencdm_system_get_drm_time(struct OpenCDMSystem *system, uint64_t *time)
 {
+    if (!system || !system->getCdmBackend() || !system->getCdmBackend()->getMediaKeys())
+    {
+        TRACE_L1("System/CdmBackend/MediaKeys is NULL");
+        return ERROR_FAIL;
+    }
     if ((system->getCdmBackend()->getMediaKeys()->getDrmTime(*time) != firebolt::rialto::MediaKeyErrorStatus::OK))
     {
         TRACE_L1("Failed to get DRM Time");
@@ -127,6 +142,11 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
                                        const uint16_t CDMDataLength, OpenCDMSessionCallbacks *callbacks, void *userData,
                                        struct OpenCDMSession **session)
 {
+    if (!system || !system->getCdmBackend())
+    {
+        TRACE_L1("System is NULL or not initialized");
+        return ERROR_FAIL;
+    }
     OpenCDMSession *newSession = nullptr;
 
     std::string initializationDataType(initDataType);

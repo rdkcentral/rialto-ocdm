@@ -264,6 +264,42 @@ void OpenCDMSession::addProtectionMeta(GstBuffer *buffer, GstBuffer *subSample, 
     rialto_mse_add_protection_metadata(buffer, info);
 }
 
+bool OpenCDMSession::addProtectionMeta(GstBuffer *buffer, GstCaps *caps)
+{
+    if (!caps)
+    {
+        TRACE_L1("Invalid caps");
+        return false;
+    }
+
+    GstStructure *structure = gst_caps_get_structure(caps, 0);
+    if (!structure)
+    {
+        TRACE_L1("Cannot get the structure from the caps");
+        return false;
+    }
+
+    // Check the mandatory encryption fields are set
+    if (!gst_structure_has_field_typed(structure, "kid", GST_TYPE_BUFFER) ||
+        !gst_structure_has_field_typed(structure, "iv", GST_TYPE_BUFFER) ||
+        !gst_structure_has_field_typed(structure, "subsample_count", G_TYPE_UINT) ||
+        !gst_structure_has_field_typed(structure, "subsamples", GST_TYPE_BUFFER))
+    {
+        TRACE_L1("Caps does not contain the mandatory encryption fields");
+        return false;
+    }
+
+    GstStructure *info = gst_structure_copy(structure);
+    gst_structure_set_name (info, "application/x-cenc")
+    if (!gst_structure_has_field_typed(structure, "cipher-mode", GST_TYPE_STRING))
+    {
+        // Set default cenc
+        gst_structure_set(info, "cipher-mode", G_TYPE_STRING, "cenc", NULL);
+    }
+
+    return true;
+}
+
 bool OpenCDMSession::closeSession()
 {
     bool result = false;

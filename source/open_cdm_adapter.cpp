@@ -45,6 +45,23 @@ OpenCDMError opencdm_gstreamer_session_decrypt(struct OpenCDMSession *session, G
                                                 nullptr);
 }
 
+OpenCDMError opencdm_gstreamer_session_decrypt_buffer(struct OpenCDMSession *session, GstBuffer *buffer, GstCaps *caps)
+{
+    if (nullptr == session)
+    {
+        TRACE_L1("Failed to decrypt - session is NULL");
+        return ERROR_FAIL;
+    }
+
+    if (!session->addProtectionMeta(buffer, caps))
+    {
+        TRACE_L1("Failed to decrypt - could not add protection meta");
+        return ERROR_FAIL;
+    }
+
+    return ERROR_NONE;
+}
+
 OpenCDMError opencdm_gstreamer_transform_caps(GstCaps **caps)
 {
     return ERROR_NONE;

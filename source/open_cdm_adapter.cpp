@@ -21,9 +21,6 @@
 #include <WPEFramework/core/Trace.h>
 #include <opencdm/open_cdm_adapter.h>
 
-struct _GstCaps;
-typedef struct _GstCaps GstCaps;
-
 OpenCDMError opencdm_gstreamer_session_decrypt_ex(struct OpenCDMSession *session, GstBuffer *buffer,
                                                   GstBuffer *subSample, const uint32_t subSampleCount, GstBuffer *IV,
                                                   GstBuffer *keyID, uint32_t initWithLast15, GstCaps *caps)

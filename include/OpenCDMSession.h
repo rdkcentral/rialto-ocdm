@@ -31,7 +31,9 @@
 #include <opencdm/open_cdm.h>
 #include <vector>
 
+struct _GstCaps;
 struct _GstBuffer;
+typedef struct _GstCaps GstCaps;
 typedef struct _GstBuffer GstBuffer;
 
 class OpenCDMSession : public firebolt::rialto::IMediaKeysClient

@@ -291,7 +291,7 @@ bool OpenCDMSession::addProtectionMeta(GstBuffer *buffer, GstCaps *caps)
 
     GstStructure *info = gst_structure_copy(structure);
     gst_structure_set_name(info, "application/x-cenc");
-    if (!gst_structure_has_field_typed(structure, "cipher-mode", GST_TYPE_STRING))
+    if (!gst_structure_has_field_typed(structure, "cipher-mode", G_TYPE_STRING))
     {
         // Set default cenc
         gst_structure_set(info, "cipher-mode", G_TYPE_STRING, "cenc", NULL);

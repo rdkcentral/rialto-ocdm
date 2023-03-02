@@ -279,19 +279,23 @@ bool OpenCDMSession::addProtectionMeta(GstBuffer *buffer, GstCaps *caps)
         return false;
     }
 
-    // Check the mandatory encryption fields are set
-    if (!gst_structure_has_field_typed(structure, "kid", GST_TYPE_BUFFER) ||
-        !gst_structure_has_field_typed(structure, "iv", GST_TYPE_BUFFER) ||
-        !gst_structure_has_field_typed(structure, "subsample_count", G_TYPE_UINT) ||
-        !gst_structure_has_field_typed(structure, "subsamples", GST_TYPE_BUFFER))
-    {
-        TRACE_L1("Caps does not contain the mandatory encryption fields");
-        return false;
-    }
-
     GstStructure *info = gst_structure_copy(structure);
     gst_structure_set_name(info, "application/x-cenc");
-    if (!gst_structure_has_field_typed(structure, "cipher-mode", G_TYPE_STRING))
+    gst_structure_set(info, "mks_id", G_TYPE_INT, mRialtoSessionId, NULL);
+
+    if (!gst_structure_has_field_typed(info, "encrypted", G_TYPE_BOOLEAN))
+    {
+        // Set encrypted
+        gst_structure_set(info, "encrypted", G_TYPE_BOOLEAN, TRUE, NULL);
+    }
+
+    if (!gst_structure_has_field_typed(info, "encryption_scheme", G_TYPE_INT))
+    {
+        // Not used but required
+        gst_structure_set(info, "encryption_scheme", G_TYPE_UINT, 0, NULL);
+    }
+
+    if (!gst_structure_has_field_typed(info, "cipher-mode", G_TYPE_STRING))
     {
         // Set default cenc
         gst_structure_set(info, "cipher-mode", G_TYPE_STRING, "cenc", NULL);

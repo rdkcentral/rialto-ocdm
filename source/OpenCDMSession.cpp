@@ -266,7 +266,7 @@ void OpenCDMSession::addProtectionMeta(GstBuffer *buffer, GstBuffer *subSample, 
 
 bool OpenCDMSession::addProtectionMeta(GstBuffer *buffer)
 {
-    GstProtectionMeta* protectionMeta = reinterpret_cast<GstProtectionMeta*>(gst_buffer_get_protection_meta(buffer));
+    GstProtectionMeta *protectionMeta = reinterpret_cast<GstProtectionMeta *>(gst_buffer_get_protection_meta(buffer));
     if (!protectionMeta)
     {
         TRACE_L1("No protection meta added to the buffer");

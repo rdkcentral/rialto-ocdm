@@ -50,9 +50,9 @@ OpenCDMError opencdm_gstreamer_session_decrypt_buffer(struct OpenCDMSession *ses
         return ERROR_FAIL;
     }
 
-    if (!session->addProtectionMeta(buffer, caps))
+    if (!session->addProtectionMeta(buffer))
     {
-        TRACE_L1("Failed to decrypt - could not add protection meta");
+        TRACE_L1("Failed to decrypt - could not append protection meta");
         return ERROR_FAIL;
     }
 

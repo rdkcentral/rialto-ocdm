@@ -34,6 +34,10 @@ find_package( WPEFramework REQUIRED )
 find_package( PkgConfig REQUIRED )
 pkg_check_modules( GStreamerApp REQUIRED IMPORTED_TARGET gstreamer-app-1.0 )
 
+if ( RIALTO_ENABLE_DECRYPT_BUFFER )
+    add_compile_definitions( RIALTO_ENABLE_DECRYPT_BUFFER )
+endif()
+
 set(LIB_OCDM_RIALTO_SOURCES
         source/open_cdm.cpp
         source/open_cdm_adapter.cpp

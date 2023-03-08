@@ -21,7 +21,7 @@
 
 std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities> CdmBackend::m_mediaKeysCapabilities;
 
-const std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities> &CdmBackend::getMediaKeysCapabilities()
+const std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities> CdmBackend::getMediaKeysCapabilities()
 {
     if (!m_mediaKeysCapabilities)
     {

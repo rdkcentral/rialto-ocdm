@@ -30,7 +30,7 @@ public:
     CdmBackend() {}
     ~CdmBackend() {}
 
-    static const std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities> &getMediaKeysCapabilities();
+    static const std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities> getMediaKeysCapabilities();
     const std::unique_ptr<firebolt::rialto::IMediaKeys> &getMediaKeys() const;
     std::shared_ptr<MediaKeysClient> getMediaKeysClient();
 

@@ -28,6 +28,8 @@ set( CMAKE_CXX_STANDARD 14 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 include( CheckCXXCompilerFlag )
 
+add_compile_options(-Wall -Werror)
+
 find_package( Rialto REQUIRED )
 find_package( ocdm REQUIRED )
 find_package( WPEFramework REQUIRED )

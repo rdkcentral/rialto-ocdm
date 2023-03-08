@@ -65,10 +65,9 @@ const std::string kDefaultSessionId{"0"};
 OpenCDMSession::OpenCDMSession(std::weak_ptr<CdmBackend> cdm, const std::string &keySystem,
                                const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks, void *context,
                                const std::string &initDataType, const std::vector<uint8_t> &initData)
-    : mCDMBackend(cdm), mKeySystem(keySystem), mCallbacks(callbacks),
-      mRialtoSessionId(firebolt::rialto::kInvalidSessionId), mContext(context),
-      mSessionType(getRialtoSessionType(sessionType)), mInitDataType(getRialtoInitDataType(initDataType)),
-      mInitData(initData), mIsInitialized{false}
+    : mContext(context), mCDMBackend(cdm), mKeySystem(keySystem), mRialtoSessionId(firebolt::rialto::kInvalidSessionId),
+      mCallbacks(callbacks), mSessionType(getRialtoSessionType(sessionType)),
+      mInitDataType(getRialtoInitDataType(initDataType)), mInitData(initData), mIsInitialized{false}
 {
 }
 

@@ -260,6 +260,29 @@ void OpenCDMSession::addProtectionMeta(GstBuffer *buffer, GstBuffer *subSample, 
                                            G_TYPE_UINT, subSampleCount, "subsamples", GST_TYPE_BUFFER, subSample,
                                            "encryption_scheme", G_TYPE_UINT, 0, // AES Counter
                                            "init_with_last_15", G_TYPE_UINT, initWithLast15, NULL);
+
+    GstStructure *protectionMeta = reinterpret_cast<GstProtectionMeta *>(gst_buffer_get_protection_meta(buffer))->info;
+
+    const char *cipherModeBuf = gst_structure_get_string(protectionMeta, "cipher-mode");
+    if (cipherModeBuf)
+    {
+        GST_INFO("Copy cipher mode [%s] and crypt/skipt byte blocks to protection metadata.", cipherModeBuf);
+        gst_structure_set(info, "cipher-mode", G_TYPE_STRING, cipherModeBuf, NULL);
+
+        uint32_t patternCryptoBlocks = 0;
+        uint32_t patternClearBlocks = 0;
+
+        if (gst_structure_get_uint(protectionMeta, "crypt_byte_block", &patternCryptoBlocks))
+        {
+            gst_structure_set(info, "crypt_byte_block", G_TYPE_UINT, patternCryptoBlocks, NULL);
+        }
+
+        if (gst_structure_get_uint(protectionMeta, "skip_byte_block", &patternClearBlocks))
+        {
+            gst_structure_set(info, "skip_byte_block", G_TYPE_UINT, patternClearBlocks, NULL);
+        }
+    }
+
     rialto_mse_add_protection_metadata(buffer, info);
 }
 

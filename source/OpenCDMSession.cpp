@@ -260,6 +260,7 @@ bool OpenCDMSession::getChallengeData(std::vector<uint8_t> &challengeData)
 void OpenCDMSession::addProtectionMeta(GstBuffer *buffer, GstBuffer *subSample, const uint32_t subSampleCount,
                                        GstBuffer *IV, GstBuffer *keyID, uint32_t initWithLast15)
 {
+
     GstStructure *info = gst_structure_new("application/x-cenc", "encrypted", G_TYPE_BOOLEAN, TRUE, "mks_id", G_TYPE_INT,
                                            mRialtoSessionId, "kid", GST_TYPE_BUFFER, keyID, "iv_size", G_TYPE_UINT,
                                            gst_buffer_get_size(IV), "iv", GST_TYPE_BUFFER, IV, "subsample_count",
@@ -267,25 +268,27 @@ void OpenCDMSession::addProtectionMeta(GstBuffer *buffer, GstBuffer *subSample, 
                                            "encryption_scheme", G_TYPE_UINT, 0, // AES Counter
                                            "init_with_last_15", G_TYPE_UINT, initWithLast15, NULL);
 
-    GstStructure *protectionMeta = reinterpret_cast<GstProtectionMeta *>(gst_buffer_get_protection_meta(buffer))->info;
-
-    const char *cipherModeBuf = gst_structure_get_string(protectionMeta, "cipher-mode");
-    if (cipherModeBuf)
+    GstProtectionMeta *protectionMeta = reinterpret_cast<GstProtectionMeta *>(gst_buffer_get_protection_meta(buffer));
+    if (protectionMeta && protectionMeta->info)
     {
-        GST_INFO("Copy cipher mode [%s] and crypt/skipt byte blocks to protection metadata.", cipherModeBuf);
-        gst_structure_set(info, "cipher-mode", G_TYPE_STRING, cipherModeBuf, NULL);
-
-        uint32_t patternCryptoBlocks = 0;
-        uint32_t patternClearBlocks = 0;
-
-        if (gst_structure_get_uint(protectionMeta, "crypt_byte_block", &patternCryptoBlocks))
+        const char *cipherModeBuf = gst_structure_get_string(protectionMeta->info, "cipher-mode");
+        if (cipherModeBuf)
         {
-            gst_structure_set(info, "crypt_byte_block", G_TYPE_UINT, patternCryptoBlocks, NULL);
-        }
+            GST_INFO("Copy cipher mode [%s] and crypt/skipt byte blocks to protection metadata.", cipherModeBuf);
+            gst_structure_set(info, "cipher-mode", G_TYPE_STRING, cipherModeBuf, NULL);
 
-        if (gst_structure_get_uint(protectionMeta, "skip_byte_block", &patternClearBlocks))
-        {
-            gst_structure_set(info, "skip_byte_block", G_TYPE_UINT, patternClearBlocks, NULL);
+            uint32_t patternCryptoBlocks = 0;
+            uint32_t patternClearBlocks = 0;
+
+            if (gst_structure_get_uint(protectionMeta->info, "crypt_byte_block", &patternCryptoBlocks))
+            {
+                gst_structure_set(info, "crypt_byte_block", G_TYPE_UINT, patternCryptoBlocks, NULL);
+            }
+
+            if (gst_structure_get_uint(protectionMeta->info, "skip_byte_block", &patternClearBlocks))
+            {
+                gst_structure_set(info, "skip_byte_block", G_TYPE_UINT, patternClearBlocks, NULL);
+            }
         }
     }
 

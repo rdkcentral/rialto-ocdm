@@ -30,6 +30,10 @@ include( CheckCXXCompilerFlag )
 
 add_compile_options(-Wall -Werror)
 
+add_compile_options(
+  "-Wno-deprecated-declarations"
+)
+
 find_package( Rialto REQUIRED )
 find_package( ocdm REQUIRED )
 find_package( WPEFramework REQUIRED )

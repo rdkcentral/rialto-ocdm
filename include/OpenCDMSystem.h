@@ -17,27 +17,36 @@
  * limitations under the License.
  */
 
-#include <CdmBackend.h>
+#include "ActiveSessions.h"
+#include "CdmBackend.h"
+#include "MessageDispatcher.h"
+#include <IControl.h>
 #include <memory>
 #include <string>
 
 struct OpenCDMSystem
 {
-    OpenCDMSystem(const char system[], const std::string &metadata, const std::shared_ptr<CdmBackend> &cdmBackend)
-        : _keySystem(system), _metadata(metadata), _cdmBackend(cdmBackend)
-    {
-    }
-    ~OpenCDMSystem() { _cdmBackend->destroyMediaKeys(); };
+    OpenCDMSystem(const char system[], const std::string &metadata);
+    ~OpenCDMSystem() = default;
     OpenCDMSystem(const OpenCDMSystem &) = default;
     OpenCDMSystem(OpenCDMSystem &&) = default;
     OpenCDMSystem &operator=(OpenCDMSystem &&) = default;
     OpenCDMSystem &operator=(const OpenCDMSystem &) = default;
-    const std::string &keySystem() const { return _keySystem; }
-    const std::string &Metadata() const { return _metadata; }
-    const std::shared_ptr<CdmBackend> &getCdmBackend() const { return _cdmBackend; }
+    const std::string &keySystem() const;
+    const std::string &Metadata() const;
+    OpenCDMSession *createSession(const LicenseType licenseType, OpenCDMSessionCallbacks *callbacks, void *userData,
+                                  const std::string &initDataType, const std::vector<uint8_t> &initData) const;
+    bool getDrmTime(uint64_t &drmTime) const;
+    bool getLdlSessionsLimit(uint32_t &ldlLimit) const;
+    bool getKeyStoreHash(std::vector<unsigned char> &keyStoreHash) const;
+    bool getDrmStoreHash(std::vector<unsigned char> &drmStoreHash) const;
+    bool deleteKeyStore() const;
+    bool deleteDrmStore() const;
 
 private:
-    std::string _keySystem;
-    std::string _metadata;
-    std::shared_ptr<CdmBackend> _cdmBackend;
+    std::string m_keySystem;
+    std::string m_metadata;
+    std::shared_ptr<firebolt::rialto::IControl> m_control;
+    std::shared_ptr<MessageDispatcher> m_MessageDispatcher;
+    std::shared_ptr<CdmBackend> m_cdmBackend;
 };

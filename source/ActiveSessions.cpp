@@ -26,13 +26,15 @@ ActiveSessions &ActiveSessions::instance()
     return activeSessions;
 }
 
-OpenCDMSession *ActiveSessions::create(std::weak_ptr<CdmBackend> cdm, const std::string &keySystem,
-                                       const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks, void *context,
+OpenCDMSession *ActiveSessions::create(const std::shared_ptr<ICdmBackend> &cdm,
+                                       const std::shared_ptr<IMessageDispatcher> &messageDispatcher,
+                                       const std::string &keySystem, const LicenseType &sessionType,
+                                       OpenCDMSessionCallbacks *callbacks, void *context,
                                        const std::string &initDataType, const std::vector<uint8_t> &initData)
 {
     std::unique_lock<std::mutex> lock{mMutex};
     OpenCDMSession *newSession =
-        new OpenCDMSession(cdm, keySystem, sessionType, callbacks, context, initDataType, initData);
+        new OpenCDMSession(cdm, messageDispatcher, keySystem, sessionType, callbacks, context, initDataType, initData);
     mActiveSessions.insert(std::make_pair(newSession, 1));
     return newSession;
 }

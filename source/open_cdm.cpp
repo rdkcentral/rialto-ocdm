@@ -20,6 +20,7 @@
 #include <opencdm/open_cdm.h>
 
 #include "ActiveSessions.h"
+#include "MediaKeysCapabilitiesBackend.h"
 #include <OpenCDMSession.h>
 #include <OpenCDMSystem.h>
 #include <Utils.h>
@@ -37,18 +38,7 @@ OpenCDMError opencdm_create_system_extended(const char keySystem[], struct OpenC
 {
     assert(system != nullptr);
 
-    std::shared_ptr<CdmBackend> backend = std::make_shared<CdmBackend>();
-    if (!backend)
-    {
-        return ERROR_FAIL;
-    }
-
-    if (!backend->createMediaKeys(keySystem))
-    {
-        return ERROR_FAIL;
-    }
-
-    *system = new OpenCDMSystem(keySystem, "", backend);
+    *system = new OpenCDMSystem(keySystem, "");
 
     return ERROR_NONE;
 }
@@ -65,18 +55,7 @@ OpenCDMError opencdm_destruct_system(struct OpenCDMSystem *system)
 
 OpenCDMError opencdm_is_type_supported(const char keySystem[], const char mimeType[])
 {
-    if (!CdmBackend::getMediaKeysCapabilities())
-    {
-        TRACE_L1("Media Keys Capabilities is NULL!");
-        return ERROR_FAIL;
-    }
-    if (!CdmBackend::getMediaKeysCapabilities()->supportsKeySystem(std::string(keySystem)))
-    {
-        return ERROR_KEYSYSTEM_NOT_SUPPORTED;
-    }
-
-    /// TODO: check mime
-    return ERROR_NONE;
+    return MediaKeysCapabilitiesBackend::instance().supportsKeySystem(std::string(keySystem));
 }
 
 OpenCDMError opencdm_system_get_metadata(struct OpenCDMSystem *system, char metadata[], uint16_t *metadataSize)
@@ -88,12 +67,7 @@ OpenCDMError opencdm_system_get_metadata(struct OpenCDMSystem *system, char meta
 OpenCDMError opencdm_system_get_version(struct OpenCDMSystem *system, char versionStr[])
 {
     std::string version;
-    if (!CdmBackend::getMediaKeysCapabilities())
-    {
-        TRACE_L1("Media Keys Capabilities is NULL!");
-        return ERROR_FAIL;
-    }
-    if (!CdmBackend::getMediaKeysCapabilities()->getSupportedKeySystemVersion(system->keySystem(), version))
+    if (!MediaKeysCapabilitiesBackend::instance().getSupportedKeySystemVersion(system->keySystem(), version))
     {
         return ERROR_FAIL;
     }
@@ -106,12 +80,12 @@ OpenCDMError opencdm_system_get_version(struct OpenCDMSystem *system, char versi
 
 OpenCDMError opencdm_system_get_drm_time(struct OpenCDMSystem *system, uint64_t *time)
 {
-    if (!system || !system->getCdmBackend() || !system->getCdmBackend()->getMediaKeys())
+    if (!time || !system)
     {
-        TRACE_L1("System/CdmBackend/MediaKeys is NULL");
+        TRACE_L1("Ptr is null");
         return ERROR_FAIL;
     }
-    if ((system->getCdmBackend()->getMediaKeys()->getDrmTime(*time) != firebolt::rialto::MediaKeyErrorStatus::OK))
+    if (!system->getDrmTime(*time))
     {
         TRACE_L1("Failed to get DRM Time");
         return ERROR_FAIL;
@@ -142,18 +116,16 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
                                        const uint16_t CDMDataLength, OpenCDMSessionCallbacks *callbacks, void *userData,
                                        struct OpenCDMSession **session)
 {
-    if (!system || !system->getCdmBackend())
+    if (!system)
     {
         TRACE_L1("System is NULL or not initialized");
         return ERROR_FAIL;
     }
-    OpenCDMSession *newSession = nullptr;
-
     std::string initializationDataType(initDataType);
     std::vector<uint8_t> initDataVec((uint8_t *)(initData), (uint8_t *)(initData) + initDataLength);
 
-    newSession = ActiveSessions::instance().create(system->getCdmBackend(), system->keySystem(), licenseType, callbacks,
-                                                   userData, initializationDataType, initDataVec);
+    OpenCDMSession *newSession =
+        system->createSession(licenseType, callbacks, userData, initializationDataType, initDataVec);
 
     if (!newSession)
     {

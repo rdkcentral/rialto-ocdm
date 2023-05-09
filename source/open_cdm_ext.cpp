@@ -25,14 +25,13 @@
 
 OpenCDMError opencdm_system_ext_get_ldl_session_limit(struct OpenCDMSystem *system, uint32_t *ldlLimit)
 {
-    if (!system || !system->getCdmBackend() || !system->getCdmBackend()->getMediaKeys())
+    if (!system || !ldlLimit)
     {
-        TRACE_L1("Failed to get ldl session limit - System/CdmBackend/MediaKeys is NULL");
+        TRACE_L1("Failed to get ldl session limit - System is NULL");
         return ERROR_FAIL;
     }
 
-    if (system->getCdmBackend()->getMediaKeys()->getLdlSessionsLimit(*ldlLimit) !=
-        firebolt::rialto::MediaKeyErrorStatus::OK)
+    if (!system->getLdlSessionsLimit(*ldlLimit))
     {
         TRACE_L1("Failed to get LDL Session limit");
         return ERROR_FAIL;
@@ -83,14 +82,13 @@ OpenCDMError opencdm_system_ext_commit_secure_stop(struct OpenCDMSystem *system,
 OpenCDMError opencdm_get_key_store_hash_ext(struct OpenCDMSystem *system, uint8_t keyStoreHash[],
                                             uint32_t keyStoreHashLength)
 {
-    if (!system || !system->getCdmBackend() || !system->getCdmBackend()->getMediaKeys() || 0 == keyStoreHashLength)
+    if (!system || 0 == keyStoreHashLength)
     {
         TRACE_L1("Failed to get key store hash - arguments are not valid");
         return ERROR_FAIL;
     }
     std::vector<uint8_t> keyStoreHashVec;
-    if (system->getCdmBackend()->getMediaKeys()->getKeyStoreHash(keyStoreHashVec) !=
-        firebolt::rialto::MediaKeyErrorStatus::OK)
+    if (!system->getKeyStoreHash(keyStoreHashVec))
     {
         TRACE_L1("Failed to get key store hash - operation failed");
         return ERROR_FAIL;
@@ -108,14 +106,13 @@ OpenCDMError opencdm_get_key_store_hash_ext(struct OpenCDMSystem *system, uint8_
 OpenCDMError opencdm_get_secure_store_hash_ext(struct OpenCDMSystem *system, uint8_t secureStoreHash[],
                                                uint32_t secureStoreHashLength)
 {
-    if (!system || !system->getCdmBackend() || !system->getCdmBackend()->getMediaKeys() || 0 == secureStoreHashLength)
+    if (!system || 0 == secureStoreHashLength)
     {
         TRACE_L1("Failed to get secure store hash - arguments are not valid");
         return ERROR_FAIL;
     }
     std::vector<uint8_t> secureStoreHashVec;
-    if (system->getCdmBackend()->getMediaKeys()->getDrmStoreHash(secureStoreHashVec) !=
-        firebolt::rialto::MediaKeyErrorStatus::OK)
+    if (!system->getDrmStoreHash(secureStoreHashVec))
     {
         TRACE_L1("Failed to get secure store hash - operation failed");
         return ERROR_FAIL;
@@ -132,12 +129,12 @@ OpenCDMError opencdm_get_secure_store_hash_ext(struct OpenCDMSystem *system, uin
 
 OpenCDMError opencdm_delete_key_store(struct OpenCDMSystem *system)
 {
-    if (!system || !system->getCdmBackend() || !system->getCdmBackend()->getMediaKeys())
+    if (!system)
     {
         TRACE_L1("Failed to delete key store - arguments are not valid");
         return ERROR_FAIL;
     }
-    if (system->getCdmBackend()->getMediaKeys()->deleteKeyStore() != firebolt::rialto::MediaKeyErrorStatus::OK)
+    if (!system->deleteKeyStore())
     {
         TRACE_L1("Failed to delete key store - operation failed");
         return ERROR_FAIL;
@@ -147,12 +144,12 @@ OpenCDMError opencdm_delete_key_store(struct OpenCDMSystem *system)
 
 OpenCDMError opencdm_delete_secure_store(struct OpenCDMSystem *system)
 {
-    if (!system || !system->getCdmBackend() || !system->getCdmBackend()->getMediaKeys())
+    if (!system)
     {
         TRACE_L1("Failed to delete secure store - arguments are not valid");
         return ERROR_FAIL;
     }
-    if (system->getCdmBackend()->getMediaKeys()->deleteDrmStore() != firebolt::rialto::MediaKeyErrorStatus::OK)
+    if (!system->deleteDrmStore())
     {
         TRACE_L1("Failed to delete secure store - operation failed");
         return ERROR_FAIL;

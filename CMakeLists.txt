@@ -53,8 +53,10 @@ set(LIB_OCDM_RIALTO_SOURCES
 
         source/ActiveSessions.cpp
         source/CdmBackend.cpp
+        source/MediaKeysCapabilitiesBackend.cpp
         source/OpenCDMSession.cpp
-        source/MediaKeysClient.cpp
+        source/OpenCDMSystem.cpp
+        source/MessageDispatcher.cpp
         source/Utils.cpp
         source/RialtoGStreamerEMEProtectionMetadata.cpp)
 

@@ -21,7 +21,8 @@
 #define OPENCDMSESSION_H
 
 #include "IMediaKeysClient.h"
-#include <CdmBackend.h>
+#include <ICdmBackend.h>
+#include <IMessageDispatcher.h>
 #include <MediaCommon.h>
 #include <condition_variable>
 #include <functional>
@@ -44,9 +45,9 @@ public:
                                uint64_t session_id)>
         KeyStatusesChangedCallback;
 
-    OpenCDMSession(std::weak_ptr<CdmBackend> cdm, const std::string &keySystem, const LicenseType &sessionType,
-                   OpenCDMSessionCallbacks *callbacks, void *context, const std::string &initDataType,
-                   const std::vector<uint8_t> &initData);
+    OpenCDMSession(const std::shared_ptr<ICdmBackend> &cdm, const std::shared_ptr<IMessageDispatcher> &messageDispatcher,
+                   const std::string &keySystem, const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks,
+                   void *context, const std::string &initDataType, const std::vector<uint8_t> &initData);
     ~OpenCDMSession();
 
     void onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage,
@@ -82,7 +83,9 @@ private:
     std::mutex mMutex;
     std::condition_variable mChallengeCv;
     void *mContext;
-    std::weak_ptr<CdmBackend> mCDMBackend;
+    std::shared_ptr<ICdmBackend> mCdmBackend;
+    std::shared_ptr<IMessageDispatcher> mMessageDispatcher;
+    std::unique_ptr<IMessageDispatcherClient> mMessageDispatcherClient;
     std::string mKeySystem;
     int32_t mRialtoSessionId;
     std::string mCdmKeySessionId;

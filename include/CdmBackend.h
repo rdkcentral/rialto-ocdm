@@ -2,7 +2,7 @@
  * If not stated otherwise in this file or this component's LICENSE file the
  * following copyright and licenses apply:
  *
- * Copyright 2022 Sky UK
+ * Copyright 2023 Sky UK
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,27 +20,50 @@
 #ifndef CDMBACKEND_H
 #define CDMBACKEND_H
 
-#include "MediaKeysClient.h"
+#include "ICdmBackend.h"
+#include "MessageDispatcher.h"
+#include <IControlClient.h>
 #include <IMediaKeys.h>
-#include <IMediaKeysCapabilities.h>
+#include <mutex>
 
-class CdmBackend
+class CdmBackend : public ICdmBackend, public firebolt::rialto::IControlClient
 {
 public:
-    CdmBackend() {}
-    ~CdmBackend() {}
+    CdmBackend(const std::string &keySystem, const std::shared_ptr<MessageDispatcher> &messageDispatcher);
+    ~CdmBackend() override = default;
 
-    static const std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities> getMediaKeysCapabilities();
-    const std::unique_ptr<firebolt::rialto::IMediaKeys> &getMediaKeys() const;
-    std::shared_ptr<MediaKeysClient> getMediaKeysClient();
+    void notifyApplicationState(firebolt::rialto::ApplicationState state) override;
 
-    bool createMediaKeys(const std::string &keySystem);
-    void destroyMediaKeys();
+    bool initialize(const firebolt::rialto::ApplicationState &initialState) override;
+
+    bool selectKeyId(int32_t keySessionId, const std::vector<uint8_t> &keyId) override;
+    bool containsKey(int32_t keySessionId, const std::vector<uint8_t> &keyId) override;
+    bool createKeySession(firebolt::rialto::KeySessionType sessionType, bool isLDL, int32_t &keySessionId) override;
+    bool generateRequest(int32_t keySessionId, firebolt::rialto::InitDataType initDataType,
+                         const std::vector<uint8_t> &initData) override;
+    bool loadSession(int32_t keySessionId) override;
+    bool updateSession(int32_t keySessionId, const std::vector<uint8_t> &responseData) override;
+    bool setDrmHeader(int32_t keySessionId, const std::vector<uint8_t> &requestData) override;
+    bool closeKeySession(int32_t keySessionId) override;
+    bool removeKeySession(int32_t keySessionId) override;
+    bool deleteDrmStore() override;
+    bool deleteKeyStore() override;
+    bool getDrmStoreHash(std::vector<unsigned char> &drmStoreHash) override;
+    bool getKeyStoreHash(std::vector<unsigned char> &keyStoreHash) override;
+    bool getLdlSessionsLimit(uint32_t &ldlLimit) override;
+    bool getLastDrmError(int32_t keySessionId, uint32_t &errorCode) override;
+    bool getDrmTime(uint64_t &drmTime) override;
+    bool getCdmKeySessionId(int32_t keySessionId, std::string &cdmKeySessionId) override;
 
 private:
-    static std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities> m_mediaKeysCapabilities;
-    std::unique_ptr<firebolt::rialto::IMediaKeys> m_mediaKeys;
-    std::shared_ptr<MediaKeysClient> m_mediaKeysClient;
+    bool createMediaKeys();
+
+private:
+    std::mutex mMutex;
+    firebolt::rialto::ApplicationState mAppState;
+    const std::string mKeySystem;
+    std::shared_ptr<MessageDispatcher> mMessageDispatcher;
+    std::unique_ptr<firebolt::rialto::IMediaKeys> mMediaKeys;
 };
 
 #endif // CDMBACKEND_H

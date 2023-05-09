@@ -2,7 +2,7 @@
  * If not stated otherwise in this file or this component's LICENSE file the
  * following copyright and licenses apply:
  *
- * Copyright 2022 Sky UK
+ * Copyright 2023 Sky UK
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,31 @@
  * limitations under the License.
  */
 
-#ifndef MEDIA_KEYS_CLIENT_H_
-#define MEDIA_KEYS_CLIENT_H_
+#ifndef MESSAGEDISPATCHER_H
+#define MESSAGEDISPATCHER_H
 
-#include "IMediaKeysClient.h"
-#include <map>
+#include "IMessageDispatcher.h"
 #include <mutex>
-#include <string>
-#include <vector>
+#include <set>
 
-class MediaKeysClient : public firebolt::rialto::IMediaKeysClient
+class MessageDispatcher : public IMessageDispatcher, public firebolt::rialto::IMediaKeysClient
 {
-public:
-    MediaKeysClient() = default;
-    ~MediaKeysClient() override = default;
+    class MessageDispatcherClient : public IMessageDispatcherClient
+    {
+    public:
+        MessageDispatcherClient(MessageDispatcher &dispatcher, firebolt::rialto::IMediaKeysClient *client);
+        ~MessageDispatcherClient() override;
 
-    void addHandler(int32_t keySessionId, firebolt::rialto::IMediaKeysClient *handler);
-    void removeHandler(int32_t keySessionId);
+    private:
+        MessageDispatcher &m_dispatcher;
+        firebolt::rialto::IMediaKeysClient *m_client;
+    };
+
+public:
+    MessageDispatcher() = default;
+    ~MessageDispatcher() override = default;
+
+    std::unique_ptr<IMessageDispatcherClient> createClient(firebolt::rialto::IMediaKeysClient *client) override;
 
     void onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage,
                           const std::string &url) override;
@@ -41,8 +49,12 @@ public:
     void onKeyStatusesChanged(int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses) override;
 
 private:
+    void addClient(firebolt::rialto::IMediaKeysClient *client);
+    void removeClient(firebolt::rialto::IMediaKeysClient *client);
+
+private:
     std::mutex m_mutex;
-    std::map<int32_t, firebolt::rialto::IMediaKeysClient *> m_handlers;
+    std::set<firebolt::rialto::IMediaKeysClient *> m_clients;
 };
 
-#endif // MEDIA_KEYS_CLIENT_H_
+#endif // MESSAGEDISPATCHER_H

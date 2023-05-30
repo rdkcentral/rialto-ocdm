@@ -85,8 +85,7 @@ bool OpenCDMSession::initialize()
     {
         if (!mCdmBackend->createKeySession(mSessionType, false, mRialtoSessionId))
         {
-            TRACE_L1("Failed to create a session. Got status %u and drm error %u", static_cast<unsigned int>(status),
-                     getLastDrmError());
+            TRACE_L1("Failed to create a session. Got drm error %u", getLastDrmError());
             return false;
         }
         mMessageDispatcherClient = mMessageDispatcher->createClient(this);
@@ -107,8 +106,7 @@ bool OpenCDMSession::initialize(bool isLDL)
     {
         if (!mCdmBackend->createKeySession(mSessionType, isLDL, mRialtoSessionId))
         {
-            TRACE_L1("Failed to create a session. Got status %u and drm error %u", static_cast<unsigned int>(status),
-                     getLastDrmError());
+            TRACE_L1("Failed to create a session. Got drm error %u", getLastDrmError());
             return false;
         }
         mMessageDispatcherClient = mMessageDispatcher->createClient(this);
@@ -139,8 +137,7 @@ bool OpenCDMSession::generateRequest(const std::string &initDataType, const std:
         }
         else
         {
-            TRACE_L1("Failed to request for the session. Got status %u and drm error %u",
-                     static_cast<unsigned int>(status), getLastDrmError());
+            TRACE_L1("Failed to request for the session. Got drm error %u", getLastDrmError());
         }
     }
 
@@ -165,8 +162,7 @@ bool OpenCDMSession::loadSession()
         }
         else
         {
-            TRACE_L1("Failed to load the session. Got status %u and drm error %u", static_cast<unsigned int>(status),
-                     getLastDrmError());
+            TRACE_L1("Failed to load the session. Got drm error %u", getLastDrmError());
         }
     }
 
@@ -191,8 +187,7 @@ bool OpenCDMSession::updateSession(const std::vector<uint8_t> &license)
         }
         else
         {
-            TRACE_L1("Failed to update the session. Got status %u and drm error %u", static_cast<unsigned int>(status),
-                     getLastDrmError());
+            TRACE_L1("Failed to update the session. Got drm error %u", getLastDrmError());
         }
     }
 
@@ -215,8 +210,7 @@ bool OpenCDMSession::getChallengeData(std::vector<uint8_t> &challengeData)
         }
         else
         {
-            TRACE_L1("Failed to request for the session. Got status %u and drm error %u",
-                     static_cast<unsigned int>(status), getLastDrmError());
+            TRACE_L1("Failed to request for the session. Got drm error %u", getLastDrmError());
             return false;
         }
     }
@@ -330,7 +324,7 @@ bool OpenCDMSession::closeSession()
         }
         else
         {
-            TRACE_L1("Failed to close the session. Got status %u", static_cast<unsigned int>(status));
+            TRACE_L1("Failed to close the session.");
         }
     }
 
@@ -355,7 +349,7 @@ bool OpenCDMSession::removeSession()
         }
         else
         {
-            TRACE_L1("Failed to remove the session. Got status %u", static_cast<unsigned int>(status));
+            TRACE_L1("Failed to remove the session.");
         }
     }
 

@@ -108,4 +108,18 @@ install(TARGETS ocdmRialto LIBRARY
 install(FILES "${CMAKE_BINARY_DIR}/ocdmRialto.pc"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
+# Retrieve the commit ID
+execute_process(
+    COMMAND git rev-parse HEAD
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
+    RESULT_VARIABLE RESULT 
+    OUTPUT_VARIABLE COMMIT_ID 
+    OUTPUT_STRIP_TRAILING_WHITESPACE 
+)
 
+if(RESULT)
+    message("Failed to get git commit ID: ${RESULT}")
+endif()
+
+# Preprocesser Variable
+add_compile_definitions(COMMIT_ID="${COMMIT_ID}")

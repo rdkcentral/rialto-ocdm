@@ -25,9 +25,21 @@
 #include <OpenCDMSystem.h>
 #include <Utils.h>
 #include <WPEFramework/core/Trace.h>
+#include <cstring>
 
 OpenCDMSystem *opencdm_create_system(const char keySystem[])
 {
+    const char commitID[] = COMMIT_ID;
+
+    if (std::strlen(commitID) > 0)
+    {
+        TRACE_L2("Commit ID: %s", commitID);
+    }
+    else
+    {
+        TRACE_L1("Failed to get git commit ID.");
+    }
+    
     OpenCDMSystem *result = nullptr;
     opencdm_create_system_extended(keySystem, &result);
 

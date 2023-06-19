@@ -21,6 +21,7 @@
 #define CDMBACKEND_H
 
 #include "ICdmBackend.h"
+#include "Logger.h"
 #include "MessageDispatcher.h"
 #include <IControlClient.h>
 #include <IMediaKeys.h>
@@ -59,6 +60,7 @@ private:
     bool createMediaKeys();
 
 private:
+    Logger mLog;
     std::mutex mMutex;
     firebolt::rialto::ApplicationState mAppState;
     const std::string mKeySystem;

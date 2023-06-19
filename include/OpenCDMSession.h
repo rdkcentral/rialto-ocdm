@@ -21,6 +21,7 @@
 #define OPENCDMSESSION_H
 
 #include "IMediaKeysClient.h"
+#include "Logger.h"
 #include <ICdmBackend.h>
 #include <IMessageDispatcher.h>
 #include <MediaCommon.h>
@@ -80,6 +81,7 @@ private:
     void updateChallenge(const std::vector<unsigned char> &challenge);
 
 private:
+    Logger mLog;
     std::mutex mMutex;
     std::condition_variable mChallengeCv;
     void *mContext;

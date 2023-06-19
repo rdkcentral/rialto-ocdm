@@ -1,0 +1,112 @@
+#include "Logger.h"
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <iostream>
+#include <syslog.h>
+#include <unistd.h>
+
+namespace
+{
+Severity getLogLevel()
+{
+    const char *debugVar = getenv("RIALTO_DEBUG");
+    if (debugVar)
+    {
+        std::string varStr{debugVar};
+        if ("0" == varStr)
+            return Severity::fatal;
+        if ("1" == varStr)
+            return Severity::error;
+        if ("2" == varStr)
+            return Severity::warn;
+        if ("3" == varStr)
+            return Severity::mil;
+        if ("4" == varStr)
+            return Severity::info;
+        if ("5" == varStr)
+            return Severity::debug;
+    }
+    return Severity::warn;
+}
+
+bool isConsoleLogEnabled()
+{
+    const char *debugVar = getenv("RIALTO_CONSOLE_LOG");
+    if (debugVar)
+    {
+        return std::string(debugVar) == "1";
+    }
+    return false;
+}
+
+std::string toString(const Severity &severity)
+{
+    if (Severity::fatal == severity)
+        return "fatal";
+    if (Severity::error == severity)
+        return "error";
+    if (Severity::warn == severity)
+        return "warn";
+    if (Severity::mil == severity)
+        return "mil";
+    if (Severity::info == severity)
+        return "info";
+    if (Severity::debug == severity)
+        return "debug";
+    return "unknown";
+}
+
+int convertSeverity(const Severity &severity)
+{
+    switch (severity)
+    {
+    case Severity::fatal:
+        return LOG_CRIT;
+    case Severity::error:
+        return LOG_ERR;
+    case Severity::warn:
+        return LOG_WARNING;
+    case Severity::mil:
+        return LOG_NOTICE;
+    case Severity::info:
+        return LOG_INFO;
+    case Severity::debug:
+        return LOG_DEBUG;
+    default:
+        break;
+    }
+    return LOG_DEBUG;
+}
+} // namespace
+
+Flusher::Flusher(std::stringstream &stream, const std::string &componentName, const Severity &severity)
+    : mStream{stream}, mSeverity{severity}
+{
+    const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+    const std::time_t t_c = std::chrono::system_clock::to_time_t(now);
+    mStream << std::put_time(std::localtime(&t_c), "[%F %T][") << componentName << "][" << toString(severity) << "]: ";
+}
+
+Flusher::~Flusher()
+{
+    if (getLogLevel() >= mSeverity)
+    {
+        if (isConsoleLogEnabled())
+        {
+            std::cout << mStream.str() << std::endl;
+        }
+        else
+        {
+            syslog(convertSeverity(mSeverity), "%s", mStream.str().c_str());
+        }
+    }
+    mStream.str("");
+}
+
+Logger::Logger(const std::string &componentName) : mComponentName{componentName} {}
+
+Flusher Logger::operator<<(const Severity &severity) const
+{
+    return Flusher(mStream, mComponentName, severity);
+}

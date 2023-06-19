@@ -17,9 +17,14 @@
  * limitations under the License.
  */
 
-#include <OpenCDMSession.h>
-#include <WPEFramework/core/Trace.h>
+#include "Logger.h"
+#include "OpenCDMSession.h"
 #include <opencdm/open_cdm_adapter.h>
+
+namespace
+{
+const Logger kLog{"open_cdm_adapter"};
+} // namespace
 
 OpenCDMError opencdm_gstreamer_session_decrypt_ex(struct OpenCDMSession *session, GstBuffer *buffer,
                                                   GstBuffer *subSample, const uint32_t subSampleCount, GstBuffer *IV,
@@ -27,7 +32,7 @@ OpenCDMError opencdm_gstreamer_session_decrypt_ex(struct OpenCDMSession *session
 {
     if (nullptr == session)
     {
-        TRACE_L1("Failed to decrypt - session is NULL");
+        kLog << error << "Failed to decrypt - session is NULL";
         return ERROR_FAIL;
     }
     session->addProtectionMeta(buffer, subSample, subSampleCount, IV, keyID, initWithLast15);
@@ -47,13 +52,13 @@ OpenCDMError opencdm_gstreamer_session_decrypt_buffer(struct OpenCDMSession *ses
 {
     if (nullptr == session)
     {
-        TRACE_L1("Failed to decrypt - session is NULL");
+        kLog << error << "Failed to decrypt - session is NULL";
         return ERROR_FAIL;
     }
 
     if (!session->addProtectionMeta(buffer))
     {
-        TRACE_L1("Failed to decrypt - could not append protection meta");
+        kLog << error << "Failed to decrypt - could not append protection meta";
         return ERROR_FAIL;
     }
 

@@ -40,12 +40,10 @@ OpenCDMSystem *opencdm_create_system(const char keySystem[])
     if (std::strlen(commitID) > 0)
     {
         kLog << info << "Commit ID: %s", commitID;
-        return ERROR_NONE;
     }
     else
     {
         kLog << warn << "Failed to get git commit ID.";
-        return ERROR_FAIL;
     }
 
     OpenCDMSystem *result = nullptr;

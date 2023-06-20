@@ -33,7 +33,6 @@ namespace
 const Logger kLog{"open_cdm"};
 } // namespace
 
-
 OpenCDMSystem *opencdm_create_system(const char keySystem[])
 {
     const char commitID[] = COMMIT_ID;
@@ -41,14 +40,14 @@ OpenCDMSystem *opencdm_create_system(const char keySystem[])
     if (std::strlen(commitID) > 0)
     {
         kLog << info << "Commit ID: %s", commitID;
-        return ERROR_FAIL;
+        return ERROR_NONE;
     }
     else
     {
         kLog << warn << "Failed to get git commit ID.";
         return ERROR_FAIL;
     }
-    
+
     OpenCDMSystem *result = nullptr;
     opencdm_create_system_extended(keySystem, &result);
 

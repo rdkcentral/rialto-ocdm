@@ -18,10 +18,10 @@
  */
 
 #include "CdmBackend.h"
-#include <WPEFramework/core/Trace.h>
 
 CdmBackend::CdmBackend(const std::string &keySystem, const std::shared_ptr<MessageDispatcher> &messageDispatcher)
-    : mAppState{firebolt::rialto::ApplicationState::UNKNOWN}, mKeySystem{keySystem}, mMessageDispatcher{messageDispatcher}
+    : mLog{"CdmBackend"}, mAppState{firebolt::rialto::ApplicationState::UNKNOWN}, mKeySystem{keySystem},
+      mMessageDispatcher{messageDispatcher}
 {
 }
 
@@ -34,7 +34,7 @@ void CdmBackend::notifyApplicationState(firebolt::rialto::ApplicationState state
     }
     if (firebolt::rialto::ApplicationState::RUNNING == state)
     {
-        TRACE_L1("Rialto state changed to: RUNNING");
+        mLog << info << "Rialto state changed to: RUNNING";
         if (createMediaKeys())
         {
             mAppState = state;
@@ -42,7 +42,7 @@ void CdmBackend::notifyApplicationState(firebolt::rialto::ApplicationState state
     }
     else
     {
-        TRACE_L1("Rialto state changed to: INACTIVE");
+        mLog << info << "Rialto state changed to: INACTIVE";
         mMediaKeys.reset();
         mAppState = state;
     }
@@ -63,8 +63,8 @@ bool CdmBackend::initialize(const firebolt::rialto::ApplicationState &initialSta
             return false;
         }
     }
-    TRACE_L1("CdmBackend initialized in %s state",
-             (firebolt::rialto::ApplicationState::RUNNING == initialState ? "RUNNING" : "INACTIVE"));
+    mLog << info << "CdmBackend initialized in "
+         << (firebolt::rialto::ApplicationState::RUNNING == initialState ? "RUNNING" : "INACTIVE") << " state";
     mAppState = initialState;
     return true;
 }
@@ -246,14 +246,14 @@ bool CdmBackend::createMediaKeys()
     std::shared_ptr<firebolt::rialto::IMediaKeysFactory> factory = firebolt::rialto::IMediaKeysFactory::createFactory();
     if (!factory)
     {
-        TRACE_L1("Failed to initialize media keys - not possible to create factory");
+        mLog << error << "Failed to initialize media keys - not possible to create factory";
         return false;
     }
 
     mMediaKeys = factory->createMediaKeys(mKeySystem);
     if (!mMediaKeys)
     {
-        TRACE_L1("Failed to initialize media keys - not possible to create media keys");
+        mLog << error << "Failed to initialize media keys - not possible to create media keys";
         return false;
     }
     return true;

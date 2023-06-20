@@ -20,12 +20,19 @@
 #include <opencdm/open_cdm.h>
 
 #include "ActiveSessions.h"
+#include "Logger.h"
 #include "MediaKeysCapabilitiesBackend.h"
-#include <OpenCDMSession.h>
-#include <OpenCDMSystem.h>
-#include <Utils.h>
-#include <WPEFramework/core/Trace.h>
+#include "OpenCDMSession.h"
+#include "OpenCDMSystem.h"
+#include "Utils.h"
+#include <cassert>
 #include <cstring>
+
+namespace
+{
+const Logger kLog{"open_cdm"};
+} // namespace
+
 
 OpenCDMSystem *opencdm_create_system(const char keySystem[])
 {
@@ -33,11 +40,11 @@ OpenCDMSystem *opencdm_create_system(const char keySystem[])
 
     if (std::strlen(commitID) > 0)
     {
-        TRACE_L2("Commit ID: %s", commitID);
+        klog << info << "Commit ID: %s", commitID;
     }
     else
     {
-        TRACE_L1("Failed to get git commit ID.");
+        klog << warn << "Failed to get git commit ID.";
     }
     
     OpenCDMSystem *result = nullptr;
@@ -94,12 +101,12 @@ OpenCDMError opencdm_system_get_drm_time(struct OpenCDMSystem *system, uint64_t 
 {
     if (!time || !system)
     {
-        TRACE_L1("Ptr is null");
+        kLog << error << "Ptr is null";
         return ERROR_FAIL;
     }
     if (!system->getDrmTime(*time))
     {
-        TRACE_L1("Failed to get DRM Time");
+        kLog << error << "Failed to get DRM Time";
         return ERROR_FAIL;
     }
     return ERROR_NONE;
@@ -130,7 +137,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
 {
     if (!system)
     {
-        TRACE_L1("System is NULL or not initialized");
+        kLog << error << "System is NULL or not initialized";
         return ERROR_FAIL;
     }
     std::string initializationDataType(initDataType);
@@ -148,7 +155,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
     {
         if (!newSession->initialize())
         {
-            TRACE_L1("Failed to create session");
+            kLog << error << "Failed to create session";
             ActiveSessions::instance().remove(newSession);
             return ERROR_FAIL;
         }
@@ -157,7 +164,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
 
         if (!newSession->generateRequest(initializationDataType, initDataVec, cdmDataVec /*not used yet*/))
         {
-            TRACE_L1("Failed to generate request");
+            kLog << error << "Failed to generate request";
 
             opencdm_session_close(newSession);
             ActiveSessions::instance().remove(newSession);
@@ -188,7 +195,7 @@ OpenCDMError opencdm_session_load(struct OpenCDMSession *session)
         }
         else
         {
-            TRACE_L1("Failed to load the session");
+            kLog << error << "Failed to load the session";
             result = ERROR_FAIL;
         }
     }
@@ -215,7 +222,7 @@ uint32_t opencdm_session_has_key_id(struct OpenCDMSession *session, const uint8_
 {
     if (!session)
     {
-        TRACE_L1("Failed to check key id");
+        kLog << error << "Failed to check key id";
         return 0;
     }
     std::vector<uint8_t> key(keyId, keyId + length);
@@ -235,7 +242,7 @@ KeyStatus opencdm_session_status(const struct OpenCDMSession *session, const uin
 
 uint32_t opencdm_session_error(const struct OpenCDMSession *session, const uint8_t keyId[], uint8_t length)
 {
-    TRACE_L1("%s NOT IMPLEMENTED YET", __FUNCTION__);
+    kLog << warn << __func__ << " NOT IMPLEMENTED YET";
     return 0;
 }
 
@@ -263,7 +270,7 @@ OpenCDMError opencdm_session_update(struct OpenCDMSession *session, const uint8_
         }
         else
         {
-            TRACE_L1("Failed to update the session");
+            kLog << error << "Failed to update the session";
             result = ERROR_FAIL;
         }
     }
@@ -282,7 +289,7 @@ OpenCDMError opencdm_session_remove(struct OpenCDMSession *session)
         }
         else
         {
-            TRACE_L1("Failed to remove the key session");
+            kLog << error << "Failed to remove the key session";
             result = ERROR_FAIL;
         }
     }
@@ -292,14 +299,14 @@ OpenCDMError opencdm_session_remove(struct OpenCDMSession *session)
 
 OpenCDMError opencdm_session_resetoutputprotection(struct OpenCDMSession *session)
 {
-    TRACE_L1("%s NOT IMPLEMENTED YET", __FUNCTION__);
+    kLog << warn << __func__ << " NOT IMPLEMENTED YET";
     return ERROR_NONE;
 }
 
 OpenCDMError opencdm_session_set_parameter(struct OpenCDMSession *session, const std::string &name,
                                            const std::string &value)
 {
-    TRACE_L1("%s NOT IMPLEMENTED YET", __FUNCTION__);
+    kLog << warn << __func__ << " NOT IMPLEMENTED YET";
     return ERROR_NONE;
 }
 
@@ -314,7 +321,7 @@ OpenCDMError opencdm_session_close(struct OpenCDMSession *session)
         }
         else
         {
-            TRACE_L1("Failed to close the key session");
+            kLog << error << "Failed to close the key session";
             result = ERROR_FAIL;
         }
     }

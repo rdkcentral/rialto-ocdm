@@ -17,23 +17,28 @@
  * limitations under the License.
  */
 
-#include <OpenCDMSession.h>
-#include <OpenCDMSystem.h>
-#include <Utils.h>
-#include <WPEFramework/core/Trace.h>
+#include "Logger.h"
+#include "OpenCDMSession.h"
+#include "OpenCDMSystem.h"
+#include "Utils.h"
 #include <opencdm/open_cdm_ext.h>
+
+namespace
+{
+const Logger kLog{"open_cdm_ext"};
+} // namespace
 
 OpenCDMError opencdm_system_ext_get_ldl_session_limit(struct OpenCDMSystem *system, uint32_t *ldlLimit)
 {
     if (!system || !ldlLimit)
     {
-        TRACE_L1("Failed to get ldl session limit - System is NULL");
+        kLog << error << "Failed to get ldl session limit - System is NULL";
         return ERROR_FAIL;
     }
 
     if (!system->getLdlSessionsLimit(*ldlLimit))
     {
-        TRACE_L1("Failed to get LDL Session limit");
+        kLog << error << "Failed to get LDL Session limit";
         return ERROR_FAIL;
     }
     return ERROR_NONE;
@@ -41,33 +46,33 @@ OpenCDMError opencdm_system_ext_get_ldl_session_limit(struct OpenCDMSystem *syst
 
 uint32_t opencdm_system_ext_is_secure_stop_enabled(struct OpenCDMSystem *system)
 {
-    TRACE_L2("Secure stop not supported");
+    kLog << warn << "Secure stop not supported";
     return 0;
 }
 
 OpenCDMError opencdm_system_ext_enable_secure_stop(struct OpenCDMSystem *system, uint32_t use)
 {
-    TRACE_L2("Secure stop not supported");
+    kLog << warn << "Secure stop not supported";
     return ERROR_FAIL;
 }
 
 uint32_t opencdm_system_ext_reset_secure_stop(struct OpenCDMSystem *system)
 {
-    TRACE_L2("Reset secure stop not supported");
+    kLog << warn << "Reset secure stop not supported";
     return 0;
 }
 
 OpenCDMError opencdm_system_ext_get_secure_stop_ids(struct OpenCDMSystem *system, uint8_t Ids[], uint16_t idsLength,
                                                     uint32_t *count)
 {
-    TRACE_L1("Failed to get secure stop ids - not supported");
+    kLog << warn << "Failed to get secure stop ids - not supported";
     return ERROR_FAIL;
 }
 
 OpenCDMError opencdm_system_ext_get_secure_stop(struct OpenCDMSystem *system, const uint8_t sessionID[],
                                                 uint32_t sessionIDLength, uint8_t rawData[], uint16_t *rawSize)
 {
-    TRACE_L1("Failed to get secure stop - not supported");
+    kLog << warn << "Failed to get secure stop - not supported";
     return ERROR_FAIL;
 }
 
@@ -75,7 +80,7 @@ OpenCDMError opencdm_system_ext_commit_secure_stop(struct OpenCDMSystem *system,
                                                    uint32_t sessionIDLength, const uint8_t serverResponse[],
                                                    uint32_t serverResponseLength)
 {
-    TRACE_L1("Failed to commit secure stop - not supported");
+    kLog << warn << "Failed to commit secure stop - not supported";
     return ERROR_FAIL;
 }
 
@@ -84,19 +89,19 @@ OpenCDMError opencdm_get_key_store_hash_ext(struct OpenCDMSystem *system, uint8_
 {
     if (!system || 0 == keyStoreHashLength)
     {
-        TRACE_L1("Failed to get key store hash - arguments are not valid");
+        kLog << error << "Failed to get key store hash - arguments are not valid";
         return ERROR_FAIL;
     }
     std::vector<uint8_t> keyStoreHashVec;
     if (!system->getKeyStoreHash(keyStoreHashVec))
     {
-        TRACE_L1("Failed to get key store hash - operation failed");
+        kLog << error << "Failed to get key store hash - operation failed";
         return ERROR_FAIL;
     }
     if (keyStoreHashVec.size() > keyStoreHashLength)
     {
-        TRACE_L1("Failed to get key store hash - return of size %u does not fit in buffer of size %u",
-                 keyStoreHashVec.size(), keyStoreHashLength);
+        kLog << error << "Failed to get key store hash - return of size " << keyStoreHashVec.size()
+             << " does not fit in buffer of size " << keyStoreHashLength;
         return ERROR_FAIL;
     }
     memcpy(keyStoreHash, keyStoreHashVec.data(), keyStoreHashVec.size());
@@ -108,19 +113,19 @@ OpenCDMError opencdm_get_secure_store_hash_ext(struct OpenCDMSystem *system, uin
 {
     if (!system || 0 == secureStoreHashLength)
     {
-        TRACE_L1("Failed to get secure store hash - arguments are not valid");
+        kLog << error << "Failed to get secure store hash - arguments are not valid";
         return ERROR_FAIL;
     }
     std::vector<uint8_t> secureStoreHashVec;
     if (!system->getDrmStoreHash(secureStoreHashVec))
     {
-        TRACE_L1("Failed to get secure store hash - operation failed");
+        kLog << error << "Failed to get secure store hash - operation failed";
         return ERROR_FAIL;
     }
     if (secureStoreHashVec.size() > secureStoreHashLength)
     {
-        TRACE_L1("Failed to get key store hash - return size %u does not fit in buffer of size %u",
-                 secureStoreHashVec.size(), secureStoreHashLength);
+        kLog << error << "Failed to get key store hash - return size " << secureStoreHashVec.size()
+             << " does not fit in buffer of size " << secureStoreHashLength;
         return ERROR_FAIL;
     }
     memcpy(secureStoreHash, secureStoreHashVec.data(), secureStoreHashVec.size());
@@ -131,12 +136,12 @@ OpenCDMError opencdm_delete_key_store(struct OpenCDMSystem *system)
 {
     if (!system)
     {
-        TRACE_L1("Failed to delete key store - arguments are not valid");
+        kLog << error << "Failed to delete key store - arguments are not valid";
         return ERROR_FAIL;
     }
     if (!system->deleteKeyStore())
     {
-        TRACE_L1("Failed to delete key store - operation failed");
+        kLog << error << "Failed to delete key store - operation failed";
         return ERROR_FAIL;
     }
     return ERROR_NONE;
@@ -146,12 +151,12 @@ OpenCDMError opencdm_delete_secure_store(struct OpenCDMSystem *system)
 {
     if (!system)
     {
-        TRACE_L1("Failed to delete secure store - arguments are not valid");
+        kLog << error << "Failed to delete secure store - arguments are not valid";
         return ERROR_FAIL;
     }
     if (!system->deleteDrmStore())
     {
-        TRACE_L1("Failed to delete secure store - operation failed");
+        kLog << error << "Failed to delete secure store - operation failed";
         return ERROR_FAIL;
     }
     return ERROR_NONE;
@@ -162,13 +167,13 @@ OpenCDMError opencdm_session_set_drm_header(struct OpenCDMSession *opencdmSessio
 {
     if (nullptr == opencdmSession)
     {
-        TRACE_L1("Failed to set Drm Header - session is NULL");
+        kLog << error << "Failed to set Drm Header - session is NULL";
         return ERROR_FAIL;
     }
     std::vector<uint8_t> drmHeaderVec(drmHeader, drmHeader + drmHeaderSize);
     if (opencdmSession->setDrmHeader(drmHeaderVec))
     {
-        TRACE_L1("Failed to set Drm Header - operation returned NOK status");
+        kLog << error << "Failed to set Drm Header - operation returned NOK status";
         return ERROR_FAIL;
     }
     return ERROR_NONE;
@@ -179,18 +184,18 @@ OpenCDMError opencdm_session_get_challenge_data(struct OpenCDMSession *mOpenCDMS
 {
     if (nullptr == mOpenCDMSession || nullptr == challengeSize)
     {
-        TRACE_L1("Failed to get challenge data - arguments are not valid");
+        kLog << error << "Failed to get challenge data - arguments are not valid";
         return ERROR_FAIL;
     }
     if (!mOpenCDMSession->initialize(isLDL))
     {
-        TRACE_L1("Failed to create session");
+        kLog << error << "Failed to create session";
         return ERROR_FAIL;
     }
     std::vector<uint8_t> challengeVec;
     if (!mOpenCDMSession->getChallengeData(challengeVec))
     {
-        TRACE_L1("Failed to get challenge data - operation returned NOK status");
+        kLog << error << "Failed to get challenge data - operation returned NOK status";
         return ERROR_FAIL;
     }
     *challengeSize = challengeVec.size();
@@ -221,7 +226,7 @@ OpenCDMError opencdm_session_store_license_data(struct OpenCDMSession *mOpenCDMS
         }
         else
         {
-            TRACE_L1("Failed to update the session");
+            kLog << error << "Failed to update the session";
             result = ERROR_FAIL;
         }
     }
@@ -234,13 +239,13 @@ OpenCDMError opencdm_session_select_key_id(struct OpenCDMSession *mOpenCDMSessio
 {
     if (!mOpenCDMSession)
     {
-        TRACE_L1("Failed to select key id - session is NULL");
+        kLog << error << "Failed to select key id - session is NULL";
         return ERROR_FAIL;
     }
     std::vector<uint8_t> keyIdVec(keyId, keyId + keyLength);
     if (!mOpenCDMSession->selectKeyId(keyIdVec))
     {
-        TRACE_L1("Failed to select key id - operation returned NOK status");
+        kLog << error << "Failed to select key id - operation returned NOK status";
         return ERROR_FAIL;
     }
     return ERROR_NONE;
@@ -255,12 +260,12 @@ OpenCDMError opencdm_session_clean_decrypt_context(struct OpenCDMSession *mOpenC
 {
     if (!mOpenCDMSession)
     {
-        TRACE_L1("Failed to clean decrypt context - arguments are not valid");
+        kLog << error << "Failed to clean decrypt context - arguments are not valid";
         return ERROR_FAIL;
     }
     if (!mOpenCDMSession->closeSession())
     {
-        TRACE_L1("Failed to close the session");
+        kLog << error << "Failed to close the session";
     }
     return ERROR_NONE;
 }

@@ -38,7 +38,6 @@ add_compile_options(
 
 find_package( Rialto REQUIRED )
 find_package( ocdm REQUIRED )
-find_package( WPEFramework REQUIRED )
 find_package( PkgConfig REQUIRED )
 pkg_check_modules( GStreamerApp REQUIRED IMPORTED_TARGET gstreamer-app-1.0 )
 
@@ -53,6 +52,7 @@ set(LIB_OCDM_RIALTO_SOURCES
 
         source/ActiveSessions.cpp
         source/CdmBackend.cpp
+        source/Logger.cpp
         source/MediaKeysCapabilitiesBackend.cpp
         source/OpenCDMSession.cpp
         source/OpenCDMSystem.cpp

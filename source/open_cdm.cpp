@@ -39,7 +39,7 @@ OpenCDMSystem *opencdm_create_system(const char keySystem[])
 
     if (std::strlen(commitID) > 0)
     {
-        kLog << info << "Commit ID: %s", commitID;
+        kLog << info << "Commit ID: " << commitID;
     }
     else
     {

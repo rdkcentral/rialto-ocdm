@@ -47,8 +47,8 @@ public:
         KeyStatusesChangedCallback;
 
     OpenCDMSession(const std::shared_ptr<ICdmBackend> &cdm, const std::shared_ptr<IMessageDispatcher> &messageDispatcher,
-                   const std::string &keySystem, const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks,
-                   void *context, const std::string &initDataType, const std::vector<uint8_t> &initData);
+                   const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks, void *context,
+                   const std::string &initDataType, const std::vector<uint8_t> &initData);
     ~OpenCDMSession();
 
     void onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage,
@@ -81,23 +81,22 @@ private:
     void updateChallenge(const std::vector<unsigned char> &challenge);
 
 private:
-    Logger mLog;
-    std::mutex mMutex;
-    std::condition_variable mChallengeCv;
-    void *mContext;
-    std::shared_ptr<ICdmBackend> mCdmBackend;
-    std::shared_ptr<IMessageDispatcher> mMessageDispatcher;
-    std::unique_ptr<IMessageDispatcherClient> mMessageDispatcherClient;
-    std::string mKeySystem;
-    int32_t mRialtoSessionId;
-    std::string mCdmKeySessionId;
-    OpenCDMSessionCallbacks *mCallbacks;
-    firebolt::rialto::KeySessionType mSessionType;
-    firebolt::rialto::InitDataType mInitDataType;
-    std::vector<uint8_t> mInitData;
-    bool mIsInitialized;
-    std::vector<uint8_t> mChallengeData;
-    std::map<std::vector<unsigned char>, firebolt::rialto::KeyStatus> mKeyStatuses;
+    Logger m_log;
+    std::mutex m_mutex;
+    std::condition_variable m_challengeCv;
+    void *m_context;
+    std::shared_ptr<ICdmBackend> m_cdmBackend;
+    std::shared_ptr<IMessageDispatcher> m_messageDispatcher;
+    std::unique_ptr<IMessageDispatcherClient> m_messageDispatcherClient;
+    int32_t m_rialtoSessionId;
+    std::string m_cdmKeySessionId;
+    OpenCDMSessionCallbacks *m_callbacks;
+    firebolt::rialto::KeySessionType m_sessionType;
+    firebolt::rialto::InitDataType m_initDataType;
+    std::vector<uint8_t> m_initData;
+    bool m_isInitialized;
+    std::vector<uint8_t> m_challengeData;
+    std::map<std::vector<unsigned char>, firebolt::rialto::KeyStatus> m_keyStatuses;
 
     firebolt::rialto::KeySessionType getRialtoSessionType(const LicenseType licenseType);
     firebolt::rialto::InitDataType getRialtoInitDataType(const std::string &type);

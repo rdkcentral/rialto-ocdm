@@ -23,13 +23,13 @@ public:
 
     template <typename T> Flusher &operator<<(const T &text)
     {
-        mStream << text;
+        m_stream << text;
         return *this;
     }
 
 private:
-    std::stringstream &mStream;
-    Severity mSeverity;
+    std::stringstream &m_stream;
+    Severity m_severity;
 };
 
 class Logger
@@ -39,8 +39,8 @@ public:
     Flusher operator<<(const Severity &) const;
 
 private:
-    const std::string mComponentName;
-    mutable std::stringstream mStream;
+    const std::string m_componentName;
+    mutable std::stringstream m_stream;
 };
 
 #endif // LOGGER_H

@@ -20,38 +20,38 @@
 #include "CdmBackend.h"
 
 CdmBackend::CdmBackend(const std::string &keySystem, const std::shared_ptr<MessageDispatcher> &messageDispatcher)
-    : mLog{"CdmBackend"}, mAppState{firebolt::rialto::ApplicationState::UNKNOWN}, mKeySystem{keySystem},
-      mMessageDispatcher{messageDispatcher}
+    : m_log{"CdmBackend"}, m_appState{firebolt::rialto::ApplicationState::UNKNOWN}, m_keySystem{keySystem},
+      m_messageDispatcher{messageDispatcher}
 {
 }
 
 void CdmBackend::notifyApplicationState(firebolt::rialto::ApplicationState state)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (state == mAppState)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (state == m_appState)
     {
         return;
     }
     if (firebolt::rialto::ApplicationState::RUNNING == state)
     {
-        mLog << info << "Rialto state changed to: RUNNING";
+        m_log << info << "Rialto state changed to: RUNNING";
         if (createMediaKeys())
         {
-            mAppState = state;
+            m_appState = state;
         }
     }
     else
     {
-        mLog << info << "Rialto state changed to: INACTIVE";
-        mMediaKeys.reset();
-        mAppState = state;
+        m_log << info << "Rialto state changed to: INACTIVE";
+        m_mediaKeys.reset();
+        m_appState = state;
     }
 }
 
 bool CdmBackend::initialize(const firebolt::rialto::ApplicationState &initialState)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (firebolt::rialto::ApplicationState::UNKNOWN != mAppState)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (firebolt::rialto::ApplicationState::UNKNOWN != m_appState)
     {
         // CdmBackend initialized by Rialto Client thread in notifyApplicationState()
         return true;
@@ -63,182 +63,183 @@ bool CdmBackend::initialize(const firebolt::rialto::ApplicationState &initialSta
             return false;
         }
     }
-    mLog << info << "CdmBackend initialized in "
-         << (firebolt::rialto::ApplicationState::RUNNING == initialState ? "RUNNING" : "INACTIVE") << " state";
-    mAppState = initialState;
+    m_log << info << "CdmBackend initialized in "
+          << (firebolt::rialto::ApplicationState::RUNNING == initialState ? "RUNNING" : "INACTIVE") << " state";
+    m_appState = initialState;
     return true;
 }
 
 bool CdmBackend::selectKeyId(int32_t keySessionId, const std::vector<uint8_t> &keyId)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->selectKeyId(keySessionId, keyId);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->selectKeyId(keySessionId, keyId);
 }
 
 bool CdmBackend::containsKey(int32_t keySessionId, const std::vector<uint8_t> &keyId)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return mMediaKeys->containsKey(keySessionId, keyId);
+    return m_mediaKeys->containsKey(keySessionId, keyId);
 }
 
 bool CdmBackend::createKeySession(firebolt::rialto::KeySessionType sessionType, bool isLDL, int32_t &keySessionId)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
     return firebolt::rialto::MediaKeyErrorStatus::OK ==
-           mMediaKeys->createKeySession(sessionType, mMessageDispatcher, isLDL, keySessionId);
+           m_mediaKeys->createKeySession(sessionType, m_messageDispatcher, isLDL, keySessionId);
 }
 
 bool CdmBackend::generateRequest(int32_t keySessionId, firebolt::rialto::InitDataType initDataType,
                                  const std::vector<uint8_t> &initData)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->generateRequest(keySessionId, initDataType, initData);
+    return firebolt::rialto::MediaKeyErrorStatus::OK ==
+           m_mediaKeys->generateRequest(keySessionId, initDataType, initData);
 }
 
 bool CdmBackend::loadSession(int32_t keySessionId)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->loadSession(keySessionId);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->loadSession(keySessionId);
 }
 
 bool CdmBackend::updateSession(int32_t keySessionId, const std::vector<uint8_t> &responseData)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->updateSession(keySessionId, responseData);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->updateSession(keySessionId, responseData);
 }
 
 bool CdmBackend::setDrmHeader(int32_t keySessionId, const std::vector<uint8_t> &requestData)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->setDrmHeader(keySessionId, requestData);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->setDrmHeader(keySessionId, requestData);
 }
 
 bool CdmBackend::closeKeySession(int32_t keySessionId)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->closeKeySession(keySessionId);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->closeKeySession(keySessionId);
 }
 
 bool CdmBackend::removeKeySession(int32_t keySessionId)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->removeKeySession(keySessionId);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->removeKeySession(keySessionId);
 }
 
 bool CdmBackend::deleteDrmStore()
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->deleteDrmStore();
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->deleteDrmStore();
 }
 
 bool CdmBackend::deleteKeyStore()
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->deleteKeyStore();
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->deleteKeyStore();
 }
 
 bool CdmBackend::getDrmStoreHash(std::vector<unsigned char> &drmStoreHash)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->getDrmStoreHash(drmStoreHash);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->getDrmStoreHash(drmStoreHash);
 }
 
 bool CdmBackend::getKeyStoreHash(std::vector<unsigned char> &keyStoreHash)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->getKeyStoreHash(keyStoreHash);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->getKeyStoreHash(keyStoreHash);
 }
 
 bool CdmBackend::getLdlSessionsLimit(uint32_t &ldlLimit)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->getLdlSessionsLimit(ldlLimit);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->getLdlSessionsLimit(ldlLimit);
 }
 
 bool CdmBackend::getLastDrmError(int32_t keySessionId, uint32_t &errorCode)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->getLastDrmError(keySessionId, errorCode);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->getLastDrmError(keySessionId, errorCode);
 }
 
 bool CdmBackend::getDrmTime(uint64_t &drmTime)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->getDrmTime(drmTime);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->getDrmTime(drmTime);
 }
 
 bool CdmBackend::getCdmKeySessionId(int32_t keySessionId, std::string &cdmKeySessionId)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    if (!mMediaKeys)
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == mMediaKeys->getCdmKeySessionId(keySessionId, cdmKeySessionId);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->getCdmKeySessionId(keySessionId, cdmKeySessionId);
 }
 
 bool CdmBackend::createMediaKeys()
@@ -246,14 +247,14 @@ bool CdmBackend::createMediaKeys()
     std::shared_ptr<firebolt::rialto::IMediaKeysFactory> factory = firebolt::rialto::IMediaKeysFactory::createFactory();
     if (!factory)
     {
-        mLog << error << "Failed to initialize media keys - not possible to create factory";
+        m_log << error << "Failed to initialize media keys - not possible to create factory";
         return false;
     }
 
-    mMediaKeys = factory->createMediaKeys(mKeySystem);
-    if (!mMediaKeys)
+    m_mediaKeys = factory->createMediaKeys(m_keySystem);
+    if (!m_mediaKeys)
     {
-        mLog << error << "Failed to initialize media keys - not possible to create media keys";
+        m_log << error << "Failed to initialize media keys - not possible to create media keys";
         return false;
     }
     return true;

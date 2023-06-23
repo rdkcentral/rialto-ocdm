@@ -30,9 +30,9 @@ public:
     static ActiveSessions &instance();
 
     OpenCDMSession *create(const std::shared_ptr<ICdmBackend> &cdm,
-                           const std::shared_ptr<IMessageDispatcher> &messageDispatcher, const std::string &keySystem,
-                           const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks, void *context,
-                           const std::string &initDataType, const std::vector<uint8_t> &initData);
+                           const std::shared_ptr<IMessageDispatcher> &messageDispatcher, const LicenseType &sessionType,
+                           OpenCDMSessionCallbacks *callbacks, void *context, const std::string &initDataType,
+                           const std::vector<uint8_t> &initData);
     OpenCDMSession *get(const std::vector<uint8_t> &keyId);
     void remove(OpenCDMSession *session);
 
@@ -41,8 +41,8 @@ private:
     ~ActiveSessions() = default;
 
 private:
-    std::mutex mMutex;
-    std::map<OpenCDMSession *, int> mActiveSessions;
+    std::mutex m_mutex;
+    std::map<OpenCDMSession *, int> m_activeSessions;
 };
 
 #endif // ACTIVESESSIONS_H

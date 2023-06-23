@@ -47,6 +47,6 @@ private:
     std::string m_keySystem;
     std::string m_metadata;
     std::shared_ptr<firebolt::rialto::IControl> m_control;
-    std::shared_ptr<MessageDispatcher> m_MessageDispatcher;
+    std::shared_ptr<MessageDispatcher> m_messageDispatcher;
     std::shared_ptr<CdmBackend> m_cdmBackend;
 };

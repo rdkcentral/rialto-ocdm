@@ -81,32 +81,32 @@ int convertSeverity(const Severity &severity)
 } // namespace
 
 Flusher::Flusher(std::stringstream &stream, const std::string &componentName, const Severity &severity)
-    : mStream{stream}, mSeverity{severity}
+    : m_stream{stream}, m_severity{severity}
 {
     const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
     const std::time_t t_c = std::chrono::system_clock::to_time_t(now);
-    mStream << std::put_time(std::localtime(&t_c), "[%F %T][") << componentName << "][" << toString(severity) << "]: ";
+    m_stream << std::put_time(std::localtime(&t_c), "[%F %T][") << componentName << "][" << toString(severity) << "]: ";
 }
 
 Flusher::~Flusher()
 {
-    if (getLogLevel() >= mSeverity)
+    if (getLogLevel() >= m_severity)
     {
         if (isConsoleLogEnabled())
         {
-            std::cout << mStream.str() << std::endl;
+            std::cout << m_stream.str() << std::endl;
         }
         else
         {
-            syslog(convertSeverity(mSeverity), "%s", mStream.str().c_str());
+            syslog(convertSeverity(m_severity), "%s", m_stream.str().c_str());
         }
     }
-    mStream.str("");
+    m_stream.str("");
 }
 
-Logger::Logger(const std::string &componentName) : mComponentName{componentName} {}
+Logger::Logger(const std::string &componentName) : m_componentName{componentName} {}
 
 Flusher Logger::operator<<(const Severity &severity) const
 {
-    return Flusher(mStream, mComponentName, severity);
+    return Flusher(m_stream, m_componentName, severity);
 }

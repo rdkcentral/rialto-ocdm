@@ -22,8 +22,8 @@
 OpenCDMSystem::OpenCDMSystem(const char system[], const std::string &metadata)
     : m_keySystem(system),
       m_metadata(metadata), m_control{firebolt::rialto::IControlFactory::createFactory()->createControl()},
-      m_MessageDispatcher{std::make_shared<MessageDispatcher>()},
-      m_cdmBackend{std::make_shared<CdmBackend>(m_keySystem, m_MessageDispatcher)}
+      m_messageDispatcher{std::make_shared<MessageDispatcher>()},
+      m_cdmBackend{std::make_shared<CdmBackend>(m_keySystem, m_messageDispatcher)}
 {
     firebolt::rialto::ApplicationState initialState;
     m_control->registerClient(m_cdmBackend, initialState);
@@ -44,8 +44,8 @@ OpenCDMSession *OpenCDMSystem::createSession(const LicenseType licenseType, Open
                                              void *userData, const std::string &initDataType,
                                              const std::vector<uint8_t> &initData) const
 {
-    return ActiveSessions::instance().create(m_cdmBackend, m_MessageDispatcher, m_keySystem, licenseType, callbacks,
-                                             userData, initDataType, initData);
+    return ActiveSessions::instance().create(m_cdmBackend, m_messageDispatcher, licenseType, callbacks, userData,
+                                             initDataType, initData);
 }
 
 bool OpenCDMSystem::getDrmTime(uint64_t &drmTime) const

@@ -28,24 +28,23 @@ ActiveSessions &ActiveSessions::instance()
 
 OpenCDMSession *ActiveSessions::create(const std::shared_ptr<ICdmBackend> &cdm,
                                        const std::shared_ptr<IMessageDispatcher> &messageDispatcher,
-                                       const std::string &keySystem, const LicenseType &sessionType,
-                                       OpenCDMSessionCallbacks *callbacks, void *context,
+                                       const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks, void *context,
                                        const std::string &initDataType, const std::vector<uint8_t> &initData)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
+    std::unique_lock<std::mutex> lock{m_mutex};
     OpenCDMSession *newSession =
-        new OpenCDMSession(cdm, messageDispatcher, keySystem, sessionType, callbacks, context, initDataType, initData);
-    mActiveSessions.insert(std::make_pair(newSession, 1));
+        new OpenCDMSession(cdm, messageDispatcher, sessionType, callbacks, context, initDataType, initData);
+    m_activeSessions.insert(std::make_pair(newSession, 1));
     return newSession;
 }
 
 OpenCDMSession *ActiveSessions::get(const std::vector<uint8_t> &keyId)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    auto sessionIter{std::find_if(mActiveSessions.begin(), mActiveSessions.end(),
+    std::unique_lock<std::mutex> lock{m_mutex};
+    auto sessionIter{std::find_if(m_activeSessions.begin(), m_activeSessions.end(),
                                   [&](const auto &iter)
                                   { return iter.first->status(keyId) != KeyStatus::InternalError; })};
-    if (sessionIter != mActiveSessions.end())
+    if (sessionIter != m_activeSessions.end())
     {
         ++sessionIter->second;
         return sessionIter->first;
@@ -55,15 +54,15 @@ OpenCDMSession *ActiveSessions::get(const std::vector<uint8_t> &keyId)
 
 void ActiveSessions::remove(OpenCDMSession *session)
 {
-    std::unique_lock<std::mutex> lock{mMutex};
-    auto sessionIter{mActiveSessions.find(session)};
-    if (sessionIter != mActiveSessions.end())
+    std::unique_lock<std::mutex> lock{m_mutex};
+    auto sessionIter{m_activeSessions.find(session)};
+    if (sessionIter != m_activeSessions.end())
     {
         --sessionIter->second;
         if (0 == sessionIter->second)
         {
             delete sessionIter->first;
-            mActiveSessions.erase(sessionIter);
+            m_activeSessions.erase(sessionIter);
         }
     }
 }

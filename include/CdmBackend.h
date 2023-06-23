@@ -60,12 +60,12 @@ private:
     bool createMediaKeys();
 
 private:
-    Logger mLog;
-    std::mutex mMutex;
-    firebolt::rialto::ApplicationState mAppState;
-    const std::string mKeySystem;
-    std::shared_ptr<MessageDispatcher> mMessageDispatcher;
-    std::unique_ptr<firebolt::rialto::IMediaKeys> mMediaKeys;
+    Logger m_log;
+    std::mutex m_mutex;
+    firebolt::rialto::ApplicationState m_appState;
+    const std::string m_keySystem;
+    std::shared_ptr<MessageDispatcher> m_messageDispatcher;
+    std::unique_ptr<firebolt::rialto::IMediaKeys> m_mediaKeys;
 };
 
 #endif // CDMBACKEND_H

@@ -43,18 +43,18 @@ bool isConsoleLogEnabled()
 std::string toString(const Severity &severity)
 {
     if (Severity::fatal == severity)
-        return "fatal";
+        return "ftl";
     if (Severity::error == severity)
-        return "error";
+        return "err";
     if (Severity::warn == severity)
-        return "warn";
+        return "wrn";
     if (Severity::mil == severity)
         return "mil";
     if (Severity::info == severity)
-        return "info";
+        return "inf";
     if (Severity::debug == severity)
-        return "debug";
-    return "unknown";
+        return "dbg";
+    return "???";
 }
 
 int convertSeverity(const Severity &severity)
@@ -83,9 +83,13 @@ int convertSeverity(const Severity &severity)
 Flusher::Flusher(std::stringstream &stream, const std::string &componentName, const Severity &severity)
     : m_stream{stream}, m_severity{severity}
 {
-    const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-    const std::time_t t_c = std::chrono::system_clock::to_time_t(now);
-    m_stream << std::put_time(std::localtime(&t_c), "[%F %T][") << componentName << "][" << toString(severity) << "]: ";
+    if (isConsoleLogEnabled())
+    {
+        const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+        const std::time_t t_c = std::chrono::system_clock::to_time_t(now);
+        m_stream << std::put_time(std::localtime(&t_c), "[%F %T]");
+    }
+    m_stream << "[" << componentName << "][" << toString(severity) << "]: ";
 }
 
 Flusher::~Flusher()

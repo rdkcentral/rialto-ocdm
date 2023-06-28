@@ -40,6 +40,16 @@ bool isConsoleLogEnabled()
     return false;
 }
 
+std::string getRialtoLogPath()
+{
+    const char *debugVar = getenv("RIALTO_LOG_PATH");
+    if (debugVar)
+    {
+        return std::string(debugVar);
+    }
+    return "";
+}
+
 std::string toString(const Severity &severity)
 {
     if (Severity::fatal == severity)
@@ -80,6 +90,47 @@ int convertSeverity(const Severity &severity)
 }
 } // namespace
 
+LogFile &LogFile::instance()
+{
+    static LogFile logFile;
+    return logFile;
+}
+
+bool LogFile::write(const std::string &line)
+{
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_file.is_open())
+    {
+        return false;
+    }
+    m_file << line << std::endl;
+    return true;
+}
+
+bool LogFile::isEnabled() const
+{
+    return m_file.is_open();
+}
+
+LogFile::LogFile()
+{
+    std::string logPath{getRialtoLogPath()};
+    if (!logPath.empty())
+    {
+        // Add suffix to have rialto client and rialto ocdm logs in separate directories
+        logPath += ".ocdm";
+        m_file = std::fstream(logPath, std::fstream::out);
+    }
+}
+
+LogFile::~LogFile()
+{
+    if (m_file.is_open())
+    {
+        m_file.close();
+    }
+}
+
 Flusher::Flusher(std::stringstream &stream, const std::string &componentName, const Severity &severity)
     : m_stream{stream}, m_severity{severity}
 {
@@ -96,7 +147,11 @@ Flusher::~Flusher()
 {
     if (getLogLevel() >= m_severity)
     {
-        if (isConsoleLogEnabled())
+        if (LogFile::instance().isEnabled())
+        {
+            LogFile::instance().write(m_stream.str());
+        }
+        else if (isConsoleLogEnabled())
         {
             std::cout << m_stream.str() << std::endl;
         }

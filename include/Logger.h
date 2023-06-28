@@ -1,6 +1,8 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#include <fstream>
+#include <mutex>
 #include <sstream>
 #include <string>
 
@@ -12,6 +14,22 @@ enum Severity
     mil = 3,
     info = 4,
     debug = 5
+};
+
+class LogFile
+{
+public:
+    static LogFile &instance();
+    bool write(const std::string &line);
+    bool isEnabled() const;
+
+private:
+    LogFile();
+    ~LogFile();
+
+private:
+    std::fstream m_file;
+    std::mutex m_mutex;
 };
 
 class Logger;

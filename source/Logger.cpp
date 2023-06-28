@@ -134,7 +134,7 @@ LogFile::~LogFile()
 Flusher::Flusher(std::stringstream &stream, const std::string &componentName, const Severity &severity)
     : m_stream{stream}, m_severity{severity}
 {
-    if (isConsoleLogEnabled())
+    if (LogFile::instance().isEnabled() || isConsoleLogEnabled())
     {
         const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
         const std::time_t t_c = std::chrono::system_clock::to_time_t(now);

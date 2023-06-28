@@ -117,7 +117,7 @@ LogFile::LogFile()
     std::string logPath{getRialtoLogPath()};
     if (!logPath.empty())
     {
-        // Add suffix to have rialto client and rialto ocdm logs in separate directories
+        // Add suffix to have rialto client and rialto ocdm logs in separate files
         logPath += ".ocdm";
         m_file = std::fstream(logPath, std::fstream::out);
     }

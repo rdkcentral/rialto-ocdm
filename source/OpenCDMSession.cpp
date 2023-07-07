@@ -226,6 +226,13 @@ bool OpenCDMSession::getChallengeData(std::vector<uint8_t> &challengeData)
 void OpenCDMSession::addProtectionMeta(GstBuffer *buffer, GstBuffer *subSample, const uint32_t subSampleCount,
                                        GstBuffer *IV, GstBuffer *keyID, uint32_t initWithLast15)
 {
+    // Set key for Playready
+    if (keyID && 0 == gst_buffer_get_size(keyID) && !m_playreadyKeyId.empty())
+    {
+        gst_buffer_unref(keyID);
+        keyID = gst_buffer_new_allocate(nullptr, m_playreadyKeyId.size(), nullptr);
+        gst_buffer_fill(keyID, 0, m_playreadyKeyId.data(), m_playreadyKeyId.size());
+    }
 
     GstStructure *info = gst_structure_new("application/x-cenc", "encrypted", G_TYPE_BOOLEAN, TRUE, "mks_id", G_TYPE_INT,
                                            m_rialtoSessionId, "kid", GST_TYPE_BUFFER, keyID, "iv_size", G_TYPE_UINT,
@@ -387,18 +394,9 @@ bool OpenCDMSession::setDrmHeader(const std::vector<uint8_t> &drmHeader)
 
 bool OpenCDMSession::selectKeyId(const std::vector<uint8_t> &keyId)
 {
-    if (!m_cdmBackend)
-    {
-        m_log << error << "Cdm is NULL or not initialized";
-        return false;
-    }
-
-    if (-1 != m_rialtoSessionId)
-    {
-        return m_cdmBackend->selectKeyId(m_rialtoSessionId, keyId);
-    }
-
-    return false;
+    m_log << debug << "Playready key selected.";
+    m_playreadyKeyId = keyId;
+    return true;
 }
 
 void OpenCDMSession::onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage,

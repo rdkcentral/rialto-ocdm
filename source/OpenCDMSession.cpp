@@ -304,6 +304,14 @@ bool OpenCDMSession::addProtectionMeta(GstBuffer *buffer)
         gst_structure_set(info, "encryption_scheme", G_TYPE_UINT, 0, NULL);
     }
 
+    // Set key for Playready
+    if (!m_playreadyKeyId.empty())
+    {
+        GstBuffer *keyID = gst_buffer_new_allocate(nullptr, m_playreadyKeyId.size(), nullptr);
+        gst_buffer_fill(keyID, 0, m_playreadyKeyId.data(), m_playreadyKeyId.size());
+        gst_structure_set(info, "kid", GST_TYPE_BUFFER, keyID, NULL);
+    }
+
     rialto_mse_add_protection_metadata(buffer, info);
 
     return true;

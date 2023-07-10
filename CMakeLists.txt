@@ -36,9 +36,12 @@ add_compile_options(
   "-Wno-deprecated-declarations"
 )
 
-find_package( Rialto REQUIRED )
-find_package( ocdm REQUIRED )
 find_package( PkgConfig REQUIRED )
+find_package( Threads REQUIRED )
+if( NOT CMAKE_BUILD_FLAG STREQUAL "UnitTests" )
+        find_package( Rialto REQUIRED )
+        find_package( ocdm REQUIRED )
+endif()
 pkg_check_modules( GStreamerApp REQUIRED IMPORTED_TARGET gstreamer-app-1.0 )
 
 if ( RIALTO_ENABLE_DECRYPT_BUFFER )
@@ -60,66 +63,78 @@ set(LIB_OCDM_RIALTO_SOURCES
         source/Utils.cpp
         source/RialtoGStreamerEMEProtectionMetadata.cpp)
 
-add_library(ocdmRialto SHARED ${LIB_OCDM_RIALTO_SOURCES} )
+# Config and target for building the unit tests
+if( NOT CMAKE_BUILD_FLAG STREQUAL "UnitTests" )
+        add_library(ocdmRialto SHARED ${LIB_OCDM_RIALTO_SOURCES} )
 
-set_target_properties(
-        ocdmRialto
-        PROPERTIES LINK_FLAGS "-Wl,--unresolved-symbols=report-all"
-                   SOVERSION  ${PROJECT_VERSION_MAJOR}
-                   VERSION    ${CMAKE_PROJECT_VERSION}
+        set_target_properties(
+                ocdmRialto
+                PROPERTIES LINK_FLAGS "-Wl,--unresolved-symbols=report-all"
+                           SOVERSION  ${PROJECT_VERSION_MAJOR}
+                           VERSION    ${CMAKE_PROJECT_VERSION}
+                )
+
+        target_include_directories(
+                ocdmRialto
+
+                PUBLIC
+                $<INSTALL_INTERFACE:include/rialto>
+
+                PRIVATE
+                include
+                ${RIALTO_INCLUDE_DIR}
+                ${GStreamerApp_INCLUDE_DIRS}
+                )
+
+        target_link_libraries(
+                ocdmRialto
+
+                PRIVATE
+                Rialto::RialtoClient
+                ${GStreamerApp_LIBRARIES}
+                )
+
+        include( GNUInstallDirs )
+
+        set (LIB_RIALTO_OCDM_PUBLIC_HEADERS
+                include/RialtoGStreamerEMEProtectionMetadata.h
         )
 
-target_include_directories(
-        ocdmRialto
+        configure_file(ocdmRialto.pc.in ocdmRialto.pc @ONLY)
 
-        PUBLIC
-        $<INSTALL_INTERFACE:include/rialto>
-
-        PRIVATE
-        include
-        ${RIALTO_INCLUDE_DIR}
-        ${GStreamerApp_INCLUDE_DIRS}
+        install (
+                FILES ${LIB_RIALTO_OCDM_PUBLIC_HEADERS}
+                DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rialto
         )
 
-target_link_libraries(
-        ocdmRialto
+        install(TARGETS ocdmRialto LIBRARY
+                DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-        PRIVATE
-        Rialto::RialtoClient
-        ${GStreamerApp_LIBRARIES}
+        install(FILES "${CMAKE_BINARY_DIR}/ocdmRialto.pc"
+                DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+
+        # Retrieve the commit ID
+        execute_process(
+            COMMAND git rev-parse HEAD
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
+            RESULT_VARIABLE RESULT 
+            OUTPUT_VARIABLE COMMIT_ID 
+            OUTPUT_STRIP_TRAILING_WHITESPACE 
         )
 
-include( GNUInstallDirs )
+        if(RESULT)
+            message("Failed to get git commit ID: ${RESULT}")
+        endif()
 
-set (LIB_RIALTO_OCDM_PUBLIC_HEADERS
-        include/RialtoGStreamerEMEProtectionMetadata.h
-)
+        # Preprocesser Variable
+        add_compile_definitions(COMMIT_ID="${COMMIT_ID}")
 
-configure_file(ocdmRialto.pc.in ocdmRialto.pc @ONLY)
+else() # UnitTests
 
-install (
-        FILES ${LIB_RIALTO_OCDM_PUBLIC_HEADERS}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rialto
-)
+    include( cmake/googletest.cmake )
 
-install(TARGETS ocdmRialto LIBRARY
-        DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    add_subdirectory( tests/third-party EXCLUDE_FROM_ALL )
+    add_subdirectory( tests/mocks EXCLUDE_FROM_ALL )
+    add_subdirectory( tests/ut EXCLUDE_FROM_ALL )
 
-install(FILES "${CMAKE_BINARY_DIR}/ocdmRialto.pc"
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-
-# Retrieve the commit ID
-execute_process(
-    COMMAND git rev-parse HEAD
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
-    RESULT_VARIABLE RESULT 
-    OUTPUT_VARIABLE COMMIT_ID 
-    OUTPUT_STRIP_TRAILING_WHITESPACE 
-)
-
-if(RESULT)
-    message("Failed to get git commit ID: ${RESULT}")
 endif()
-
-# Preprocesser Variable
-add_compile_definitions(COMMIT_ID="${COMMIT_ID}")

@@ -2,3 +2,4 @@
 /cmake-build-*
 /clang-format_errors.log
 /clang-format_errors.xml
+/tests/third-party/include*

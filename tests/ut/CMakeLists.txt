@@ -76,6 +76,7 @@ add_gtests (
 
         # gtest code
         ActiveSessionsTests.cpp
+        CdmBackendTests.cpp
         )
 
 target_include_directories(

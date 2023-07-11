@@ -58,12 +58,6 @@ class MediaKeysFactoryMock : public IMediaKeysFactory
 public:
     MOCK_METHOD(std::unique_ptr<IMediaKeys>, createMediaKeys, (const std::string &keySystem), (const, override));
 };
-
-std::shared_ptr<IMediaKeysFactory> IMediaKeysFactory::createFactory()
-{
-    static auto factory{std::make_shared<MediaKeysFactoryMock>()};
-    return factory;
-}
 } // namespace firebolt::rialto
 
 #endif // MEDIAKEYSMOCK_H

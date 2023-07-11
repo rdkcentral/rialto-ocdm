@@ -24,6 +24,8 @@
 #include <MediaCommon.h>
 #include <gtest/gtest.h>
 
+using testing::StrictMock;
+
 namespace
 {
 constexpr LicenseType kSessionType{LicenseType::Temporary};
@@ -43,8 +45,9 @@ public:
     ~ActiveSessionsTests() override = default;
 
 protected:
-    std::shared_ptr<CdmBackendMock> m_cdmBackendMock{std::make_shared<CdmBackendMock>()};
-    std::shared_ptr<MessageDispatcherMock> m_messageDispatcherMock{std::make_shared<MessageDispatcherMock>()};
+    std::shared_ptr<StrictMock<CdmBackendMock>> m_cdmBackendMock{std::make_shared<StrictMock<CdmBackendMock>>()};
+    std::shared_ptr<StrictMock<MessageDispatcherMock>> m_messageDispatcherMock{
+        std::make_shared<StrictMock<MessageDispatcherMock>>()};
     OpenCDMSessionCallbacks m_callbacks{nullptr, keyUpdateCb, nullptr, nullptr};
 };
 

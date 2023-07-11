@@ -19,9 +19,10 @@
 
 #include "CdmBackend.h"
 
-CdmBackend::CdmBackend(const std::string &keySystem, const std::shared_ptr<MessageDispatcher> &messageDispatcher)
+CdmBackend::CdmBackend(const std::string &keySystem,
+                       const std::shared_ptr<firebolt::rialto::IMediaKeysClient> &mediaKeysClient)
     : m_log{"CdmBackend"}, m_appState{firebolt::rialto::ApplicationState::UNKNOWN}, m_keySystem{keySystem},
-      m_messageDispatcher{messageDispatcher}
+      m_mediaKeysClient{mediaKeysClient}
 {
 }
 
@@ -97,7 +98,7 @@ bool CdmBackend::createKeySession(firebolt::rialto::KeySessionType sessionType, 
         return false;
     }
     return firebolt::rialto::MediaKeyErrorStatus::OK ==
-           m_mediaKeys->createKeySession(sessionType, m_messageDispatcher, isLDL, keySessionId);
+           m_mediaKeys->createKeySession(sessionType, m_mediaKeysClient, isLDL, keySessionId);
 }
 
 bool CdmBackend::generateRequest(int32_t keySessionId, firebolt::rialto::InitDataType initDataType,

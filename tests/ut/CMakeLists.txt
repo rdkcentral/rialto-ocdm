@@ -17,6 +17,60 @@
 # limitations under the License.
 #
 
+# Retrieve the commit ID
+execute_process(
+    COMMAND git rev-parse HEAD
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
+    RESULT_VARIABLE RESULT 
+    OUTPUT_VARIABLE COMMIT_ID 
+    OUTPUT_STRIP_TRAILING_WHITESPACE 
+)
+
+if(RESULT)
+    message("Failed to get git commit ID: ${RESULT}")
+endif()
+
+# Preprocesser Variable
+add_compile_definitions(COMMIT_ID="${COMMIT_ID}")
+
+add_library(
+        ocdmRialtoTestLib
+
+        STATIC
+        ${CMAKE_SOURCE_DIR}/library/source/open_cdm.cpp
+        ${CMAKE_SOURCE_DIR}/library/source/open_cdm_adapter.cpp
+        ${CMAKE_SOURCE_DIR}/library/source/open_cdm_ext.cpp
+
+        ${CMAKE_SOURCE_DIR}/library/source/ActiveSessions.cpp
+        ${CMAKE_SOURCE_DIR}/library/source/CdmBackend.cpp
+        ${CMAKE_SOURCE_DIR}/library/source/Logger.cpp
+        ${CMAKE_SOURCE_DIR}/library/source/MediaKeysCapabilitiesBackend.cpp
+        ${CMAKE_SOURCE_DIR}/library/source/OpenCDMSessionPrivate.cpp
+        ${CMAKE_SOURCE_DIR}/library/source/OpenCDMSystemPrivate.cpp
+        ${CMAKE_SOURCE_DIR}/library/source/MessageDispatcher.cpp
+        ${CMAKE_SOURCE_DIR}/library/source/Utils.cpp
+        ${CMAKE_SOURCE_DIR}/library/source/RialtoGStreamerEMEProtectionMetadata.cpp
+)
+
+target_include_directories(
+        ocdmRialtoTestLib
+
+        PUBLIC
+        ${CMAKE_SOURCE_DIR}/library/include
+        ${CMAKE_SOURCE_DIR}/tests/third-party/include
+
+        PRIVATE
+        ${GStreamerApp_INCLUDE_DIRS}
+        )
+
+target_link_libraries(
+        ocdmRialtoTestLib
+
+        PRIVATE
+        RialtoOcdmMocks
+        ${GStreamerApp_LIBRARIES}
+        )
+
 add_gtests (
         RialtoOcdmUnitTests
 
@@ -29,12 +83,13 @@ target_include_directories(
 
         PRIVATE
         $<TARGET_PROPERTY:RialtoOcdmMocks,INTERFACE_INCLUDE_DIRECTORIES>
-        ${CMAKE_SOURCE_DIR}/library/include
-        ${CMAKE_SOURCE_DIR}/tests/third-party/include
+        $<TARGET_PROPERTY:ocdmRialtoTestLib,INTERFACE_INCLUDE_DIRECTORIES>
 
         mocks
 )
 
-# target_link_libraries(
-#         RialtoOcdmUnitTests
-#         )
+target_link_libraries(
+        RialtoOcdmUnitTests
+
+        ocdmRialtoTestLib
+)

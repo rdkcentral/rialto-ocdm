@@ -34,7 +34,6 @@ public:
     virtual ~ICdmBackend() = default;
 
     virtual bool initialize(const firebolt::rialto::ApplicationState &initialState) = 0;
-
     virtual bool selectKeyId(int32_t keySessionId, const std::vector<uint8_t> &keyId) = 0;
     virtual bool containsKey(int32_t keySessionId, const std::vector<uint8_t> &keyId) = 0;
     virtual bool createKeySession(firebolt::rialto::KeySessionType sessionType, bool isLDL, int32_t &keySessionId) = 0;

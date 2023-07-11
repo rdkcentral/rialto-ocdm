@@ -17,6 +17,11 @@
 # limitations under the License.
 #
 
+set( CMAKE_CXX_STANDARD 14 )
+
+set( CMAKE_CXX_STANDARD_REQUIRED ON )
+include( CheckCXXCompilerFlag )
+
 file(DOWNLOAD
     https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IMediaKeys.h
     ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeys.h)
@@ -32,6 +37,18 @@ file(DOWNLOAD
 file(DOWNLOAD
     https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/ControlCommon.h
     ${CMAKE_SOURCE_DIR}/tests/third-party/include/ControlCommon.h)
+
+file(DOWNLOAD
+    https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IControlClient.h
+    ${CMAKE_SOURCE_DIR}/tests/third-party/include/IControlClient.h)
+
+file(DOWNLOAD
+    https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IControl.h
+    ${CMAKE_SOURCE_DIR}/tests/third-party/include/IControl.h)
+
+file(DOWNLOAD
+    https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IMediaKeysCapabilities.h
+    ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeysCapabilities.h)
 
 file(DOWNLOAD
     https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/open_cdm.h

@@ -31,5 +31,6 @@ target_include_directories(
         RialtoOcdmMocks
 
         INTERFACE
+        ${CMAKE_SOURCE_DIR}/tests/third-party/include
         .
     )

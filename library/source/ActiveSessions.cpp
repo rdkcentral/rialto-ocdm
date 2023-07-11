@@ -18,6 +18,7 @@
  */
 
 #include "ActiveSessions.h"
+#include "OpenCDMSessionPrivate.h"
 #include <algorithm>
 
 ActiveSessions &ActiveSessions::instance()
@@ -33,7 +34,7 @@ OpenCDMSession *ActiveSessions::create(const std::shared_ptr<ICdmBackend> &cdm,
 {
     std::unique_lock<std::mutex> lock{m_mutex};
     OpenCDMSession *newSession =
-        new OpenCDMSession(cdm, messageDispatcher, sessionType, callbacks, context, initDataType, initData);
+        new OpenCDMSessionPrivate(cdm, messageDispatcher, sessionType, callbacks, context, initDataType, initData);
     m_activeSessions.insert(std::make_pair(newSession, 1));
     return newSession;
 }

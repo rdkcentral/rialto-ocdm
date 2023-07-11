@@ -20,9 +20,14 @@
 #ifndef ACTIVESESSIONS_H
 #define ACTIVESESSIONS_H
 
+#include "ICdmBackend.h"
+#include "IMessageDispatcher.h"
 #include "OpenCDMSession.h"
+#include <MediaCommon.h>
 #include <map>
+#include <memory>
 #include <mutex>
+#include <opencdm/open_cdm.h>
 
 class ActiveSessions
 {

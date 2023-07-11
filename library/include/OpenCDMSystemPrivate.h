@@ -2,7 +2,7 @@
  * If not stated otherwise in this file or this component's LICENSE file the
  * following copyright and licenses apply:
  *
- * Copyright 2022 Sky UK
+ * Copyright 2023 Sky UK
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,24 @@
  * limitations under the License.
  */
 
-#include "ActiveSessions.h"
+#ifndef OPENCDMSYSTEMPRIVATE_H
+#define OPENCDMSYSTEMPRIVATE_H
+
 #include "CdmBackend.h"
 #include "MessageDispatcher.h"
+#include "OpenCDMSystem.h"
 #include <IControl.h>
 #include <memory>
-#include <string>
 
-struct OpenCDMSystem
+class OpenCDMSystemPrivate : public OpenCDMSystem
 {
-    OpenCDMSystem(const char system[], const std::string &metadata);
-    ~OpenCDMSystem() = default;
-    OpenCDMSystem(const OpenCDMSystem &) = default;
-    OpenCDMSystem(OpenCDMSystem &&) = default;
-    OpenCDMSystem &operator=(OpenCDMSystem &&) = default;
-    OpenCDMSystem &operator=(const OpenCDMSystem &) = default;
+public:
+    OpenCDMSystemPrivate(const char system[], const std::string &metadata);
+    ~OpenCDMSystemPrivate() = default;
+    OpenCDMSystemPrivate(const OpenCDMSystemPrivate &) = default;
+    OpenCDMSystemPrivate(OpenCDMSystemPrivate &&) = default;
+    OpenCDMSystemPrivate &operator=(OpenCDMSystemPrivate &&) = default;
+    OpenCDMSystemPrivate &operator=(const OpenCDMSystemPrivate &) = default;
     const std::string &keySystem() const;
     const std::string &Metadata() const;
     OpenCDMSession *createSession(const LicenseType licenseType, OpenCDMSessionCallbacks *callbacks, void *userData,
@@ -50,3 +53,5 @@ private:
     std::shared_ptr<MessageDispatcher> m_messageDispatcher;
     std::shared_ptr<CdmBackend> m_cdmBackend;
 };
+
+#endif // OPENCDMSYSTEMPRIVATE_H

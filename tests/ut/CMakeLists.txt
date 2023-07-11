@@ -29,7 +29,7 @@ target_include_directories(
 
         PRIVATE
         $<TARGET_PROPERTY:RialtoOcdmMocks,INTERFACE_INCLUDE_DIRECTORIES>
-        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/library/include
         ${CMAKE_SOURCE_DIR}/tests/third-party/include
 
         mocks
@@ -38,11 +38,3 @@ target_include_directories(
 # target_link_libraries(
 #         RialtoOcdmUnitTests
 #         )
-
-if ( COVERAGE_ENABLED )
-    target_link_libraries(
-        RialtoOcdmUnitTests
-
-        gcov
-        )
-endif()

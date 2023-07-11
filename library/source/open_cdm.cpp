@@ -23,7 +23,7 @@
 #include "Logger.h"
 #include "MediaKeysCapabilitiesBackend.h"
 #include "OpenCDMSession.h"
-#include "OpenCDMSystem.h"
+#include "OpenCDMSystemPrivate.h"
 #include "Utils.h"
 #include <cassert>
 #include <cstring>
@@ -56,7 +56,7 @@ OpenCDMError opencdm_create_system_extended(const char keySystem[], struct OpenC
 {
     assert(system != nullptr);
 
-    *system = new OpenCDMSystem(keySystem, "");
+    *system = new OpenCDMSystemPrivate(keySystem, "");
 
     return ERROR_NONE;
 }

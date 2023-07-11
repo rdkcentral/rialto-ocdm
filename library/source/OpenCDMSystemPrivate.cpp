@@ -17,9 +17,11 @@
  * limitations under the License.
  */
 
-#include "OpenCDMSystem.h"
+#include "OpenCDMSystemPrivate.h"
+#include "ActiveSessions.h"
+#include <MediaCommon.h>
 
-OpenCDMSystem::OpenCDMSystem(const char system[], const std::string &metadata)
+OpenCDMSystemPrivate::OpenCDMSystemPrivate(const char system[], const std::string &metadata)
     : m_keySystem(system),
       m_metadata(metadata), m_control{firebolt::rialto::IControlFactory::createFactory()->createControl()},
       m_messageDispatcher{std::make_shared<MessageDispatcher>()},
@@ -30,25 +32,25 @@ OpenCDMSystem::OpenCDMSystem(const char system[], const std::string &metadata)
     m_cdmBackend->initialize(initialState);
 }
 
-const std::string &OpenCDMSystem::keySystem() const
+const std::string &OpenCDMSystemPrivate::keySystem() const
 {
     return m_keySystem;
 }
 
-const std::string &OpenCDMSystem::Metadata() const
+const std::string &OpenCDMSystemPrivate::Metadata() const
 {
     return m_metadata;
 }
 
-OpenCDMSession *OpenCDMSystem::createSession(const LicenseType licenseType, OpenCDMSessionCallbacks *callbacks,
-                                             void *userData, const std::string &initDataType,
-                                             const std::vector<uint8_t> &initData) const
+OpenCDMSession *OpenCDMSystemPrivate::createSession(const LicenseType licenseType, OpenCDMSessionCallbacks *callbacks,
+                                                    void *userData, const std::string &initDataType,
+                                                    const std::vector<uint8_t> &initData) const
 {
     return ActiveSessions::instance().create(m_cdmBackend, m_messageDispatcher, licenseType, callbacks, userData,
                                              initDataType, initData);
 }
 
-bool OpenCDMSystem::getDrmTime(uint64_t &drmTime) const
+bool OpenCDMSystemPrivate::getDrmTime(uint64_t &drmTime) const
 {
     if (!m_cdmBackend)
     {
@@ -57,7 +59,7 @@ bool OpenCDMSystem::getDrmTime(uint64_t &drmTime) const
     return m_cdmBackend->getDrmTime(drmTime);
 }
 
-bool OpenCDMSystem::getLdlSessionsLimit(uint32_t &ldlLimit) const
+bool OpenCDMSystemPrivate::getLdlSessionsLimit(uint32_t &ldlLimit) const
 {
     if (!m_cdmBackend)
     {
@@ -66,7 +68,7 @@ bool OpenCDMSystem::getLdlSessionsLimit(uint32_t &ldlLimit) const
     return m_cdmBackend->getLdlSessionsLimit(ldlLimit);
 }
 
-bool OpenCDMSystem::getKeyStoreHash(std::vector<unsigned char> &keyStoreHash) const
+bool OpenCDMSystemPrivate::getKeyStoreHash(std::vector<unsigned char> &keyStoreHash) const
 {
     if (!m_cdmBackend)
     {
@@ -75,7 +77,7 @@ bool OpenCDMSystem::getKeyStoreHash(std::vector<unsigned char> &keyStoreHash) co
     return m_cdmBackend->getKeyStoreHash(keyStoreHash);
 }
 
-bool OpenCDMSystem::getDrmStoreHash(std::vector<unsigned char> &drmStoreHash) const
+bool OpenCDMSystemPrivate::getDrmStoreHash(std::vector<unsigned char> &drmStoreHash) const
 {
     if (!m_cdmBackend)
     {
@@ -84,7 +86,7 @@ bool OpenCDMSystem::getDrmStoreHash(std::vector<unsigned char> &drmStoreHash) co
     return m_cdmBackend->getDrmStoreHash(drmStoreHash);
 }
 
-bool OpenCDMSystem::deleteKeyStore() const
+bool OpenCDMSystemPrivate::deleteKeyStore() const
 {
     if (!m_cdmBackend)
     {
@@ -93,7 +95,7 @@ bool OpenCDMSystem::deleteKeyStore() const
     return m_cdmBackend->deleteKeyStore();
 }
 
-bool OpenCDMSystem::deleteDrmStore() const
+bool OpenCDMSystemPrivate::deleteDrmStore() const
 {
     if (!m_cdmBackend)
     {

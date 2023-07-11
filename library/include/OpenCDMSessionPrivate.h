@@ -2,7 +2,7 @@
  * If not stated otherwise in this file or this component's LICENSE file the
  * following copyright and licenses apply:
  *
- * Copyright 2022 Sky UK
+ * Copyright 2023 Sky UK
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,16 @@
  * limitations under the License.
  */
 
-#ifndef OPENCDMSESSION_H
-#define OPENCDMSESSION_H
+#ifndef OPENCDMSESSIONPRIVATE_H
+#define OPENCDMSESSIONPRIVATE_H
 
 #include "IMediaKeysClient.h"
 #include "Logger.h"
+#include "OpenCDMSession.h"
 #include <ICdmBackend.h>
 #include <IMessageDispatcher.h>
 #include <MediaCommon.h>
 #include <condition_variable>
-#include <functional>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -38,43 +38,39 @@ struct _GstBuffer;
 typedef struct _GstCaps GstCaps;
 typedef struct _GstBuffer GstBuffer;
 
-class OpenCDMSession : public firebolt::rialto::IMediaKeysClient
+class OpenCDMSessionPrivate : public OpenCDMSession, public firebolt::rialto::IMediaKeysClient
 {
 public:
-    typedef std::function<void(const std::vector<uint8_t> &license_renewal_message, uint64_t session_id)> LicenseRenewalCallback;
-    typedef std::function<void(const std::vector<std::pair<std::vector<uint8_t>, firebolt::rialto::KeyStatus>> &key_statuses,
-                               uint64_t session_id)>
-        KeyStatusesChangedCallback;
-
-    OpenCDMSession(const std::shared_ptr<ICdmBackend> &cdm, const std::shared_ptr<IMessageDispatcher> &messageDispatcher,
-                   const LicenseType &sessionType, OpenCDMSessionCallbacks *callbacks, void *context,
-                   const std::string &initDataType, const std::vector<uint8_t> &initData);
-    ~OpenCDMSession();
+    OpenCDMSessionPrivate(const std::shared_ptr<ICdmBackend> &cdm,
+                          const std::shared_ptr<IMessageDispatcher> &messageDispatcher, const LicenseType &sessionType,
+                          OpenCDMSessionCallbacks *callbacks, void *context, const std::string &initDataType,
+                          const std::vector<uint8_t> &initData);
+    ~OpenCDMSessionPrivate();
 
     void onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage,
                           const std::string &url) override;
     void onLicenseRenewal(int32_t keySessionId, const std::vector<unsigned char> &licenseRenewalMessage) override;
     void onKeyStatusesChanged(int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses) override;
 
-    bool initialize();
-    bool initialize(bool);
+    bool initialize() override;
+    bool initialize(bool) override;
     bool generateRequest(const std::string &initDataType, const std::vector<uint8_t> &initData,
-                         const std::vector<uint8_t> &cdmData);
-    bool loadSession();
-    bool updateSession(const std::vector<uint8_t> &license);
-    bool getChallengeData(std::vector<uint8_t> &challengeData);
-    bool containsKey(const std::vector<uint8_t> &keyId);
-    bool setDrmHeader(const std::vector<uint8_t> &drmHeader);
-    bool selectKeyId(const std::vector<uint8_t> &keyId);
+                         const std::vector<uint8_t> &cdmData) override;
+    bool loadSession() override;
+    bool updateSession(const std::vector<uint8_t> &license) override;
+    bool getChallengeData(std::vector<uint8_t> &challengeData) override;
+    bool containsKey(const std::vector<uint8_t> &keyId) override;
+    bool setDrmHeader(const std::vector<uint8_t> &drmHeader) override;
+    bool selectKeyId(const std::vector<uint8_t> &keyId) override;
     void addProtectionMeta(GstBuffer *buffer, GstBuffer *subSample, const uint32_t subSampleCount, GstBuffer *IV,
-                           GstBuffer *keyID, uint32_t initWithLast15);
-    bool addProtectionMeta(GstBuffer *buffer);
-    bool closeSession();
-    bool removeSession();
-    KeyStatus status(const std::vector<uint8_t> &key) const;
+                           GstBuffer *keyID, uint32_t initWithLast15) override;
+    bool addProtectionMeta(GstBuffer *buffer) override;
+    bool closeSession() override;
+    bool removeSession() override;
+    KeyStatus status(const std::vector<uint8_t> &key) const override;
 
-    const std::string &getSessionId() const;
-    uint32_t getLastDrmError() const;
+    const std::string &getSessionId() const override;
+    uint32_t getLastDrmError() const override;
 
 private:
     void initializeCdmKeySessionId();
@@ -103,4 +99,4 @@ private:
     firebolt::rialto::InitDataType getRialtoInitDataType(const std::string &type);
 };
 
-#endif // OPENCDMSESSION_H
+#endif // OPENCDMSESSIONPRIVATE_H

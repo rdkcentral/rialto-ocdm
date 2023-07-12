@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+pkg_check_modules( GStreamerApp REQUIRED IMPORTED_TARGET gstreamer-app-1.0 gstreamer-pbutils-1.0 gstreamer-audio-1.0)
+
 # Retrieve the commit ID
 execute_process(
     COMMAND git rev-parse HEAD
@@ -70,7 +72,7 @@ target_link_libraries(
         RialtoOcdmMocks
         ocdmRialtoThirdParty
         ${GStreamerApp_LIBRARIES}
-        )
+)
 
 add_gtests (
         RialtoOcdmUnitTests
@@ -80,6 +82,7 @@ add_gtests (
         CdmBackendTests.cpp
         MediaKeysCapabilitiesBackendTests.cpp
         MessageDispatcherTests.cpp
+        OpenCdmAdapterTests.cpp
         OpenCdmTests.cpp
         )
 
@@ -89,6 +92,7 @@ target_include_directories(
         PRIVATE
         $<TARGET_PROPERTY:RialtoOcdmMocks,INTERFACE_INCLUDE_DIRECTORIES>
         $<TARGET_PROPERTY:ocdmRialtoTestLib,INTERFACE_INCLUDE_DIRECTORIES>
+        ${GStreamerApp_INCLUDE_DIRS}
 
         mocks
 )
@@ -98,4 +102,5 @@ target_link_libraries(
 
         ocdmRialtoThirdParty
         ocdmRialtoTestLib
+        ${GStreamerApp_LIBRARIES}
 )

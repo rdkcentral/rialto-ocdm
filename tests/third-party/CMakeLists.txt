@@ -71,6 +71,7 @@ add_library(
 
     STATIC
 
+    source/ControlFactory.cpp
     source/MediaKeysCapabilitiesFactory.cpp
     source/MediaKeysFactory.cpp
 )

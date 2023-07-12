@@ -17,24 +17,15 @@
  * limitations under the License.
  */
 
-#ifndef FIREBOLT_RIALTO_MEDIAKEYSCLIENTMOCK_H
-#define FIREBOLT_RIALTO_MEDIAKEYSCLIENTMOCK_H
+#include "ControlMock.h"
 
-#include "IMediaKeysClient.h"
-#include <gmock/gmock.h>
+using testing::StrictMock;
 
 namespace firebolt::rialto
 {
-class MediaKeysClientMock : public IMediaKeysClient
+std::shared_ptr<IControlFactory> IControlFactory::createFactory()
 {
-public:
-    MOCK_METHOD(void, onLicenseRequest,
-                (int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage, const std::string &url),
-                (override));
-    MOCK_METHOD(void, onLicenseRenewal, (int32_t keySessionId, const std::vector<unsigned char> &licenseRenewalMessage),
-                (override));
-    MOCK_METHOD(void, onKeyStatusesChanged, (int32_t keySessionId, const KeyStatusVector &keyStatuses), (override));
-};
+    static auto controlFactory{std::make_shared<StrictMock<ControlFactoryMock>>()};
+    return controlFactory;
+}
 } // namespace firebolt::rialto
-
-#endif // FIREBOLT_RIALTO_MEDIAKEYSCLIENTMOCK_H

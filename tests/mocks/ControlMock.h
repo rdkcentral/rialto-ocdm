@@ -17,27 +17,25 @@
  * limitations under the License.
  */
 
-#ifndef FIREBOLT_RIALTO_MEDIAKEYSCAPABILITIESMOCK_H
-#define FIREBOLT_RIALTO_MEDIAKEYSCAPABILITIESMOCK_H
+#ifndef FIREBOLT_RIALTO_CONTROL_MOCK_H
+#define FIREBOLT_RIALTO_CONTROL_MOCK_H
 
-#include "IMediaKeysCapabilities.h"
+#include "IControl.h"
 #include <gmock/gmock.h>
 
 namespace firebolt::rialto
 {
-class MediaKeysCapabilitiesFactoryMock : public IMediaKeysCapabilitiesFactory
+class ControlFactoryMock : public IControlFactory
 {
 public:
-    MOCK_METHOD(std::shared_ptr<IMediaKeysCapabilities>, getMediaKeysCapabilities, (), (const, override));
+    MOCK_METHOD(std::shared_ptr<IControl>, createControl, (), (const, override));
 };
 
-class MediaKeysCapabilitiesMock : public IMediaKeysCapabilities
+class ControlMock : public IControl
 {
 public:
-    MOCK_METHOD(std::vector<std::string>, getSupportedKeySystems, (), (override));
-    MOCK_METHOD(bool, supportsKeySystem, (const std::string &keySystem), (override));
-    MOCK_METHOD(bool, getSupportedKeySystemVersion, (const std::string &keySystem, std::string &version), (override));
+    MOCK_METHOD(bool, registerClient, (std::weak_ptr<IControlClient> client, ApplicationState &appState), (override));
 };
 } // namespace firebolt::rialto
 
-#endif // FIREBOLT_RIALTO_MEDIAKEYSCAPABILITIESMOCK_H
+#endif // FIREBOLT_RIALTO_CONTROL_MOCK_H

@@ -80,6 +80,7 @@ add_gtests (
         CdmBackendTests.cpp
         MediaKeysCapabilitiesBackendTests.cpp
         MessageDispatcherTests.cpp
+        OpenCdmTests.cpp
         )
 
 target_include_directories(

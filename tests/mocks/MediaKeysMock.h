@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef MEDIAKEYSMOCK_H
-#define MEDIAKEYSMOCK_H
+#ifndef FIREBOLT_RIALTO_MEDIAKEYSMOCK_H
+#define FIREBOLT_RIALTO_MEDIAKEYSMOCK_H
 
 #include "IMediaKeys.h"
 #include <gmock/gmock.h>
@@ -60,4 +60,4 @@ public:
 };
 } // namespace firebolt::rialto
 
-#endif // MEDIAKEYSMOCK_H
+#endif // FIREBOLT_RIALTO_MEDIAKEYSMOCK_H

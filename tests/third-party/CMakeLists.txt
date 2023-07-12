@@ -65,3 +65,30 @@ file(DOWNLOAD
 file(DOWNLOAD
     https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/adapter/open_cdm_adapter.h
     ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm_adapter.h)
+
+add_library(
+    ocdmRialtoThirdParty
+
+    STATIC
+
+    source/MediaKeysCapabilitiesFactory.cpp
+    source/MediaKeysFactory.cpp
+)
+
+target_include_directories(
+    ocdmRialtoThirdParty
+
+    PUBLIC
+    include
+
+    PRIVATE
+    $<TARGET_PROPERTY:RialtoOcdmMocks,INTERFACE_INCLUDE_DIRECTORIES>
+)
+
+target_link_libraries(
+    ocdmRialtoThirdParty
+
+    PRIVATE
+    RialtoOcdmMocks
+    GoogleTest::gmock
+)

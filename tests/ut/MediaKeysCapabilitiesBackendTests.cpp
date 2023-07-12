@@ -22,6 +22,7 @@
 #include <gtest/gtest.h>
 
 using firebolt::rialto::MediaKeysCapabilitiesFactoryMock;
+using firebolt::rialto::MediaKeysCapabilitiesMock;
 using testing::_;
 using testing::AtLeast;
 using testing::Return;
@@ -31,20 +32,6 @@ namespace
 {
 const std::string kKeySystem{"com.netflix.playready"};
 } // namespace
-
-namespace firebolt::rialto
-{
-std::shared_ptr<IMediaKeysCapabilitiesFactory> IMediaKeysCapabilitiesFactory::createFactory()
-{
-    static std::shared_ptr<StrictMock<MediaKeysCapabilitiesMock>> mediaKeysCapabilitiesMock{
-        std::make_shared<StrictMock<MediaKeysCapabilitiesMock>>()};
-    static std::shared_ptr<StrictMock<MediaKeysCapabilitiesFactoryMock>> mediaKeysCapabilitiesFactoryMock{
-        std::make_shared<StrictMock<MediaKeysCapabilitiesFactoryMock>>()};
-    EXPECT_CALL(*mediaKeysCapabilitiesFactoryMock, getMediaKeysCapabilities())
-        .Times(AtLeast(0))
-        .WillRepeatedly(Return(mediaKeysCapabilitiesMock));
-    return mediaKeysCapabilitiesFactoryMock;
-}
 
 class MediaKeysCapabilitiesBackendTests : public testing::Test
 {
@@ -89,4 +76,3 @@ TEST_F(MediaKeysCapabilitiesBackendTests, shouldGetSupportedKeySystemVersion)
     EXPECT_CALL(*m_mediaKeysCapabilitiesMock, getSupportedKeySystemVersion(kKeySystem, _)).WillOnce(Return(true));
     EXPECT_TRUE(MediaKeysCapabilitiesBackend::instance().getSupportedKeySystemVersion(kKeySystem, version));
 }
-} // namespace firebolt::rialto

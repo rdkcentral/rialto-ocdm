@@ -68,6 +68,7 @@ target_link_libraries(
 
         PRIVATE
         RialtoOcdmMocks
+        ocdmRialtoThirdParty
         ${GStreamerApp_LIBRARIES}
         )
 
@@ -94,5 +95,6 @@ target_include_directories(
 target_link_libraries(
         RialtoOcdmUnitTests
 
+        ocdmRialtoThirdParty
         ocdmRialtoTestLib
 )

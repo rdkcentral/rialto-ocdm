@@ -28,15 +28,6 @@ using testing::ByMove;
 using testing::Return;
 using testing::StrictMock;
 
-namespace firebolt::rialto
-{
-std::shared_ptr<IMediaKeysFactory> IMediaKeysFactory::createFactory()
-{
-    static auto factory{std::make_shared<StrictMock<MediaKeysFactoryMock>>()};
-    return factory;
-}
-} // namespace firebolt::rialto
-
 namespace
 {
 const std::string kKeySystem{"com.netflix.playready"};

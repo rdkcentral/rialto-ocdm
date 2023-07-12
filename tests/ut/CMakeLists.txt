@@ -78,6 +78,7 @@ add_gtests (
         ActiveSessionsTests.cpp
         CdmBackendTests.cpp
         MediaKeysCapabilitiesBackendTests.cpp
+        MessageDispatcherTests.cpp
         )
 
 target_include_directories(

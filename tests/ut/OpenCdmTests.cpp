@@ -79,11 +79,25 @@ TEST_F(OpenCdmTests, ShouldCheckIfKeySystemIsSupported)
     EXPECT_EQ(ERROR_NONE, opencdm_is_type_supported(kNetflixKeySystem.c_str(), nullptr));
 }
 
+TEST_F(OpenCdmTests, ShouldFailToGetMetadataWhenOneOfParamsIsNull)
+{
+    uint16_t metadataSize{100};
+    EXPECT_EQ(ERROR_FAIL, opencdm_system_get_metadata(nullptr, nullptr, &metadataSize));
+    EXPECT_EQ(ERROR_FAIL, opencdm_system_get_metadata(&m_openCdmSystemMock, nullptr, nullptr));
+}
+
 TEST_F(OpenCdmTests, ShouldGetMetadata)
 {
     uint16_t metadataSize{100};
     EXPECT_EQ(ERROR_NONE, opencdm_system_get_metadata(&m_openCdmSystemMock, nullptr, &metadataSize));
     EXPECT_EQ(0, metadataSize);
+}
+
+TEST_F(OpenCdmTests, ShouldFailToGetVersionWhenParamsAreNull)
+{
+    char versionStr[64];
+    EXPECT_EQ(ERROR_FAIL, opencdm_system_get_version(nullptr, versionStr));
+    EXPECT_EQ(ERROR_FAIL, opencdm_system_get_version(&m_openCdmSystemMock, nullptr));
 }
 
 TEST_F(OpenCdmTests, ShouldFailToGetVersion)
@@ -243,9 +257,23 @@ TEST_F(OpenCdmTests, ShouldLoadSession)
     EXPECT_EQ(ERROR_NONE, opencdm_session_load(&m_openCdmSessionMock));
 }
 
+TEST_F(OpenCdmTests, ShouldFailToReturnMetadataWhenOneOfParamsIsNull)
+{
+    uint16_t metadataSize{0};
+    EXPECT_EQ(ERROR_FAIL, opencdm_session_metadata(&m_openCdmSessionMock, nullptr, nullptr));
+    EXPECT_EQ(ERROR_FAIL, opencdm_session_metadata(nullptr, nullptr, &metadataSize));
+}
+
 TEST_F(OpenCdmTests, ShouldReturnMetadata)
 {
-    EXPECT_EQ(ERROR_NONE, opencdm_session_metadata(&m_openCdmSessionMock, nullptr, nullptr));
+    uint16_t metadataSize{12};
+    EXPECT_EQ(ERROR_NONE, opencdm_session_metadata(&m_openCdmSessionMock, nullptr, &metadataSize));
+    EXPECT_EQ(0, metadataSize);
+}
+
+TEST_F(OpenCdmTests, ShouldNotReturnSessionIdWhenSessionIsNull)
+{
+    EXPECT_EQ(nullptr, opencdm_session_id(nullptr));
 }
 
 TEST_F(OpenCdmTests, ShouldReturnSessionId)
@@ -273,6 +301,7 @@ TEST_F(OpenCdmTests, ShouldCheckIfSessionContainsKey)
 TEST_F(OpenCdmTests, ShouldFailToCheckSessionStatusWhenSessionIsNull)
 {
     EXPECT_EQ(InternalError, opencdm_session_status(nullptr, kInitData.data(), kInitData.size()));
+    EXPECT_EQ(InternalError, opencdm_session_status(&m_openCdmSessionMock, nullptr, 0));
 }
 
 TEST_F(OpenCdmTests, ShouldCheckSessionStatus)
@@ -287,6 +316,11 @@ TEST_F(OpenCdmTests, ShouldCheckSessionError)
     EXPECT_EQ(0, opencdm_session_error(&m_openCdmSessionMock, kInitData.data(), kInitData.size()));
 }
 
+TEST_F(OpenCdmTests, ShouldFailToCheckSessionSystemErrorWhenSessionIsNull)
+{
+    EXPECT_EQ(ERROR_FAIL, opencdm_session_system_error(nullptr));
+}
+
 TEST_F(OpenCdmTests, ShouldCheckSessionSystemError)
 {
     EXPECT_CALL(m_openCdmSessionMock, getLastDrmError()).WillOnce(Return(0));
@@ -296,6 +330,7 @@ TEST_F(OpenCdmTests, ShouldCheckSessionSystemError)
 TEST_F(OpenCdmTests, ShouldFailToUpdateSessionWhenItIsNull)
 {
     EXPECT_EQ(ERROR_INVALID_SESSION, opencdm_session_update(nullptr, kInitData.data(), kInitData.size()));
+    EXPECT_EQ(ERROR_FAIL, opencdm_session_update(&m_openCdmSessionMock, nullptr, 0));
 }
 
 TEST_F(OpenCdmTests, ShouldFailToUpdateSessionWhenOperationFails)

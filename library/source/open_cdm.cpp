@@ -78,12 +78,22 @@ OpenCDMError opencdm_is_type_supported(const char keySystem[], const char mimeTy
 
 OpenCDMError opencdm_system_get_metadata(struct OpenCDMSystem *system, char metadata[], uint16_t *metadataSize)
 {
+    if (!system || !metadataSize)
+    {
+        kLog << error << __func__ << ": System or metadataSize is NULL";
+        return ERROR_FAIL;
+    }
     *metadataSize = 0;
     return ERROR_NONE;
 }
 
 OpenCDMError opencdm_system_get_version(struct OpenCDMSystem *system, char versionStr[])
 {
+    if (!system || !versionStr)
+    {
+        kLog << error << __func__ << ": System or versionStr is NULL";
+        return ERROR_FAIL;
+    }
     std::string version;
     if (!MediaKeysCapabilitiesBackend::instance().getSupportedKeySystemVersion(system->keySystem(), version))
     {
@@ -204,11 +214,21 @@ OpenCDMError opencdm_session_load(struct OpenCDMSession *session)
 
 OpenCDMError opencdm_session_metadata(const struct OpenCDMSession *session, char metadata[], uint16_t *metadataSize)
 {
+    if (!session || !metadataSize)
+    {
+        kLog << error << __func__ << ": session or metadata size is null";
+        return ERROR_FAIL;
+    }
+    *metadataSize = 0;
     return ERROR_NONE;
 }
 
 const char *opencdm_session_id(const struct OpenCDMSession *session)
 {
+    if (!session)
+    {
+        return nullptr;
+    }
     return session->getSessionId().c_str();
 }
 
@@ -230,7 +250,7 @@ uint32_t opencdm_session_has_key_id(struct OpenCDMSession *session, const uint8_
 
 KeyStatus opencdm_session_status(const struct OpenCDMSession *session, const uint8_t keyId[], uint8_t length)
 {
-    if (session)
+    if (session && keyId && 0 != length)
     {
         std::vector<uint8_t> key(keyId, keyId + length);
         return session->status(key);
@@ -247,6 +267,11 @@ uint32_t opencdm_session_error(const struct OpenCDMSession *session, const uint8
 
 OpenCDMError opencdm_session_system_error(const struct OpenCDMSession *session)
 {
+    if (!session)
+    {
+        kLog << error << __func__ << ": Failed to get session system error - session is null";
+        return ERROR_FAIL;
+    }
     uint32_t err = session->getLastDrmError();
     // Rialto doesn't implement it yet
     switch (err)
@@ -258,23 +283,24 @@ OpenCDMError opencdm_session_system_error(const struct OpenCDMSession *session)
 
 OpenCDMError opencdm_session_update(struct OpenCDMSession *session, const uint8_t keyMessage[], uint16_t keyLength)
 {
-    OpenCDMError result = ERROR_INVALID_SESSION;
-    std::vector<uint8_t> license(keyMessage, keyMessage + keyLength);
-
-    if (session)
+    if (!session)
     {
-        if (session->updateSession(license))
-        {
-            result = ERROR_NONE;
-        }
-        else
-        {
-            kLog << error << "Failed to update the session";
-            result = ERROR_FAIL;
-        }
+        kLog << error << __func__ << ": Session is NULL";
+        return ERROR_INVALID_SESSION;
+    }
+    if (!keyMessage || keyLength == 0)
+    {
+        kLog << error << __func__ << ": keyMessage is empty";
+        return ERROR_FAIL;
+    }
+    std::vector<uint8_t> license(keyMessage, keyMessage + keyLength);
+    if (!session->updateSession(license))
+    {
+        kLog << error << "Failed to update the session";
+        return ERROR_FAIL;
     }
 
-    return result;
+    return ERROR_NONE;
 }
 
 OpenCDMError opencdm_session_remove(struct OpenCDMSession *session)

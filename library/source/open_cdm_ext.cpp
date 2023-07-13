@@ -171,7 +171,7 @@ OpenCDMError opencdm_session_set_drm_header(struct OpenCDMSession *opencdmSessio
         return ERROR_FAIL;
     }
     std::vector<uint8_t> drmHeaderVec(drmHeader, drmHeader + drmHeaderSize);
-    if (opencdmSession->setDrmHeader(drmHeaderVec))
+    if (!opencdmSession->setDrmHeader(drmHeaderVec))
     {
         kLog << error << "Failed to set Drm Header - operation returned NOK status";
         return ERROR_FAIL;
@@ -212,34 +212,36 @@ OpenCDMError opencdm_session_cancel_challenge_data(struct OpenCDMSession *mOpenC
     return ERROR_NONE;
 }
 
-OpenCDMError opencdm_session_store_license_data(struct OpenCDMSession *mOpenCDMSession, const uint8_t licenseData[],
+OpenCDMError opencdm_session_store_license_data(struct OpenCDMSession *openCDMSession, const uint8_t licenseData[],
                                                 uint32_t licenseDataSize, uint8_t *secureStopId)
 {
-    OpenCDMError result = ERROR_INVALID_SESSION;
+    if (!openCDMSession)
+    {
+        kLog << error << "Failed to store license data - session is NULL";
+        return ERROR_INVALID_SESSION;
+    }
+    if (!licenseData || 0 == licenseDataSize)
+    {
+        kLog << error << "Failed to store license data - data is null or empty";
+        return ERROR_FAIL;
+    }
     std::vector<uint8_t> license(licenseData, licenseData + licenseDataSize);
 
-    if (mOpenCDMSession)
+    if (!openCDMSession->updateSession(license))
     {
-        if (mOpenCDMSession->updateSession(license))
-        {
-            result = ERROR_NONE;
-        }
-        else
-        {
-            kLog << error << "Failed to update the session";
-            result = ERROR_FAIL;
-        }
+        kLog << error << "Failed to store license data - op failed";
+        return ERROR_FAIL;
     }
 
-    return result;
+    return ERROR_NONE;
 }
 
 OpenCDMError opencdm_session_select_key_id(struct OpenCDMSession *mOpenCDMSession, uint8_t keyLength,
                                            const uint8_t keyId[])
 {
-    if (!mOpenCDMSession)
+    if (!mOpenCDMSession || !keyId || 0 == keyLength)
     {
-        kLog << error << "Failed to select key id - session is NULL";
+        kLog << error << "Failed to select key id - session or key is NULL";
         return ERROR_FAIL;
     }
     std::vector<uint8_t> keyIdVec(keyId, keyId + keyLength);
@@ -266,6 +268,7 @@ OpenCDMError opencdm_session_clean_decrypt_context(struct OpenCDMSession *mOpenC
     if (!mOpenCDMSession->closeSession())
     {
         kLog << error << "Failed to close the session";
+        return ERROR_FAIL;
     }
     return ERROR_NONE;
 }

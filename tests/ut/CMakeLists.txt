@@ -83,6 +83,7 @@ add_gtests (
         MediaKeysCapabilitiesBackendTests.cpp
         MessageDispatcherTests.cpp
         OpenCdmAdapterTests.cpp
+        OpenCdmExtTests.cpp
         OpenCdmTests.cpp
         )
 

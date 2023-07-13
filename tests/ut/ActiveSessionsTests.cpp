@@ -20,10 +20,12 @@
 #include "ActiveSessions.h"
 #include "CdmBackendMock.h"
 #include "MessageDispatcherMock.h"
+#include "OcdmSessionsCallbacksMock.h"
 #include "OpenCDMSessionPrivate.h"
 #include <MediaCommon.h>
 #include <gtest/gtest.h>
 
+using testing::_;
 using testing::StrictMock;
 
 namespace
@@ -34,21 +36,23 @@ const std::string kInitDataType{"drmheader"};
 const std::vector<uint8_t> kInitData{4, 3, 2, 1};
 const std::vector<uint8_t> kKeyId{1, 2, 3, 4};
 const firebolt::rialto::KeyStatusVector kKeyStatusVec{std::make_pair(kKeyId, firebolt::rialto::KeyStatus::USABLE)};
-
-void keyUpdateCb(struct OpenCDMSession *, void *, const uint8_t[], const uint8_t) {}
 } // namespace
 
 class ActiveSessionsTests : public testing::Test
 {
 public:
     ActiveSessionsTests() = default;
-    ~ActiveSessionsTests() override = default;
+    ~ActiveSessionsTests() override
+    {
+        testing::Mock::VerifyAndClearExpectations(&OcdmSessionsCallbacksMock::instance());
+    }
 
 protected:
     std::shared_ptr<StrictMock<CdmBackendMock>> m_cdmBackendMock{std::make_shared<StrictMock<CdmBackendMock>>()};
     std::shared_ptr<StrictMock<MessageDispatcherMock>> m_messageDispatcherMock{
         std::make_shared<StrictMock<MessageDispatcherMock>>()};
-    OpenCDMSessionCallbacks m_callbacks{nullptr, keyUpdateCb, nullptr, nullptr};
+    OpenCDMSessionCallbacks m_callbacks{processChallengeCallback, keyUpdateCallback, errorMessageCallback,
+                                        keysUpdatedCallback};
 };
 
 TEST_F(ActiveSessionsTests, GetShouldReturnNullWhenSessionIsNotPresent)
@@ -70,6 +74,8 @@ TEST_F(ActiveSessionsTests, ShouldCreateSessionGetShouldSucceed)
                                                                 &m_callbacks, kContext, kInitDataType, kInitData);
     OpenCDMSessionPrivate *sessionPriv = dynamic_cast<OpenCDMSessionPrivate *>(session);
     ASSERT_NE(nullptr, sessionPriv);
+    EXPECT_CALL(OcdmSessionsCallbacksMock::instance(), keyUpdateCallback(session, kContext, _, kInitData.size()));
+    EXPECT_CALL(OcdmSessionsCallbacksMock::instance(), keysUpdatedCallback(session, kContext));
     sessionPriv->onKeyStatusesChanged(firebolt::rialto::kInvalidSessionId, kKeyStatusVec);
     auto *gotSession = ActiveSessions::instance().get(kKeyId);
     EXPECT_EQ(session, gotSession);
@@ -83,6 +89,8 @@ TEST_F(ActiveSessionsTests, SessionShouldExistUntilLastInstanceIsRemoved)
                                                                 &m_callbacks, kContext, kInitDataType, kInitData);
     OpenCDMSessionPrivate *sessionPriv = dynamic_cast<OpenCDMSessionPrivate *>(session);
     ASSERT_NE(nullptr, sessionPriv);
+    EXPECT_CALL(OcdmSessionsCallbacksMock::instance(), keyUpdateCallback(session, kContext, _, kInitData.size()));
+    EXPECT_CALL(OcdmSessionsCallbacksMock::instance(), keysUpdatedCallback(session, kContext));
     sessionPriv->onKeyStatusesChanged(firebolt::rialto::kInvalidSessionId, kKeyStatusVec);
     auto *gotSession = ActiveSessions::instance().get(kKeyId);
     EXPECT_EQ(session, gotSession);

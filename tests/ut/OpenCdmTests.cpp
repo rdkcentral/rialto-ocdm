@@ -19,6 +19,7 @@
 
 #include "ControlMock.h"
 #include "MediaKeysCapabilitiesMock.h"
+#include "OcdmSessionsCallbacksMock.h"
 #include "OpenCDMSessionMock.h"
 #include "OpenCDMSystemMock.h"
 #include "opencdm/open_cdm.h"
@@ -60,7 +61,8 @@ protected:
             m_mediaKeysCapabilitiesFactoryMock->getMediaKeysCapabilities())};
     StrictMock<OpenCDMSystemMock> m_openCdmSystemMock;
     StrictMock<OpenCDMSessionMock> m_openCdmSessionMock;
-    OpenCDMSessionCallbacks m_callbacks{nullptr, nullptr, nullptr, nullptr};
+    OpenCDMSessionCallbacks m_callbacks{processChallengeCallback, keyUpdateCallback, errorMessageCallback,
+                                        keysUpdatedCallback};
     int m_userData{18};
 };
 

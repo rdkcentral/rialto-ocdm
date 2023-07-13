@@ -74,6 +74,7 @@ add_library(
     source/ControlFactory.cpp
     source/MediaKeysCapabilitiesFactory.cpp
     source/MediaKeysFactory.cpp
+    source/OcdmSessionsCallbacks.cpp
 )
 
 target_include_directories(
@@ -83,6 +84,7 @@ target_include_directories(
     include
 
     PRIVATE
+    ${CMAKE_SOURCE_DIR}/library/include
     $<TARGET_PROPERTY:RialtoOcdmMocks,INTERFACE_INCLUDE_DIRECTORIES>
 )
 

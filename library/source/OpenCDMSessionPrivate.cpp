@@ -76,23 +76,7 @@ OpenCDMSessionPrivate::~OpenCDMSessionPrivate() {}
 
 bool OpenCDMSessionPrivate::initialize()
 {
-    if (!m_cdmBackend || !m_messageDispatcher)
-    {
-        m_log << error << "Cdm/message dispatcher is NULL or not initialized";
-        return false;
-    }
-    if (!m_isInitialized)
-    {
-        if (!m_cdmBackend->createKeySession(m_sessionType, false, m_rialtoSessionId))
-        {
-            m_log << error << "Failed to create a session. Got drm error %u", getLastDrmError();
-            return false;
-        }
-        m_messageDispatcherClient = m_messageDispatcher->createClient(this);
-        m_isInitialized = true;
-        m_log << info << "Successfully created a session";
-    }
-    return true;
+    return initialize(false);
 }
 
 bool OpenCDMSessionPrivate::initialize(bool isLDL)
@@ -119,7 +103,6 @@ bool OpenCDMSessionPrivate::initialize(bool isLDL)
 bool OpenCDMSessionPrivate::generateRequest(const std::string &initDataType, const std::vector<uint8_t> &initData,
                                             const std::vector<uint8_t> &cdmData)
 {
-    bool result = false;
     firebolt::rialto::InitDataType dataType = getRialtoInitDataType(initDataType);
     if (!m_cdmBackend)
     {
@@ -133,7 +116,7 @@ bool OpenCDMSessionPrivate::generateRequest(const std::string &initDataType, con
         {
             m_log << info << "Successfully generated the request for the session";
             initializeCdmKeySessionId();
-            result = true;
+            return true;
         }
         else
         {
@@ -141,12 +124,11 @@ bool OpenCDMSessionPrivate::generateRequest(const std::string &initDataType, con
         }
     }
 
-    return result;
+    return false;
 }
 
 bool OpenCDMSessionPrivate::loadSession()
 {
-    bool result = false;
     if (!m_cdmBackend)
     {
         m_log << error << "Cdm is NULL or not initialized";
@@ -158,15 +140,14 @@ bool OpenCDMSessionPrivate::loadSession()
         if (m_cdmBackend->loadSession(m_rialtoSessionId))
         {
             m_log << info << "Successfully loaded the session";
-            result = true;
+            return true;
         }
         else
         {
             m_log << error << "Failed to load the session. Got drm error " << getLastDrmError();
         }
     }
-
-    return result;
+    return false;
 }
 
 bool OpenCDMSessionPrivate::updateSession(const std::vector<uint8_t> &license)
@@ -484,11 +465,6 @@ const std::string &OpenCDMSessionPrivate::getSessionId() const
 void OpenCDMSessionPrivate::initializeCdmKeySessionId()
 {
     bool result{false};
-    if (!m_cdmBackend)
-    {
-        m_log << error << "Cdm is NULL or not initialized";
-        return;
-    }
 
     if (-1 != m_rialtoSessionId)
     {

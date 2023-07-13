@@ -84,6 +84,7 @@ add_gtests (
         MessageDispatcherTests.cpp
         OpenCdmAdapterTests.cpp
         OpenCdmExtTests.cpp
+        OpenCdmSessionTests.cpp
         OpenCdmTests.cpp
         )
 

@@ -26,10 +26,14 @@
 #include <IControl.h>
 #include <memory>
 
+OpenCDMSystem *createSystem(const char system[], const std::string &metadata);
+
 class OpenCDMSystemPrivate : public OpenCDMSystem
 {
 public:
-    OpenCDMSystemPrivate(const char system[], const std::string &metadata);
+    OpenCDMSystemPrivate(const std::string &system, const std::string &metadata,
+                         const std::shared_ptr<MessageDispatcher> &messageDispatcher,
+                         const std::shared_ptr<CdmBackend> &cdmBackend);
     ~OpenCDMSystemPrivate() = default;
     OpenCDMSystemPrivate(const OpenCDMSystemPrivate &) = default;
     OpenCDMSystemPrivate(OpenCDMSystemPrivate &&) = default;

@@ -85,6 +85,7 @@ add_gtests (
         OpenCdmAdapterTests.cpp
         OpenCdmExtTests.cpp
         OpenCdmSessionTests.cpp
+        OpenCdmSystemTests.cpp
         OpenCdmTests.cpp
         )
 

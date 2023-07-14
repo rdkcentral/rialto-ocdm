@@ -56,7 +56,7 @@ OpenCDMError opencdm_create_system_extended(const char keySystem[], struct OpenC
 {
     assert(system != nullptr);
 
-    *system = new OpenCDMSystemPrivate(keySystem, "");
+    *system = createSystem(keySystem, "");
 
     return ERROR_NONE;
 }

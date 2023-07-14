@@ -21,12 +21,25 @@
 #include "ActiveSessions.h"
 #include <MediaCommon.h>
 
-OpenCDMSystemPrivate::OpenCDMSystemPrivate(const char system[], const std::string &metadata)
+OpenCDMSystem *createSystem(const char system[], const std::string &metadata)
+{
+    const std::string kKeySystem{system};
+    auto messageDispatcher{std::make_shared<MessageDispatcher>()};
+    auto cdmBackend{std::make_shared<CdmBackend>(kKeySystem, messageDispatcher)};
+    return new OpenCDMSystemPrivate(kKeySystem, metadata, messageDispatcher, cdmBackend);
+}
+
+OpenCDMSystemPrivate::OpenCDMSystemPrivate(const std::string &system, const std::string &metadata,
+                                           const std::shared_ptr<MessageDispatcher> &messageDispatcher,
+                                           const std::shared_ptr<CdmBackend> &cdmBackend)
     : m_keySystem(system),
       m_metadata(metadata), m_control{firebolt::rialto::IControlFactory::createFactory()->createControl()},
-      m_messageDispatcher{std::make_shared<MessageDispatcher>()},
-      m_cdmBackend{std::make_shared<CdmBackend>(m_keySystem, m_messageDispatcher)}
+      m_messageDispatcher{messageDispatcher}, m_cdmBackend{cdmBackend}
 {
+    if (!m_control || !m_cdmBackend)
+    {
+        return;
+    }
     firebolt::rialto::ApplicationState initialState;
     m_control->registerClient(m_cdmBackend, initialState);
     m_cdmBackend->initialize(initialState);

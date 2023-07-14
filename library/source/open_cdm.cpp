@@ -160,7 +160,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
         return ERROR_INVALID_SESSION;
     }
 
-    if (!isNetflixKeysystem(system->keySystem()))
+    if (!isPlayreadyKeysystem(system->keySystem()))
     {
         if (!newSession->initialize())
         {

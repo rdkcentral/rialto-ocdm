@@ -19,7 +19,7 @@
 
 #include "Utils.h"
 
-bool isNetflixKeysystem(const std::string &keySystem)
+bool isPlayreadyKeysystem(const std::string &keySystem)
 {
-    return keySystem.find("netflix") != std::string::npos;
+    return keySystem.find("playready") != std::string::npos;
 }

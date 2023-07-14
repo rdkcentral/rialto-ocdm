@@ -24,6 +24,6 @@
 #include <memory>
 #include <string>
 
-bool isNetflixKeysystem(const std::string &keySystem);
+bool isPlayreadyKeysystem(const std::string &keySystem);
 
 #endif // OCDM_RIALTO_UTILS_H_

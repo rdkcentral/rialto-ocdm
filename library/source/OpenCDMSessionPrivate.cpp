@@ -300,7 +300,6 @@ bool OpenCDMSessionPrivate::addProtectionMeta(GstBuffer *buffer)
 
 bool OpenCDMSessionPrivate::closeSession()
 {
-    bool result = false;
     if (!m_cdmBackend)
     {
         m_log << error << "Cdm is NULL or not initialized";
@@ -315,7 +314,7 @@ bool OpenCDMSessionPrivate::closeSession()
             m_messageDispatcherClient.reset();
             m_challengeData.clear();
             m_keyStatuses.clear();
-            result = true;
+            return true;
         }
         else
         {
@@ -323,12 +322,11 @@ bool OpenCDMSessionPrivate::closeSession()
         }
     }
 
-    return result;
+    return false;
 }
 
 bool OpenCDMSessionPrivate::removeSession()
 {
-    bool result = false;
     if (!m_cdmBackend)
     {
         m_log << error << "Cdm is NULL or not initialized";
@@ -340,7 +338,7 @@ bool OpenCDMSessionPrivate::removeSession()
         if (m_cdmBackend->removeKeySession(m_rialtoSessionId))
         {
             m_log << info << "Successfully removed the session";
-            result = true;
+            return true;
         }
         else
         {
@@ -348,7 +346,7 @@ bool OpenCDMSessionPrivate::removeSession()
         }
     }
 
-    return result;
+    return false;
 }
 
 bool OpenCDMSessionPrivate::containsKey(const std::vector<uint8_t> &keyId)

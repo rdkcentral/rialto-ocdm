@@ -100,6 +100,15 @@ protected:
         m_sut->onLicenseRequest(kKeySessionId, kBytes1, kUrl);
     }
 
+    void updateKeyStatus(const std::vector<uint8_t> &key, const firebolt::rialto::KeyStatus &status)
+    {
+        firebolt::rialto::KeyStatusVector statusVec{std::make_pair(key, status)};
+        EXPECT_CALL(OcdmSessionsCallbacksMock::instance(),
+                    keyUpdateCallback(m_sut.get(), &m_userData, statusVec[0].first.data(), statusVec[0].first.size()));
+        EXPECT_CALL(OcdmSessionsCallbacksMock::instance(), keysUpdatedCallback(m_sut.get(), &m_userData));
+        m_sut->onKeyStatusesChanged(kKeySessionId, statusVec);
+    }
+
     void fillBuffers()
     {
         gst_init(nullptr, nullptr);
@@ -425,4 +434,219 @@ TEST_F(OpenCdmSessionTests, ShouldAddProtectionMetaFromGstProtectionMetaWithPlay
     verifyMetadata();
     verifyMetadataAdditionalFields();
     cleanBuffers();
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotCloseSessionWhenCdmBackendIsNull)
+{
+    createInvalidSut();
+    EXPECT_FALSE(m_sut->closeSession());
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotCloseSessionWhenNotInitialized)
+{
+    createSut();
+    EXPECT_FALSE(m_sut->closeSession());
+}
+
+TEST_F(OpenCdmSessionTests, ShouldFailToCloseSessionWhenOperationFails)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, closeKeySession(kKeySessionId)).WillOnce(Return(false));
+    EXPECT_FALSE(m_sut->closeSession());
+}
+
+TEST_F(OpenCdmSessionTests, ShouldCloseSession)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, closeKeySession(kKeySessionId)).WillOnce(Return(true));
+    EXPECT_TRUE(m_sut->closeSession());
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotRemoveSessionWhenCdmBackendIsNull)
+{
+    createInvalidSut();
+    EXPECT_FALSE(m_sut->removeSession());
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotRemoveSessionWhenNotInitialized)
+{
+    createSut();
+    EXPECT_FALSE(m_sut->removeSession());
+}
+
+TEST_F(OpenCdmSessionTests, ShouldFailToRemoveSessionWhenOperationFails)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, removeKeySession(kKeySessionId)).WillOnce(Return(false));
+    EXPECT_FALSE(m_sut->removeSession());
+}
+
+TEST_F(OpenCdmSessionTests, ShouldRemoveSession)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, removeKeySession(kKeySessionId)).WillOnce(Return(true));
+    EXPECT_TRUE(m_sut->removeSession());
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotContainKeyWhenCdmBackendIsNull)
+{
+    createInvalidSut();
+    EXPECT_FALSE(m_sut->containsKey(kBytes1));
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotContainKeyWhenNotInitialized)
+{
+    createSut();
+    EXPECT_FALSE(m_sut->containsKey(kBytes1));
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotContainKeyWhenOperationReturnsFalse)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, containsKey(kKeySessionId, kBytes1)).WillOnce(Return(false));
+    EXPECT_FALSE(m_sut->containsKey(kBytes1));
+}
+
+TEST_F(OpenCdmSessionTests, ShouldContainKey)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, containsKey(kKeySessionId, kBytes1)).WillOnce(Return(true));
+    EXPECT_TRUE(m_sut->containsKey(kBytes1));
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotSetDrmHeaderWhenCdmBackendIsNull)
+{
+    createInvalidSut();
+    EXPECT_FALSE(m_sut->setDrmHeader(kBytes1));
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotSetDrmHeaderWhenNotInitialized)
+{
+    createSut();
+    EXPECT_FALSE(m_sut->setDrmHeader(kBytes1));
+}
+
+TEST_F(OpenCdmSessionTests, ShouldFailToSetDrmHeaderWhenOperationFails)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, setDrmHeader(kKeySessionId, kBytes1)).WillOnce(Return(false));
+    EXPECT_FALSE(m_sut->setDrmHeader(kBytes1));
+}
+
+TEST_F(OpenCdmSessionTests, ShouldSetDrmHeader)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, setDrmHeader(kKeySessionId, kBytes1)).WillOnce(Return(true));
+    EXPECT_TRUE(m_sut->setDrmHeader(kBytes1));
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotProcessLicenseRequestWhenNotInitialized)
+{
+    createSut();
+    m_sut->onLicenseRequest(kKeySessionId, kBytes1, kUrl);
+}
+
+TEST_F(OpenCdmSessionTests, ShouldProcessLicenseRequest)
+{
+    createSut();
+    initializeSut();
+    requestLicense();
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotProcessLicenseRenewalWhenNotInitialized)
+{
+    createSut();
+    m_sut->onLicenseRenewal(kKeySessionId, kBytes1);
+}
+
+TEST_F(OpenCdmSessionTests, ShouldProcessLicenseRenewal)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(OcdmSessionsCallbacksMock::instance(),
+                processChallengeCallback(m_sut.get(), &m_userData, _, kBytes1.data(), kBytes1.size()));
+    m_sut->onLicenseRenewal(kKeySessionId, kBytes1);
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotProcessKeyStatusUpdateWhenNotInitialized)
+{
+    createSut();
+    m_sut->onKeyStatusesChanged(kKeySessionId, {});
+}
+
+TEST_F(OpenCdmSessionTests, ShouldProcessKeyStatusUpdates)
+{
+    createSut();
+    initializeSut();
+    updateKeyStatus(kBytes1, firebolt::rialto::KeyStatus::USABLE);
+    EXPECT_EQ(m_sut->status(kBytes1), Usable);
+    updateKeyStatus(kBytes1, firebolt::rialto::KeyStatus::EXPIRED);
+    EXPECT_EQ(m_sut->status(kBytes1), Expired);
+    updateKeyStatus(kBytes1, firebolt::rialto::KeyStatus::OUTPUT_RESTRICTED);
+    EXPECT_EQ(m_sut->status(kBytes1), OutputRestricted);
+    updateKeyStatus(kBytes1, firebolt::rialto::KeyStatus::PENDING);
+    EXPECT_EQ(m_sut->status(kBytes1), StatusPending);
+    updateKeyStatus(kBytes1, firebolt::rialto::KeyStatus::INTERNAL_ERROR);
+    EXPECT_EQ(m_sut->status(kBytes1), InternalError);
+    updateKeyStatus(kBytes1, firebolt::rialto::KeyStatus::RELEASED);
+    EXPECT_EQ(m_sut->status(kBytes1), Released);
+}
+
+TEST_F(OpenCdmSessionTests, ShouldReturnInternalErrorForUnknownKey)
+{
+    createSut();
+    initializeSut();
+    EXPECT_EQ(m_sut->status(kBytes1), InternalError);
+}
+
+TEST_F(OpenCdmSessionTests, ShouldReturnEmptySessionIdWhenNotInitialized)
+{
+    createSut();
+    EXPECT_EQ(m_sut->getSessionId(), "");
+}
+
+TEST_F(OpenCdmSessionTests, ShouldReturnDefaultSessionIdWhenGetCdmKeySessionIdFails)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1)).WillOnce(Return(true));
+    EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _)).WillOnce(Return(false));
+    EXPECT_TRUE(m_sut->generateRequest(kInitDataType, kBytes1, kBytes2));
+    EXPECT_EQ(m_sut->getSessionId(), "0");
+}
+
+TEST_F(OpenCdmSessionTests, ShouldReturnSessionId)
+{
+    const std::string cdmSessionId{"id"};
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1)).WillOnce(Return(true));
+    EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _))
+        .WillOnce(DoAll(SetArgReferee<1>(cdmSessionId), Return(true)));
+    EXPECT_TRUE(m_sut->generateRequest(kInitDataType, kBytes1, kBytes2));
+    EXPECT_EQ(m_sut->getSessionId(), cdmSessionId);
+}
+
+TEST_F(OpenCdmSessionTests, ShouldFailToReturnLastDrmErrorWhenCdmBackendIsNull)
+{
+    createInvalidSut();
+    EXPECT_EQ(m_sut->getLastDrmError(), -1);
+}
+
+TEST_F(OpenCdmSessionTests, ShouldReturnLastDrmError)
+{
+    constexpr uint32_t kError{13};
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, getLastDrmError(kKeySessionId, _))
+        .WillOnce(DoAll(SetArgReferee<1>(kError), Return(true)));
+    EXPECT_EQ(m_sut->getLastDrmError(), kError);
 }

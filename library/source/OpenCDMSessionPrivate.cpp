@@ -152,7 +152,6 @@ bool OpenCDMSessionPrivate::loadSession()
 
 bool OpenCDMSessionPrivate::updateSession(const std::vector<uint8_t> &license)
 {
-    bool result = false;
     if (!m_cdmBackend)
     {
         m_log << error << "Cdm is NULL or not initialized";
@@ -164,7 +163,7 @@ bool OpenCDMSessionPrivate::updateSession(const std::vector<uint8_t> &license)
         if (m_cdmBackend->updateSession(m_rialtoSessionId, license))
         {
             m_log << info << "Successfully updated the session";
-            result = true;
+            return true;
         }
         else
         {
@@ -172,7 +171,7 @@ bool OpenCDMSessionPrivate::updateSession(const std::vector<uint8_t> &license)
         }
     }
 
-    return result;
+    return false;
 }
 
 bool OpenCDMSessionPrivate::getChallengeData(std::vector<uint8_t> &challengeData)

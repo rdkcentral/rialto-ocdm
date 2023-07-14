@@ -32,7 +32,6 @@ set(LIB_OCDM_RIALTO_SOURCES
         source/OpenCDMSessionPrivate.cpp
         source/OpenCDMSystemPrivate.cpp
         source/MessageDispatcher.cpp
-        source/Utils.cpp
         source/RialtoGStreamerEMEProtectionMetadata.cpp)
 
 add_library(ocdmRialto SHARED ${LIB_OCDM_RIALTO_SOURCES} )

@@ -24,13 +24,18 @@
 #include "MediaKeysCapabilitiesBackend.h"
 #include "OpenCDMSession.h"
 #include "OpenCDMSystemPrivate.h"
-#include "Utils.h"
 #include <cassert>
 #include <cstring>
 
 namespace
 {
 const Logger kLog{"open_cdm"};
+
+bool isPlayreadyKeysystem(const std::string &keySystem)
+{
+    return keySystem.find("playready") != std::string::npos;
+}
+
 } // namespace
 
 OpenCDMSystem *opencdm_create_system(const char keySystem[])

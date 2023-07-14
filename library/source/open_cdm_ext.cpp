@@ -20,7 +20,6 @@
 #include "Logger.h"
 #include "OpenCDMSession.h"
 #include "OpenCDMSystem.h"
-#include "Utils.h"
 #include <opencdm/open_cdm_ext.h>
 
 namespace

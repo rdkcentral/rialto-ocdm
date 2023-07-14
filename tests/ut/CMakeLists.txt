@@ -50,7 +50,6 @@ add_library(
         ${CMAKE_SOURCE_DIR}/library/source/OpenCDMSessionPrivate.cpp
         ${CMAKE_SOURCE_DIR}/library/source/OpenCDMSystemPrivate.cpp
         ${CMAKE_SOURCE_DIR}/library/source/MessageDispatcher.cpp
-        ${CMAKE_SOURCE_DIR}/library/source/Utils.cpp
         ${CMAKE_SOURCE_DIR}/library/source/RialtoGStreamerEMEProtectionMetadata.cpp
 )
 

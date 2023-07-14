@@ -35,7 +35,6 @@ bool isPlayreadyKeysystem(const std::string &keySystem)
 {
     return keySystem.find("playready") != std::string::npos;
 }
-
 } // namespace
 
 OpenCDMSystem *opencdm_create_system(const char keySystem[])

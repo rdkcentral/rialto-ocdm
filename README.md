@@ -11,3 +11,9 @@ https://wiki.rdkcentral.com/display/ASP/Building+Rialto+using+Yocto
 
 ## Running Rialto:
 https://wiki.rdkcentral.com/display/ASP/Running+YouTube+with+Rialto
+
+## Build tests (work in progress):
+mkdir build && cd build
+cmake -DCMAKE_BUILD_FLAG=UnitTests ..
+make RialtoOcdmUnitTests -j16
+RIALTO_CONSOLE_LOG=1 RIALTO_DEBUG=5 ./tests/ut/RialtoOcdmUnitTests

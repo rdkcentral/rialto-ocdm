@@ -100,14 +100,14 @@ TEST_F(OpenCdmSystemTests, ShouldCreateSession)
 
 TEST_F(OpenCdmSystemTests, ShouldNotGetDrmTimeWhenCdmServiceIsNull)
 {
-    uint64_t time;
+    uint64_t time{0};
     createInvalidSut();
     EXPECT_FALSE(m_sut->getDrmTime(time));
 }
 
 TEST_F(OpenCdmSystemTests, ShouldNotGetDrmTimeWhenOperationFails)
 {
-    uint64_t time;
+    uint64_t time{0};
     createValidSut();
     EXPECT_CALL(m_mediaKeysMock, getDrmTime(time)).WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::FAIL));
     EXPECT_FALSE(m_sut->getDrmTime(time));
@@ -116,7 +116,7 @@ TEST_F(OpenCdmSystemTests, ShouldNotGetDrmTimeWhenOperationFails)
 TEST_F(OpenCdmSystemTests, ShouldGetDrmTime)
 {
     constexpr uint64_t kTime{1234};
-    uint64_t time;
+    uint64_t time{0};
     createValidSut();
     EXPECT_CALL(m_mediaKeysMock, getDrmTime(time))
         .WillOnce(DoAll(SetArgReferee<0>(kTime), Return(firebolt::rialto::MediaKeyErrorStatus::OK)));
@@ -126,14 +126,14 @@ TEST_F(OpenCdmSystemTests, ShouldGetDrmTime)
 
 TEST_F(OpenCdmSystemTests, ShouldNotGetLdlSessionsLimitWhenCdmServiceIsNull)
 {
-    uint32_t limit;
+    uint32_t limit{0};
     createInvalidSut();
     EXPECT_FALSE(m_sut->getLdlSessionsLimit(limit));
 }
 
 TEST_F(OpenCdmSystemTests, ShouldNotGetLdlSessionsLimitWhenOperationFails)
 {
-    uint32_t limit;
+    uint32_t limit{0};
     createValidSut();
     EXPECT_CALL(m_mediaKeysMock, getLdlSessionsLimit(limit)).WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::FAIL));
     EXPECT_FALSE(m_sut->getLdlSessionsLimit(limit));
@@ -142,7 +142,7 @@ TEST_F(OpenCdmSystemTests, ShouldNotGetLdlSessionsLimitWhenOperationFails)
 TEST_F(OpenCdmSystemTests, ShouldGetLdlSessionsLimit)
 {
     constexpr uint32_t kLimit{1234};
-    uint32_t limit;
+    uint32_t limit{0};
     createValidSut();
     EXPECT_CALL(m_mediaKeysMock, getLdlSessionsLimit(limit))
         .WillOnce(DoAll(SetArgReferee<0>(kLimit), Return(firebolt::rialto::MediaKeyErrorStatus::OK)));
@@ -152,14 +152,14 @@ TEST_F(OpenCdmSystemTests, ShouldGetLdlSessionsLimit)
 
 TEST_F(OpenCdmSystemTests, ShouldNotGetKeyStoreHashWhenCdmServiceIsNull)
 {
-    std::vector<unsigned char> hash;
+    std::vector<unsigned char> hash{};
     createInvalidSut();
     EXPECT_FALSE(m_sut->getKeyStoreHash(hash));
 }
 
 TEST_F(OpenCdmSystemTests, ShouldNotGetKeyStoreHashWhenOperationFails)
 {
-    std::vector<unsigned char> hash;
+    std::vector<unsigned char> hash{};
     createValidSut();
     EXPECT_CALL(m_mediaKeysMock, getKeyStoreHash(hash)).WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::FAIL));
     EXPECT_FALSE(m_sut->getKeyStoreHash(hash));
@@ -168,7 +168,7 @@ TEST_F(OpenCdmSystemTests, ShouldNotGetKeyStoreHashWhenOperationFails)
 TEST_F(OpenCdmSystemTests, ShouldGetKeyStoreHash)
 {
     const std::vector<unsigned char> kHash{'a', 'b', 'c'};
-    std::vector<unsigned char> hash;
+    std::vector<unsigned char> hash{};
     createValidSut();
     EXPECT_CALL(m_mediaKeysMock, getKeyStoreHash(hash))
         .WillOnce(DoAll(SetArgReferee<0>(kHash), Return(firebolt::rialto::MediaKeyErrorStatus::OK)));
@@ -178,14 +178,14 @@ TEST_F(OpenCdmSystemTests, ShouldGetKeyStoreHash)
 
 TEST_F(OpenCdmSystemTests, ShouldNotGetDrmStoreHashWhenCdmServiceIsNull)
 {
-    std::vector<unsigned char> hash;
+    std::vector<unsigned char> hash{};
     createInvalidSut();
     EXPECT_FALSE(m_sut->getDrmStoreHash(hash));
 }
 
 TEST_F(OpenCdmSystemTests, ShouldNotGetDrmStoreHashWhenOperationFails)
 {
-    std::vector<unsigned char> hash;
+    std::vector<unsigned char> hash{};
     createValidSut();
     EXPECT_CALL(m_mediaKeysMock, getDrmStoreHash(hash)).WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::FAIL));
     EXPECT_FALSE(m_sut->getDrmStoreHash(hash));
@@ -194,7 +194,7 @@ TEST_F(OpenCdmSystemTests, ShouldNotGetDrmStoreHashWhenOperationFails)
 TEST_F(OpenCdmSystemTests, ShouldGetDrmStoreHash)
 {
     const std::vector<unsigned char> kHash{'a', 'b', 'c'};
-    std::vector<unsigned char> hash;
+    std::vector<unsigned char> hash{};
     createValidSut();
     EXPECT_CALL(m_mediaKeysMock, getDrmStoreHash(hash))
         .WillOnce(DoAll(SetArgReferee<0>(kHash), Return(firebolt::rialto::MediaKeyErrorStatus::OK)));

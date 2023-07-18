@@ -208,18 +208,20 @@ void OpenCDMSessionPrivate::addProtectionMeta(GstBuffer *buffer, GstBuffer *subS
                                               GstBuffer *IV, GstBuffer *keyID, uint32_t initWithLast15)
 {
     // Set key for Playready
+    GstBuffer *keyToApply = keyID;
+    bool shouldReleaseKey{false};
     if (keyID && 0 == gst_buffer_get_size(keyID) && !m_playreadyKeyId.empty())
     {
-        gst_buffer_unref(keyID);
-        keyID = gst_buffer_new_allocate(nullptr, m_playreadyKeyId.size(), nullptr);
-        gst_buffer_fill(keyID, 0, m_playreadyKeyId.data(), m_playreadyKeyId.size());
+        keyToApply = gst_buffer_new_allocate(nullptr, m_playreadyKeyId.size(), nullptr);
+        gst_buffer_fill(keyToApply, 0, m_playreadyKeyId.data(), m_playreadyKeyId.size());
+        shouldReleaseKey = true;
     }
 
-    GstStructure *info = gst_structure_new("application/x-cenc", "encrypted", G_TYPE_BOOLEAN, TRUE, "mks_id", G_TYPE_INT,
-                                           m_rialtoSessionId, "kid", GST_TYPE_BUFFER, keyID, "iv_size", G_TYPE_UINT,
-                                           gst_buffer_get_size(IV), "iv", GST_TYPE_BUFFER, IV, "subsample_count",
-                                           G_TYPE_UINT, subSampleCount, "subsamples", GST_TYPE_BUFFER, subSample,
-                                           "encryption_scheme", G_TYPE_UINT, 0, // AES Counter
+    GstStructure *info = gst_structure_new("application/x-cenc", "encrypted", G_TYPE_BOOLEAN, TRUE, "mks_id",
+                                           G_TYPE_INT, m_rialtoSessionId, "kid", GST_TYPE_BUFFER, keyToApply, "iv_size",
+                                           G_TYPE_UINT, gst_buffer_get_size(IV), "iv", GST_TYPE_BUFFER, IV,
+                                           "subsample_count", G_TYPE_UINT, subSampleCount, "subsamples", GST_TYPE_BUFFER,
+                                           subSample, "encryption_scheme", G_TYPE_UINT, 0, // AES Counter
                                            "init_with_last_15", G_TYPE_UINT, initWithLast15, NULL);
 
     GstProtectionMeta *protectionMeta = reinterpret_cast<GstProtectionMeta *>(gst_buffer_get_protection_meta(buffer));
@@ -247,6 +249,11 @@ void OpenCDMSessionPrivate::addProtectionMeta(GstBuffer *buffer, GstBuffer *subS
     }
 
     rialto_mse_add_protection_metadata(buffer, info);
+
+    if (shouldReleaseKey)
+    {
+        gst_buffer_unref(keyToApply);
+    }
 }
 
 bool OpenCDMSessionPrivate::addProtectionMeta(GstBuffer *buffer)
@@ -291,6 +298,7 @@ bool OpenCDMSessionPrivate::addProtectionMeta(GstBuffer *buffer)
         GstBuffer *keyID = gst_buffer_new_allocate(nullptr, m_playreadyKeyId.size(), nullptr);
         gst_buffer_fill(keyID, 0, m_playreadyKeyId.data(), m_playreadyKeyId.size());
         gst_structure_set(info, "kid", GST_TYPE_BUFFER, keyID, NULL);
+        gst_buffer_unref(keyID);
     }
 
     rialto_mse_add_protection_metadata(buffer, info);

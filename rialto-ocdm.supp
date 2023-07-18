@@ -53,13 +53,6 @@
    fun:g_type_class_ref
 }
 {
-   ignore_gst_init_leak
-   Memcheck:Leak
-   ...
-   fun:gst_init_check
-   fun:gst_init
-}
-{
    ignore_dl_init_definitely_lost
    Memcheck:Leak
    match-leak-kinds: definite

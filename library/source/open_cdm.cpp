@@ -173,7 +173,6 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
             return ERROR_FAIL;
         }
         std::vector<uint8_t> cdmDataVec((uint8_t *)(CDMData), (uint8_t *)(CDMData) + CDMDataLength);
-        std::vector<uint8_t> challenge;
 
         if (!newSession->generateRequest(initializationDataType, initDataVec, cdmDataVec /*not used yet*/))
         {

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<suppressions>
+    <suppress>
+        <id>missingInclude</id>
+    </suppress>
+    <suppress>
+        <id>unusedFunction</id>
+        <symbolName>rialto_eme_protection_metadata_get_type</symbolName>
+    </suppress>
+    <suppress>
+        <id>unusedFunction</id>
+        <symbolName>rialto_mse_protection_metadata_get_info</symbolName>
+    </suppress>
+</suppressions>

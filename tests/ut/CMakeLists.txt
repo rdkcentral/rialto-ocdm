@@ -34,6 +34,7 @@ endif()
 
 # Preprocesser Variable
 add_compile_definitions(COMMIT_ID="${COMMIT_ID}")
+add_compile_definitions( RIALTO_ENABLE_DECRYPT_BUFFER )
 
 if ( COVERAGE_ENABLED )
     add_compile_options(-coverage)

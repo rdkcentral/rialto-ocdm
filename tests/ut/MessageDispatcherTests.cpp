@@ -44,6 +44,7 @@ TEST_F(MessageDispatcherTests, shouldForwardLicenseRequest)
     auto client{m_sut.createClient(&m_mediaKeysClientMock)};
     EXPECT_CALL(m_mediaKeysClientMock, onLicenseRequest(kKeySessionId, kMessage, kUrl));
     m_sut.onLicenseRequest(kKeySessionId, kMessage, kUrl);
+    client.reset();
 }
 
 TEST_F(MessageDispatcherTests, shouldForwardLicenseRenewal)
@@ -51,6 +52,7 @@ TEST_F(MessageDispatcherTests, shouldForwardLicenseRenewal)
     auto client{m_sut.createClient(&m_mediaKeysClientMock)};
     EXPECT_CALL(m_mediaKeysClientMock, onLicenseRenewal(kKeySessionId, kMessage));
     m_sut.onLicenseRenewal(kKeySessionId, kMessage);
+    client.reset();
 }
 
 TEST_F(MessageDispatcherTests, shouldForwardKeyStatusChange)
@@ -58,6 +60,7 @@ TEST_F(MessageDispatcherTests, shouldForwardKeyStatusChange)
     auto client{m_sut.createClient(&m_mediaKeysClientMock)};
     EXPECT_CALL(m_mediaKeysClientMock, onKeyStatusesChanged(kKeySessionId, kKeyStatusVec));
     m_sut.onKeyStatusesChanged(kKeySessionId, kKeyStatusVec);
+    client.reset();
 }
 
 TEST_F(MessageDispatcherTests, shouldNotForwardMessagesWhenNoClientIsCreated)

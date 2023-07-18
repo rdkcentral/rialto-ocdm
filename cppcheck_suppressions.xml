@@ -11,4 +11,8 @@
         <id>unusedFunction</id>
         <symbolName>rialto_mse_protection_metadata_get_info</symbolName>
     </suppress>
+    <suppress>
+        <id>constParameter</id>
+        <symbolName>system</symbolName>
+    </suppress>
 </suppressions>

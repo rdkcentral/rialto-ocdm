@@ -41,10 +41,14 @@ public:
     static LogFile &instance();
     bool write(const std::string &line);
     bool isEnabled() const;
+    void reset();
 
 private:
     LogFile();
     ~LogFile();
+
+    void tryOpenFile();
+    void tryCloseFile();
 
 private:
     std::fstream m_file;

@@ -91,6 +91,7 @@ add_gtests (
         # gtest code
         ActiveSessionsTests.cpp
         CdmBackendTests.cpp
+        LoggerTests.cpp
         MediaKeysCapabilitiesBackendTests.cpp
         MessageDispatcherTests.cpp
         OpenCdmAdapterTests.cpp

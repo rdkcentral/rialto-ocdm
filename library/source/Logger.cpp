@@ -101,11 +101,9 @@ int convertSeverity(const Severity &severity)
     case Severity::info:
         return LOG_INFO;
     case Severity::debug:
-        return LOG_DEBUG;
     default:
-        break;
+        return LOG_DEBUG;
     }
-    return LOG_DEBUG;
 }
 } // namespace
 
@@ -118,10 +116,6 @@ LogFile &LogFile::instance()
 bool LogFile::write(const std::string &line)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
-    if (!m_file.is_open())
-    {
-        return false;
-    }
     m_file << line << std::endl;
     return true;
 }
@@ -131,7 +125,23 @@ bool LogFile::isEnabled() const
     return m_file.is_open();
 }
 
+void LogFile::reset()
+{
+    tryCloseFile();
+    tryOpenFile();
+}
+
 LogFile::LogFile()
+{
+    tryOpenFile();
+}
+
+LogFile::~LogFile()
+{
+    tryCloseFile();
+}
+
+void LogFile::tryOpenFile()
 {
     std::string logPath{getRialtoLogPath()};
     if (!logPath.empty())
@@ -142,7 +152,7 @@ LogFile::LogFile()
     }
 }
 
-LogFile::~LogFile()
+void LogFile::tryCloseFile()
 {
     if (m_file.is_open())
     {

@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef ACTIVESESSIONS_H
-#define ACTIVESESSIONS_H
+#ifndef ACTIVE_SESSIONS_H_
+#define ACTIVE_SESSIONS_H_
 
 #include "ICdmBackend.h"
 #include "IMessageDispatcher.h"
@@ -28,6 +28,8 @@
 #include <memory>
 #include <mutex>
 #include <opencdm/open_cdm.h>
+#include <string>
+#include <vector>
 
 class ActiveSessions
 {
@@ -50,4 +52,4 @@ private:
     std::map<OpenCDMSession *, int> m_activeSessions;
 };
 
-#endif // ACTIVESESSIONS_H
+#endif // ACTIVE_SESSIONS_H_

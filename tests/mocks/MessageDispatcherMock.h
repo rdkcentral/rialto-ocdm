@@ -17,11 +17,12 @@
  * limitations under the License.
  */
 
-#ifndef MESSAGEDISPATCHERMOCK_H
-#define MESSAGEDISPATCHERMOCK_H
+#ifndef MESSAGE_DISPATCHER_MOCK_H_
+#define MESSAGE_DISPATCHER_MOCK_H_
 
 #include "IMessageDispatcher.h"
 #include <gmock/gmock.h>
+#include <memory>
 
 class MessageDispatcherMock : public IMessageDispatcher
 {
@@ -30,4 +31,4 @@ public:
                 (override));
 };
 
-#endif // MESSAGEDISPATCHERMOCK_H
+#endif // MESSAGE_DISPATCHER_MOCK_H_

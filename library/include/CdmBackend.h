@@ -17,15 +17,18 @@
  * limitations under the License.
  */
 
-#ifndef CDMBACKEND_H
-#define CDMBACKEND_H
+#ifndef CDM_BACKEND_H_
+#define CDM_BACKEND_H_
 
 #include "ICdmBackend.h"
 #include "Logger.h"
 #include "MessageDispatcher.h"
 #include <IControlClient.h>
 #include <IMediaKeys.h>
+#include <memory>
 #include <mutex>
+#include <string>
+#include <vector>
 
 class CdmBackend : public ICdmBackend, public firebolt::rialto::IControlClient
 {
@@ -68,4 +71,4 @@ private:
     std::unique_ptr<firebolt::rialto::IMediaKeys> m_mediaKeys;
 };
 
-#endif // CDMBACKEND_H
+#endif // CDM_BACKEND_H_

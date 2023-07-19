@@ -57,6 +57,7 @@ TEST_F(OpenCdmAdapterTests, ShouldDecrypt)
 }
 
 // function not declared in official interface (?)
+// NOLINTNEXTLINE(build/function_format)
 OpenCDMError opencdm_gstreamer_transform_caps(GstCaps **caps);
 TEST_F(OpenCdmAdapterTests, ShouldTransformCaps)
 {

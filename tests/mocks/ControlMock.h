@@ -17,11 +17,12 @@
  * limitations under the License.
  */
 
-#ifndef FIREBOLT_RIALTO_CONTROL_MOCK_H
-#define FIREBOLT_RIALTO_CONTROL_MOCK_H
+#ifndef FIREBOLT_RIALTO_CONTROL_MOCK_H_
+#define FIREBOLT_RIALTO_CONTROL_MOCK_H_
 
 #include "IControl.h"
 #include <gmock/gmock.h>
+#include <memory>
 
 namespace firebolt::rialto
 {
@@ -38,4 +39,4 @@ public:
 };
 } // namespace firebolt::rialto
 
-#endif // FIREBOLT_RIALTO_CONTROL_MOCK_H
+#endif // FIREBOLT_RIALTO_CONTROL_MOCK_H_

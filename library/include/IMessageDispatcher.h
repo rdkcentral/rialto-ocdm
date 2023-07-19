@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef IMESSAGEDISPATCHER_H
-#define IMESSAGEDISPATCHER_H
+#ifndef I_MESSAGE_DISPATCHER_H_
+#define I_MESSAGE_DISPATCHER_H_
 
 #include <IMediaKeysClient.h>
 #include <memory>
@@ -36,4 +36,4 @@ public:
     virtual std::unique_ptr<IMessageDispatcherClient> createClient(firebolt::rialto::IMediaKeysClient *client) = 0;
 };
 
-#endif // IMESSAGEDISPATCHER_H
+#endif // I_MESSAGE_DISPATCHER_H_

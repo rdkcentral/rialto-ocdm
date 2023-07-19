@@ -17,6 +17,9 @@
  * limitations under the License.
  */
 
+#ifndef OCDM_SESSIONS_CALLBACKS_MOCK_H_
+#define OCDM_SESSIONS_CALLBACKS_MOCK_H_
+
 #include "OpenCDMSession.h"
 #include <gmock/gmock.h>
 
@@ -42,3 +45,5 @@ void processChallengeCallback(OpenCDMSession *session, void *userData, const cha
 void keyUpdateCallback(OpenCDMSession *session, void *userData, const uint8_t keyId[], const uint8_t length);
 void errorMessageCallback(OpenCDMSession *session, void *userData, const char message[]);
 void keysUpdatedCallback(const OpenCDMSession *session, void *userData);
+
+#endif // OCDM_SESSIONS_CALLBACKS_MOCK_H_

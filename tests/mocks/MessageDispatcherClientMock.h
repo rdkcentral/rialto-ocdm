@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef MESSAGEDISPATCHERCLIENTMOCK_H
-#define MESSAGEDISPATCHERCLIENTMOCK_H
+#ifndef MESSAGE_DISPATCHER_CLIENT_MOCK_H_
+#define MESSAGE_DISPATCHER_CLIENT_MOCK_H_
 
 #include "IMessageDispatcher.h"
 #include <gmock/gmock.h>
@@ -28,4 +28,4 @@ class MessageDispatcherClientMock : public IMessageDispatcherClient
     // empty class
 };
 
-#endif // MESSAGEDISPATCHERCLIENTMOCK_H
+#endif // MESSAGE_DISPATCHER_CLIENT_MOCK_H_

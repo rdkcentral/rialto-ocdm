@@ -50,7 +50,7 @@ const std::string &OpenCDMSystemPrivate::keySystem() const
     return m_keySystem;
 }
 
-const std::string &OpenCDMSystemPrivate::Metadata() const
+const std::string &OpenCDMSystemPrivate::metadata() const
 {
     return m_metadata;
 }

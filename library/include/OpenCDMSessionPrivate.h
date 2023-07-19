@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef OPENCDMSESSIONPRIVATE_H
-#define OPENCDMSESSIONPRIVATE_H
+#ifndef OPENCDM_SESSION_PRIVATE_H_
+#define OPENCDM_SESSION_PRIVATE_H_
 
 #include "IMediaKeysClient.h"
 #include "Logger.h"
@@ -31,6 +31,7 @@
 #include <memory>
 #include <mutex>
 #include <opencdm/open_cdm.h>
+#include <string>
 #include <vector>
 
 struct _GstCaps;
@@ -99,4 +100,4 @@ private:
     firebolt::rialto::InitDataType getRialtoInitDataType(const std::string &type);
 };
 
-#endif // OPENCDMSESSIONPRIVATE_H
+#endif // OPENCDM_SESSION_PRIVATE_H_

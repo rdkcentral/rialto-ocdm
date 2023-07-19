@@ -16,7 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#pragma once
+#ifndef RIALTOG_STREAMEREME_PROTECTION_METADATA_H_
+#define RIALTOG_STREAMEREME_PROTECTION_METADATA_H_
 
 #include <gst/gst.h>
 
@@ -33,8 +34,13 @@ struct _GstRialtoProtectionMetadata
 
 typedef struct _GstRialtoProtectionMetadata GstRialtoProtectionMetadata;
 
+// NOLINTNEXTLINE(build/function_format)
 GType rialto_eme_protection_metadata_get_type();
+// NOLINTNEXTLINE(build/function_format)
 const GstMetaInfo *rialto_mse_protection_metadata_get_info();
+// NOLINTNEXTLINE(build/function_format)
 GstRialtoProtectionMetadata *rialto_mse_add_protection_metadata(GstBuffer *gstBuffer, GstStructure *info);
 
 G_END_DECLS
+
+#endif // RIALTOG_STREAMEREME_PROTECTION_METADATA_H_

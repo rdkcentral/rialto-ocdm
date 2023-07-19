@@ -17,14 +17,16 @@
  * limitations under the License.
  */
 
-#ifndef OPENCDMSYSTEMPRIVATE_H
-#define OPENCDMSYSTEMPRIVATE_H
+#ifndef OPENCDM_SYSTEM_PRIVATE_H_
+#define OPENCDM_SYSTEM_PRIVATE_H_
 
 #include "CdmBackend.h"
 #include "MessageDispatcher.h"
 #include "OpenCDMSystem.h"
 #include <IControl.h>
 #include <memory>
+#include <string>
+#include <vector>
 
 OpenCDMSystem *createSystem(const char system[], const std::string &metadata);
 
@@ -40,7 +42,7 @@ public:
     OpenCDMSystemPrivate &operator=(OpenCDMSystemPrivate &&) = default;
     OpenCDMSystemPrivate &operator=(const OpenCDMSystemPrivate &) = default;
     const std::string &keySystem() const;
-    const std::string &Metadata() const;
+    const std::string &metadata() const;
     OpenCDMSession *createSession(const LicenseType licenseType, OpenCDMSessionCallbacks *callbacks, void *userData,
                                   const std::string &initDataType, const std::vector<uint8_t> &initData) const;
     bool getDrmTime(uint64_t &drmTime) const;
@@ -58,4 +60,4 @@ private:
     std::shared_ptr<CdmBackend> m_cdmBackend;
 };
 
-#endif // OPENCDMSYSTEMPRIVATE_H
+#endif // OPENCDM_SYSTEM_PRIVATE_H_

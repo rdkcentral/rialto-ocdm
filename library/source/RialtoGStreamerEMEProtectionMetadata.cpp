@@ -19,8 +19,10 @@
 #include "RialtoGStreamerEMEProtectionMetadata.h"
 #include <gst/gstconfig.h>
 
+// NOLINTNEXTLINE(build/function_format)
 static gboolean rialto_eme_protection_metadata_init(GstMeta *meta, gpointer params, GstBuffer *buffer)
 {
+    // NOLINTNEXTLINE(readability/casting)
     GstRialtoProtectionMetadata *emeta = (GstRialtoProtectionMetadata *)meta;
 
     emeta->info = NULL;
@@ -28,8 +30,10 @@ static gboolean rialto_eme_protection_metadata_init(GstMeta *meta, gpointer para
     return TRUE;
 }
 
+// NOLINTNEXTLINE(build/function_format)
 static gboolean rialto_eme_protection_metadata_free(GstMeta *meta, GstBuffer *buffer)
 {
+    // NOLINTNEXTLINE(readability/casting)
     GstRialtoProtectionMetadata *emeta = (GstRialtoProtectionMetadata *)meta;
 
     if (emeta->info)
@@ -41,6 +45,7 @@ static gboolean rialto_eme_protection_metadata_free(GstMeta *meta, GstBuffer *bu
     return TRUE;
 }
 
+// NOLINTNEXTLINE(build/function_format)
 GST_EXPORT GType rialto_eme_protection_metadata_get_type()
 {
     static GType g_type{0};
@@ -54,6 +59,7 @@ GST_EXPORT GType rialto_eme_protection_metadata_get_type()
     return g_type;
 }
 
+// NOLINTNEXTLINE(build/function_format)
 const GstMetaInfo *rialto_mse_protection_metadata_get_info()
 {
     static const GstMetaInfo *metainfo = NULL;
@@ -70,6 +76,7 @@ const GstMetaInfo *rialto_mse_protection_metadata_get_info()
     return metainfo;
 }
 
+// NOLINTNEXTLINE(build/function_format)
 GstRialtoProtectionMetadata *rialto_mse_add_protection_metadata(GstBuffer *gstBuffer, GstStructure *info)
 {
     GstRialtoProtectionMetadata *metadata = reinterpret_cast<GstRialtoProtectionMetadata *>(

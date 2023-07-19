@@ -370,6 +370,7 @@ TEST_F(OpenCdmTests, ShouldResetOutputProtection)
 }
 
 // function not declared in official interface (?)
+// NOLINTNEXTLINE(build/function_format)
 OpenCDMError opencdm_session_set_parameter(struct OpenCDMSession *session, const std::string &name,
                                            const std::string &value);
 TEST_F(OpenCdmTests, ShouldSetParameter)

@@ -17,17 +17,19 @@
  * limitations under the License.
  */
 
-#ifndef OPENCDMSYSTEMMOCK_H
-#define OPENCDMSYSTEMMOCK_H
+#ifndef OPENCDM_SYSTEM_MOCK_H_
+#define OPENCDM_SYSTEM_MOCK_H_
 
 #include "OpenCDMSystem.h"
 #include <gtest/gtest.h>
+#include <string>
+#include <vector>
 
 class OpenCDMSystemMock : public OpenCDMSystem
 {
 public:
     MOCK_METHOD(const std::string &, keySystem, (), (const, override));
-    MOCK_METHOD(const std::string &, Metadata, (), (const, override));
+    MOCK_METHOD(const std::string &, metadata, (), (const, override));
     MOCK_METHOD(OpenCDMSession *, createSession,
                 (const LicenseType licenseType, OpenCDMSessionCallbacks *callbacks, void *userData,
                  const std::string &initDataType, const std::vector<uint8_t> &initData),
@@ -40,4 +42,4 @@ public:
     MOCK_METHOD(bool, deleteDrmStore, (), (const, override));
 };
 
-#endif // OPENCDMSYSTEMMOCK_H
+#endif // OPENCDM_SYSTEM_MOCK_H_

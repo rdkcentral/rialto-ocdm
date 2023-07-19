@@ -17,14 +17,15 @@
  * limitations under the License.
  */
 
-#ifndef OPENCDMSESSION_H
-#define OPENCDMSESSION_H
+#ifndef OPENCDM_SESSION_H_
+#define OPENCDM_SESSION_H_
 
 #include <MediaCommon.h>
 #include <functional>
 #include <opencdm/open_cdm.h>
 #include <stdint.h>
 #include <string>
+#include <utility>
 #include <vector>
 
 struct _GstCaps;
@@ -64,4 +65,4 @@ public:
     virtual uint32_t getLastDrmError() const = 0;
 };
 
-#endif // OPENCDMSESSION_H
+#endif // OPENCDM_SESSION_H_

@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef ICDMBACKEND_H
-#define ICDMBACKEND_H
+#ifndef I_CDM_BACKEND_H_
+#define I_CDM_BACKEND_H_
 
 #include <ControlCommon.h>
 #include <IMediaKeysClient.h>
@@ -54,4 +54,4 @@ public:
     virtual bool getCdmKeySessionId(int32_t keySessionId, std::string &cdmKeySessionId) = 0;
 };
 
-#endif // ICDMBACKEND_H
+#endif // I_CDM_BACKEND_H_

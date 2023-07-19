@@ -87,7 +87,7 @@ TEST_F(OpenCdmSystemTests, ShouldReturnKeySystem)
 TEST_F(OpenCdmSystemTests, ShouldReturnMetadata)
 {
     createValidSut();
-    EXPECT_EQ(m_sut->Metadata(), kMetadata);
+    EXPECT_EQ(m_sut->metadata(), kMetadata);
 }
 
 TEST_F(OpenCdmSystemTests, ShouldCreateSession)

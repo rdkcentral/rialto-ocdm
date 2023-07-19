@@ -17,12 +17,15 @@
  * limitations under the License.
  */
 
-#ifndef MESSAGEDISPATCHER_H
-#define MESSAGEDISPATCHER_H
+#ifndef MESSAGE_DISPATCHER_H_
+#define MESSAGE_DISPATCHER_H_
 
 #include "IMessageDispatcher.h"
+#include <memory>
 #include <mutex>
 #include <set>
+#include <string>
+#include <vector>
 
 class MessageDispatcher : public IMessageDispatcher, public firebolt::rialto::IMediaKeysClient
 {
@@ -57,4 +60,4 @@ private:
     std::set<firebolt::rialto::IMediaKeysClient *> m_clients;
 };
 
-#endif // MESSAGEDISPATCHER_H
+#endif // MESSAGE_DISPATCHER_H_

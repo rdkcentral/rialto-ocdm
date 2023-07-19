@@ -17,11 +17,13 @@
  * limitations under the License.
  */
 
-#ifndef CDMBACKENDMOCK_H
-#define CDMBACKENDMOCK_H
+#ifndef CDM_BACKEND_MOCK_H_
+#define CDM_BACKEND_MOCK_H_
 
 #include "ICdmBackend.h"
 #include <gmock/gmock.h>
+#include <string>
+#include <vector>
 
 class CdmBackendMock : public ICdmBackend
 {
@@ -49,4 +51,4 @@ public:
     MOCK_METHOD(bool, getCdmKeySessionId, (int32_t keySessionId, std::string &cdmKeySessionId), (override));
 };
 
-#endif // CDMBACKENDMOCK_H
+#endif // CDM_BACKEND_MOCK_H_

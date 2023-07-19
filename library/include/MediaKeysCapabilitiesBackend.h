@@ -17,11 +17,14 @@
  * limitations under the License.
  */
 
-#ifndef MEDIAKEYSCAPABILITIESBACKEND_H
-#define MEDIAKEYSCAPABILITIESBACKEND_H
+#ifndef MEDIA_KEYS_CAPABILITIES_BACKEND_H_
+#define MEDIA_KEYS_CAPABILITIES_BACKEND_H_
 
 #include <IMediaKeysCapabilities.h>
+#include <memory>
 #include <opencdm/open_cdm.h>
+#include <string>
+#include <vector>
 
 class MediaKeysCapabilitiesBackend
 {
@@ -40,4 +43,4 @@ private:
     std::shared_ptr<firebolt::rialto::IMediaKeysCapabilities> m_mediaKeysCapabilities;
 };
 
-#endif // MEDIAKEYSCAPABILITIESBACKEND_H
+#endif // MEDIA_KEYS_CAPABILITIES_BACKEND_H_

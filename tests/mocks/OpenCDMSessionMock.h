@@ -17,11 +17,13 @@
  * limitations under the License.
  */
 
-#ifndef OPENCDMSESSIONMOCK_H
-#define OPENCDMSESSIONMOCK_H
+#ifndef OPENCDM_SESSION_MOCK_H_
+#define OPENCDM_SESSION_MOCK_H_
 
 #include "OpenCDMSession.h"
 #include <gmock/gmock.h>
+#include <string>
+#include <vector>
 
 class OpenCDMSessionMock : public OpenCDMSession
 {
@@ -50,4 +52,4 @@ public:
     MOCK_METHOD(uint32_t, getLastDrmError, (), (const, override));
 };
 
-#endif // OPENCDMSESSIONMOCK_H
+#endif // OPENCDM_SESSION_MOCK_H_

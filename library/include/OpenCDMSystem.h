@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef OPENCDMSYSTEM_H
-#define OPENCDMSYSTEM_H
+#ifndef OPENCDM_SYSTEM_H_
+#define OPENCDM_SYSTEM_H_
 
 #include "OpenCDMSession.h"
 #include <opencdm/open_cdm.h>
@@ -36,7 +36,7 @@ struct OpenCDMSystem
     OpenCDMSystem &operator=(const OpenCDMSystem &) = default;
 
     virtual const std::string &keySystem() const = 0;
-    virtual const std::string &Metadata() const = 0;
+    virtual const std::string &metadata() const = 0;
     virtual OpenCDMSession *createSession(const LicenseType licenseType, OpenCDMSessionCallbacks *callbacks,
                                           void *userData, const std::string &initDataType,
                                           const std::vector<uint8_t> &initData) const = 0;
@@ -48,4 +48,4 @@ struct OpenCDMSystem
     virtual bool deleteDrmStore() const = 0;
 };
 
-#endif // OPENCDMSYSTEM_H
+#endif // OPENCDM_SYSTEM_H_

@@ -405,6 +405,18 @@ TEST_F(OpenCdmSessionTests, ShouldAddProtectionMetaWithAdditionalFields)
     cleanBuffers();
 }
 
+TEST_F(OpenCdmSessionTests, ShouldNotAddProtectionMetaWhenGstProtectionMetaIsNotPresent)
+{
+    fillBuffers();
+
+    createSut();
+    initializeSut();
+
+    EXPECT_FALSE(m_sut->addProtectionMeta(m_buffer));
+
+    cleanBuffers();
+}
+
 TEST_F(OpenCdmSessionTests, ShouldAddProtectionMetaFromGstProtectionMeta)
 {
     fillBuffers();
@@ -413,7 +425,7 @@ TEST_F(OpenCdmSessionTests, ShouldAddProtectionMetaFromGstProtectionMeta)
     createSut();
     initializeSut();
 
-    m_sut->addProtectionMeta(m_buffer);
+    EXPECT_TRUE(m_sut->addProtectionMeta(m_buffer));
 
     verifyMetadata();
     verifyMetadataAdditionalFields();
@@ -429,7 +441,7 @@ TEST_F(OpenCdmSessionTests, ShouldAddProtectionMetaFromGstProtectionMetaWithPlay
     initializeSut();
 
     m_sut->selectKeyId(kBytes4);
-    m_sut->addProtectionMeta(m_buffer);
+    EXPECT_TRUE(m_sut->addProtectionMeta(m_buffer));
 
     verifyMetadata();
     verifyMetadataAdditionalFields();

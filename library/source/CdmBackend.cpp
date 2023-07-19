@@ -20,9 +20,10 @@
 #include "CdmBackend.h"
 
 CdmBackend::CdmBackend(const std::string &keySystem,
-                       const std::shared_ptr<firebolt::rialto::IMediaKeysClient> &mediaKeysClient)
+                       const std::shared_ptr<firebolt::rialto::IMediaKeysClient> &mediaKeysClient,
+                       const std::shared_ptr<firebolt::rialto::IMediaKeysFactory> &mediaKeysFactory)
     : m_log{"CdmBackend"}, m_appState{firebolt::rialto::ApplicationState::UNKNOWN}, m_keySystem{keySystem},
-      m_mediaKeysClient{mediaKeysClient}
+      m_mediaKeysClient{mediaKeysClient}, m_mediaKeysFactory{mediaKeysFactory}
 {
 }
 
@@ -245,14 +246,13 @@ bool CdmBackend::getCdmKeySessionId(int32_t keySessionId, std::string &cdmKeySes
 
 bool CdmBackend::createMediaKeys()
 {
-    std::shared_ptr<firebolt::rialto::IMediaKeysFactory> factory = firebolt::rialto::IMediaKeysFactory::createFactory();
-    if (!factory)
+    if (!m_mediaKeysFactory)
     {
         m_log << error << "Failed to initialize media keys - not possible to create factory";
         return false;
     }
 
-    m_mediaKeys = factory->createMediaKeys(m_keySystem);
+    m_mediaKeys = m_mediaKeysFactory->createMediaKeys(m_keySystem);
     if (!m_mediaKeys)
     {
         m_log << error << "Failed to initialize media keys - not possible to create media keys";

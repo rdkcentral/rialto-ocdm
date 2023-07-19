@@ -33,7 +33,8 @@
 class CdmBackend : public ICdmBackend, public firebolt::rialto::IControlClient
 {
 public:
-    CdmBackend(const std::string &keySystem, const std::shared_ptr<firebolt::rialto::IMediaKeysClient> &mediaKeysClient);
+    CdmBackend(const std::string &keySystem, const std::shared_ptr<firebolt::rialto::IMediaKeysClient> &mediaKeysClient,
+               const std::shared_ptr<firebolt::rialto::IMediaKeysFactory> &mediaKeysFactory);
     ~CdmBackend() override = default;
 
     void notifyApplicationState(firebolt::rialto::ApplicationState state) override;
@@ -68,6 +69,7 @@ private:
     firebolt::rialto::ApplicationState m_appState;
     const std::string m_keySystem;
     std::shared_ptr<firebolt::rialto::IMediaKeysClient> m_mediaKeysClient;
+    std::shared_ptr<firebolt::rialto::IMediaKeysFactory> m_mediaKeysFactory;
     std::unique_ptr<firebolt::rialto::IMediaKeys> m_mediaKeys;
 };
 

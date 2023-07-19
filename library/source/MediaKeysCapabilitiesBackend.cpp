@@ -27,45 +27,46 @@ MediaKeysCapabilitiesBackend &MediaKeysCapabilitiesBackend::instance()
 
 std::vector<std::string> MediaKeysCapabilitiesBackend::getSupportedKeySystems()
 {
-    if (!m_mediaKeysCapabilities)
+    std::vector<std::string> result{};
+    if (m_mediaKeysCapabilities)
     {
-        return {};
+        result = m_mediaKeysCapabilities->getSupportedKeySystems();
     }
-    return m_mediaKeysCapabilities->getSupportedKeySystems();
+    return result;
 }
 
 OpenCDMError MediaKeysCapabilitiesBackend::supportsKeySystem(const std::string &keySystem)
 {
-    if (!m_mediaKeysCapabilities)
+    OpenCDMError result{ERROR_FAIL};
+    if (m_mediaKeysCapabilities)
     {
-        return ERROR_FAIL;
+        result = ERROR_KEYSYSTEM_NOT_SUPPORTED;
+        if (m_mediaKeysCapabilities->supportsKeySystem(keySystem))
+        {
+            result = ERROR_NONE;
+        }
     }
-    if (!m_mediaKeysCapabilities->supportsKeySystem(keySystem))
-    {
-        return ERROR_KEYSYSTEM_NOT_SUPPORTED;
-    }
-    return ERROR_NONE;
+    return result;
 }
 
 bool MediaKeysCapabilitiesBackend::getSupportedKeySystemVersion(const std::string &keySystem, std::string &version)
 {
-    if (!m_mediaKeysCapabilities)
+    bool result{false};
+    if (m_mediaKeysCapabilities)
     {
-        return false;
+        result = m_mediaKeysCapabilities->getSupportedKeySystemVersion(keySystem, version);
     }
-    return m_mediaKeysCapabilities->getSupportedKeySystemVersion(keySystem, version);
+    return result;
 }
 
 MediaKeysCapabilitiesBackend::MediaKeysCapabilitiesBackend()
 {
     std::shared_ptr<firebolt::rialto::IMediaKeysCapabilitiesFactory> factory =
         firebolt::rialto::IMediaKeysCapabilitiesFactory::createFactory();
-    if (!factory)
+    if (factory)
     {
-        return;
+        m_mediaKeysCapabilities = factory->getMediaKeysCapabilities();
     }
-
-    m_mediaKeysCapabilities = factory->getMediaKeysCapabilities();
 }
 
 MediaKeysCapabilitiesBackend::~MediaKeysCapabilitiesBackend()

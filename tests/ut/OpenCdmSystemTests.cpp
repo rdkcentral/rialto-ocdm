@@ -67,7 +67,8 @@ protected:
         EXPECT_CALL(*m_mediaKeysFactoryMock, createMediaKeys(kKeySystem)).WillOnce(Return(ByMove(std::move(m_mediaKeys))));
 
         auto messageDispatcher = std::make_shared<MessageDispatcher>();
-        auto cdmBackend = std::make_shared<CdmBackend>(kKeySystem, messageDispatcher);
+        auto cdmBackend = std::make_shared<CdmBackend>(kKeySystem, messageDispatcher,
+                                                       firebolt::rialto::IMediaKeysFactory::createFactory());
         m_sut = std::make_unique<OpenCDMSystemPrivate>(kKeySystem.data(), kMetadata, messageDispatcher, cdmBackend);
     }
 

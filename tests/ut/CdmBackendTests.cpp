@@ -59,7 +59,7 @@ protected:
         std::dynamic_pointer_cast<StrictMock<MediaKeysFactoryMock>>(firebolt::rialto::IMediaKeysFactory::createFactory())};
     std::unique_ptr<StrictMock<firebolt::rialto::MediaKeysMock>> m_mediaKeysMock{
         std::make_unique<StrictMock<firebolt::rialto::MediaKeysMock>>()};
-    CdmBackend m_sut{kKeySystem, m_mediaKeysClientMock};
+    CdmBackend m_sut{kKeySystem, m_mediaKeysClientMock, m_mediaKeysFactoryMock};
 };
 
 TEST_F(CdmBackendTests, ShouldChangeStateToInactive)
@@ -98,7 +98,13 @@ TEST_F(CdmBackendTests, ShouldInitializeWithoutMediaKeysCreationInInactiveState)
     EXPECT_TRUE(m_sut.initialize(firebolt::rialto::ApplicationState::INACTIVE));
 }
 
-TEST_F(CdmBackendTests, ShouldFailToInitializeInRunningState)
+TEST_F(CdmBackendTests, ShouldFailToInitializeInRunningStateWhenFactoryIsNull)
+{
+    CdmBackend invalidSut{kKeySystem, m_mediaKeysClientMock, nullptr};
+    EXPECT_FALSE(invalidSut.initialize(firebolt::rialto::ApplicationState::RUNNING));
+}
+
+TEST_F(CdmBackendTests, ShouldFailToInitializeInRunningStateWhenMediaKeysIsNull)
 {
     ASSERT_TRUE(m_mediaKeysFactoryMock);
     EXPECT_CALL(*m_mediaKeysFactoryMock, createMediaKeys(kKeySystem)).WillOnce(Return(nullptr));

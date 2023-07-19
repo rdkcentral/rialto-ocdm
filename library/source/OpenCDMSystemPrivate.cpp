@@ -19,13 +19,15 @@
 
 #include "OpenCDMSystemPrivate.h"
 #include "ActiveSessions.h"
+#include "IMediaKeys.h"
 #include <MediaCommon.h>
 
 OpenCDMSystem *createSystem(const char system[], const std::string &metadata)
 {
     const std::string kKeySystem{system};
     auto messageDispatcher{std::make_shared<MessageDispatcher>()};
-    auto cdmBackend{std::make_shared<CdmBackend>(kKeySystem, messageDispatcher)};
+    auto cdmBackend{std::make_shared<CdmBackend>(kKeySystem, messageDispatcher,
+                                                 firebolt::rialto::IMediaKeysFactory::createFactory())};
     return new OpenCDMSystemPrivate(kKeySystem, metadata, messageDispatcher, cdmBackend);
 }
 

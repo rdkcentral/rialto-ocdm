@@ -50,15 +50,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install dependencies 
-        run: |
-          sudo apt install doxygen graphviz
-
-      - name: Generate doxygen documentation
-        run: |
-          mkdir -p build/gh_pages
-          doxygen
-
       - name: Wait for coverage report generation
         uses: lewagon/wait-on-check-action@v1.2.0
         with:

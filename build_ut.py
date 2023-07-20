@@ -211,7 +211,7 @@ def generateCoverageReport(outputDir, resultsFile):
         genHtmlStatus = runcmd(genHtmlCmd, cwd=os.getcwd() + '/' + outputDir, stdout=resultsFile, stderr=subprocess.STDOUT)
     else:
         genHtmlStatus = runcmd(genHtmlCmd, cwd=os.getcwd() + '/' + outputDir, stderr=subprocess.STDOUT)
-    genStatsCmd = ["lcov", "--summary", "coverage.info"]
+    genStatsCmd = ["lcov", "--summary", "coverage.info", "--filter", "brace,function,trivial"]
     statsFile = open(os.getcwd() + '/' + outputDir + '/' + "coverage_statistics.txt", "w")
     if statsFile:
         genStatsStatus = runcmd(genStatsCmd, cwd=os.getcwd() + '/' + outputDir, stdout=statsFile, stderr=subprocess.STDOUT)

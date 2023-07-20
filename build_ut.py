@@ -199,14 +199,14 @@ def AddValgrind(suite, outputToFile, outputToXml):
 
 def generateCoverageReport(outputDir, resultsFile):
     lcovCmd = ["lcov", "--capture", "--directory", ".", "--output-file", "coverage.info", "--exclude", "/usr/*",
-               "--exclude", "*build/*", "--exclude", "*tests/*"]
+               "--exclude", "*build/*", "--exclude", "*tests/*", "--filter", "brace,function,trivial"]
     if resultsFile:
         lcovStatus = runcmd(lcovCmd, cwd=os.getcwd() + '/' + outputDir, stdout=resultsFile, stderr=subprocess.STDOUT)
     else:
         lcovStatus = runcmd(lcovCmd, cwd=os.getcwd() + '/' + outputDir, stderr=subprocess.STDOUT)
     if not lcovStatus:
         return False
-    genHtmlCmd = ["genhtml", "coverage.info", "--output-directory", "gh_pages/coverage_report"]
+    genHtmlCmd = ["genhtml", "coverage.info", "--output-directory", "gh_pages/coverage_report", "--filter", "function"]
     if resultsFile:
         genHtmlStatus = runcmd(genHtmlCmd, cwd=os.getcwd() + '/' + outputDir, stdout=resultsFile, stderr=subprocess.STDOUT)
     else:

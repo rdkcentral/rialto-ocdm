@@ -22,49 +22,65 @@ set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 include( CheckCXXCompilerFlag )
 
-file(DOWNLOAD
-    https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IMediaKeys.h
-    ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeys.h)
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeys.h)
+    file(DOWNLOAD
+        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IMediaKeys.h
+        ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeys.h)
+endif()
 
-file(DOWNLOAD
-    https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IMediaKeysClient.h
-    ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeysClient.h)
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeysClient.h)
+    file(DOWNLOAD
+        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IMediaKeysClient.h
+        ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeysClient.h)
+endif()
 
-file(DOWNLOAD
-    https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/MediaCommon.h
-    ${CMAKE_SOURCE_DIR}/tests/third-party/include/MediaCommon.h)
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/MediaCommon.h)
+    file(DOWNLOAD
+        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/MediaCommon.h
+        ${CMAKE_SOURCE_DIR}/tests/third-party/include/MediaCommon.h)
+endif()
 
-file(DOWNLOAD
-    https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/ControlCommon.h
-    ${CMAKE_SOURCE_DIR}/tests/third-party/include/ControlCommon.h)
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/ControlCommon.h)
+    file(DOWNLOAD
+        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/ControlCommon.h
+        ${CMAKE_SOURCE_DIR}/tests/third-party/include/ControlCommon.h)
+endif()
 
-file(DOWNLOAD
-    https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IControlClient.h
-    ${CMAKE_SOURCE_DIR}/tests/third-party/include/IControlClient.h)
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/IControlClient.h)
+    file(DOWNLOAD
+        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IControlClient.h
+        ${CMAKE_SOURCE_DIR}/tests/third-party/include/IControlClient.h)
+endif()
 
-file(DOWNLOAD
-    https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IControl.h
-    ${CMAKE_SOURCE_DIR}/tests/third-party/include/IControl.h)
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/IControl.h)
+    file(DOWNLOAD
+        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IControl.h
+        ${CMAKE_SOURCE_DIR}/tests/third-party/include/IControl.h)
+endif()
 
-file(DOWNLOAD
-    https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IMediaKeysCapabilities.h
-    ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeysCapabilities.h)
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeysCapabilities.h)
+    file(DOWNLOAD
+        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IMediaKeysCapabilities.h
+        ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeysCapabilities.h)
+endif()
 
-file(DOWNLOAD
-    https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/open_cdm.h
-    ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm.h)
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm.h)
+    file(DOWNLOAD
+        https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/open_cdm.h
+        ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm.h)
+endif()
 
-file(DOWNLOAD
-    https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/open_cdm.h
-    ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm.h)
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm_ext.h)
+    file(DOWNLOAD
+        https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/open_cdm_ext.h
+        ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm_ext.h)
+endif()
 
-file(DOWNLOAD
-    https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/open_cdm_ext.h
-    ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm_ext.h)
-
-file(DOWNLOAD
-    https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/adapter/open_cdm_adapter.h
-    ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm_adapter.h)
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm_adapter.h)
+    file(DOWNLOAD
+        https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/adapter/open_cdm_adapter.h
+        ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm_adapter.h)
+endif()
 
 add_library(
     ocdmRialtoThirdParty

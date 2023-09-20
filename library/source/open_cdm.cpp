@@ -39,6 +39,7 @@ bool isPlayreadyKeysystem(const std::string &keySystem)
 
 OpenCDMSystem *opencdm_create_system(const char keySystem[])
 {
+    kLog << debug << __func__;
     const std::string kCommitId{COMMIT_ID};
     kLog << info << "Commit ID: " << (kCommitId.empty() ? "Unknown" : kCommitId.c_str());
 
@@ -50,6 +51,7 @@ OpenCDMSystem *opencdm_create_system(const char keySystem[])
 
 OpenCDMError opencdm_create_system_extended(const char keySystem[], struct OpenCDMSystem **system)
 {
+    kLog << debug << __func__;
     assert(system != nullptr);
 
     *system = createSystem(keySystem, "");
@@ -59,6 +61,7 @@ OpenCDMError opencdm_create_system_extended(const char keySystem[], struct OpenC
 
 OpenCDMError opencdm_destruct_system(struct OpenCDMSystem *system)
 {
+    kLog << debug << __func__;
     if (system)
     {
         delete system;
@@ -69,11 +72,13 @@ OpenCDMError opencdm_destruct_system(struct OpenCDMSystem *system)
 
 OpenCDMError opencdm_is_type_supported(const char keySystem[], const char mimeType[])
 {
+    kLog << debug << __func__;
     return MediaKeysCapabilitiesBackend::instance().supportsKeySystem(std::string(keySystem));
 }
 
 OpenCDMError opencdm_system_get_metadata(struct OpenCDMSystem *system, char metadata[], uint16_t *metadataSize)
 {
+    kLog << debug << __func__;
     if (!system || !metadataSize)
     {
         kLog << error << __func__ << ": System or metadataSize is NULL";
@@ -85,6 +90,7 @@ OpenCDMError opencdm_system_get_metadata(struct OpenCDMSystem *system, char meta
 
 OpenCDMError opencdm_system_get_version(struct OpenCDMSystem *system, char versionStr[])
 {
+    kLog << debug << __func__;
     if (!system || !versionStr)
     {
         kLog << error << __func__ << ": System or versionStr is NULL";
@@ -104,6 +110,7 @@ OpenCDMError opencdm_system_get_version(struct OpenCDMSystem *system, char versi
 
 OpenCDMError opencdm_system_get_drm_time(struct OpenCDMSystem *system, uint64_t *time)
 {
+    kLog << debug << __func__;
     if (!time || !system)
     {
         kLog << error << "Ptr is null";
@@ -120,17 +127,20 @@ OpenCDMError opencdm_system_get_drm_time(struct OpenCDMSystem *system, uint64_t 
 struct OpenCDMSession *opencdm_get_system_session(struct OpenCDMSystem *system, const uint8_t keyId[],
                                                   const uint8_t length, const uint32_t waitTime)
 {
+    kLog << debug << __func__;
     return ActiveSessions::instance().get(std::vector<uint8_t>(keyId, keyId + length));
 }
 
 OpenCDMError opencdm_system_set_server_certificate(struct OpenCDMSystem *system, const uint8_t serverCertificate[],
                                                    const uint16_t serverCertificateLength)
 {
+    kLog << debug << __func__;
     return ERROR_NONE;
 }
 
 struct OpenCDMSession *opencdm_get_session(const uint8_t keyId[], const uint8_t length, const uint32_t waitTime)
 {
+    kLog << debug << __func__;
     return opencdm_get_system_session(nullptr, keyId, length, waitTime);
 }
 
@@ -140,6 +150,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
                                        const uint16_t CDMDataLength, OpenCDMSessionCallbacks *callbacks, void *userData,
                                        struct OpenCDMSession **session)
 {
+    kLog << debug << __func__;
     if (!system)
     {
         kLog << error << "System is NULL or not initialized";
@@ -183,6 +194,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
 
 OpenCDMError opencdm_destruct_session(struct OpenCDMSession *session)
 {
+    kLog << debug << __func__;
     // MKS is destructed in opencdm_session_close or in opencdm_session_clean_decrypt_context
     ActiveSessions::instance().remove(session);
     return ERROR_NONE;
@@ -190,6 +202,7 @@ OpenCDMError opencdm_destruct_session(struct OpenCDMSession *session)
 
 OpenCDMError opencdm_session_load(struct OpenCDMSession *session)
 {
+    kLog << debug << __func__;
     OpenCDMError result = ERROR_INVALID_SESSION;
     if (session)
     {
@@ -209,6 +222,7 @@ OpenCDMError opencdm_session_load(struct OpenCDMSession *session)
 
 OpenCDMError opencdm_session_metadata(const struct OpenCDMSession *session, char metadata[], uint16_t *metadataSize)
 {
+    kLog << debug << __func__;
     if (!session || !metadataSize)
     {
         kLog << error << __func__ << ": session or metadata size is null";
@@ -220,6 +234,7 @@ OpenCDMError opencdm_session_metadata(const struct OpenCDMSession *session, char
 
 const char *opencdm_session_id(const struct OpenCDMSession *session)
 {
+    kLog << debug << __func__;
     if (!session)
     {
         return nullptr;
@@ -229,11 +244,13 @@ const char *opencdm_session_id(const struct OpenCDMSession *session)
 
 const char *opencdm_session_buffer_id(const struct OpenCDMSession *session)
 {
+    kLog << debug << __func__;
     return nullptr;
 }
 
 uint32_t opencdm_session_has_key_id(struct OpenCDMSession *session, const uint8_t length, const uint8_t keyId[])
 {
+    kLog << debug << __func__;
     if (!session)
     {
         kLog << error << "Failed to check key id";
@@ -245,6 +262,7 @@ uint32_t opencdm_session_has_key_id(struct OpenCDMSession *session, const uint8_
 
 KeyStatus opencdm_session_status(const struct OpenCDMSession *session, const uint8_t keyId[], uint8_t length)
 {
+    kLog << debug << __func__;
     if (session && keyId && 0 != length)
     {
         std::vector<uint8_t> key(keyId, keyId + length);
@@ -262,6 +280,7 @@ uint32_t opencdm_session_error(const struct OpenCDMSession *session, const uint8
 
 OpenCDMError opencdm_session_system_error(const struct OpenCDMSession *session)
 {
+    kLog << debug << __func__;
     if (!session)
     {
         kLog << error << __func__ << ": Failed to get session system error - session is null";
@@ -278,6 +297,7 @@ OpenCDMError opencdm_session_system_error(const struct OpenCDMSession *session)
 
 OpenCDMError opencdm_session_update(struct OpenCDMSession *session, const uint8_t keyMessage[], uint16_t keyLength)
 {
+    kLog << debug << __func__;
     if (!session)
     {
         kLog << error << __func__ << ": Session is NULL";
@@ -300,6 +320,7 @@ OpenCDMError opencdm_session_update(struct OpenCDMSession *session, const uint8_
 
 OpenCDMError opencdm_session_remove(struct OpenCDMSession *session)
 {
+    kLog << debug << __func__;
     OpenCDMError result = ERROR_INVALID_SESSION;
     if (session)
     {
@@ -332,6 +353,7 @@ OpenCDMError opencdm_session_set_parameter(struct OpenCDMSession *session, const
 
 OpenCDMError opencdm_session_close(struct OpenCDMSession *session)
 {
+    kLog << debug << __func__;
     OpenCDMError result = ERROR_INVALID_SESSION;
     if (session)
     {

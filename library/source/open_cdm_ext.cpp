@@ -29,6 +29,7 @@ const Logger kLog{"open_cdm_ext"};
 
 OpenCDMError opencdm_system_ext_get_ldl_session_limit(struct OpenCDMSystem *system, uint32_t *ldlLimit)
 {
+    kLog << debug << __func__;
     if (!system || !ldlLimit)
     {
         kLog << error << "Failed to get ldl session limit - System is NULL";
@@ -86,6 +87,7 @@ OpenCDMError opencdm_system_ext_commit_secure_stop(struct OpenCDMSystem *system,
 OpenCDMError opencdm_get_key_store_hash_ext(struct OpenCDMSystem *system, uint8_t keyStoreHash[],
                                             uint32_t keyStoreHashLength)
 {
+    kLog << debug << __func__;
     if (!system || 0 == keyStoreHashLength)
     {
         kLog << error << "Failed to get key store hash - arguments are not valid";
@@ -110,6 +112,7 @@ OpenCDMError opencdm_get_key_store_hash_ext(struct OpenCDMSystem *system, uint8_
 OpenCDMError opencdm_get_secure_store_hash_ext(struct OpenCDMSystem *system, uint8_t secureStoreHash[],
                                                uint32_t secureStoreHashLength)
 {
+    kLog << debug << __func__;
     if (!system || 0 == secureStoreHashLength)
     {
         kLog << error << "Failed to get secure store hash - arguments are not valid";
@@ -133,6 +136,7 @@ OpenCDMError opencdm_get_secure_store_hash_ext(struct OpenCDMSystem *system, uin
 
 OpenCDMError opencdm_delete_key_store(struct OpenCDMSystem *system)
 {
+    kLog << debug << __func__;
     if (!system)
     {
         kLog << error << "Failed to delete key store - arguments are not valid";
@@ -148,6 +152,7 @@ OpenCDMError opencdm_delete_key_store(struct OpenCDMSystem *system)
 
 OpenCDMError opencdm_delete_secure_store(struct OpenCDMSystem *system)
 {
+    kLog << debug << __func__;
     if (!system)
     {
         kLog << error << "Failed to delete secure store - arguments are not valid";
@@ -164,6 +169,7 @@ OpenCDMError opencdm_delete_secure_store(struct OpenCDMSystem *system)
 OpenCDMError opencdm_session_set_drm_header(struct OpenCDMSession *opencdmSession, const uint8_t drmHeader[],
                                             uint32_t drmHeaderSize)
 {
+    kLog << debug << __func__;
     if (nullptr == opencdmSession)
     {
         kLog << error << "Failed to set Drm Header - session is NULL";
@@ -181,6 +187,7 @@ OpenCDMError opencdm_session_set_drm_header(struct OpenCDMSession *opencdmSessio
 OpenCDMError opencdm_session_get_challenge_data(struct OpenCDMSession *mOpenCDMSession, uint8_t *challenge,
                                                 uint32_t *challengeSize, uint32_t isLDL)
 {
+    kLog << debug << __func__;
     if (nullptr == mOpenCDMSession || nullptr == challengeSize)
     {
         kLog << error << "Failed to get challenge data - arguments are not valid";
@@ -207,6 +214,7 @@ OpenCDMError opencdm_session_get_challenge_data(struct OpenCDMSession *mOpenCDMS
 
 OpenCDMError opencdm_session_cancel_challenge_data(struct OpenCDMSession *mOpenCDMSession)
 {
+    kLog << debug << __func__;
     // MKS is destructed in opencdm_session_clean_decrypt_context
     return ERROR_NONE;
 }
@@ -214,6 +222,7 @@ OpenCDMError opencdm_session_cancel_challenge_data(struct OpenCDMSession *mOpenC
 OpenCDMError opencdm_session_store_license_data(struct OpenCDMSession *openCDMSession, const uint8_t licenseData[],
                                                 uint32_t licenseDataSize, uint8_t *secureStopId)
 {
+    kLog << debug << __func__;
     if (!openCDMSession)
     {
         kLog << error << "Failed to store license data - session is NULL";
@@ -238,6 +247,7 @@ OpenCDMError opencdm_session_store_license_data(struct OpenCDMSession *openCDMSe
 OpenCDMError opencdm_session_select_key_id(struct OpenCDMSession *mOpenCDMSession, uint8_t keyLength,
                                            const uint8_t keyId[])
 {
+    kLog << debug << __func__;
     if (!mOpenCDMSession || !keyId || 0 == keyLength)
     {
         kLog << error << "Failed to select key id - session or key is NULL";
@@ -254,11 +264,13 @@ OpenCDMError opencdm_session_select_key_id(struct OpenCDMSession *mOpenCDMSessio
 
 OpenCDMError opencdm_system_teardown(struct OpenCDMSystem *system)
 {
+    kLog << debug << __func__;
     return ERROR_NONE;
 }
 
 OpenCDMError opencdm_session_clean_decrypt_context(struct OpenCDMSession *mOpenCDMSession)
 {
+    kLog << debug << __func__;
     if (!mOpenCDMSession)
     {
         kLog << error << "Failed to clean decrypt context - arguments are not valid";

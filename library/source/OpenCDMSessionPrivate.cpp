@@ -70,9 +70,13 @@ OpenCDMSessionPrivate::OpenCDMSessionPrivate(const std::shared_ptr<ICdmBackend> 
       m_sessionType(getRialtoSessionType(sessionType)), m_initDataType(getRialtoInitDataType(initDataType)),
       m_initData(initData), m_isInitialized{false}
 {
+    m_log << debug << "constructed: " << static_cast<void *>(this);
 }
 
-OpenCDMSessionPrivate::~OpenCDMSessionPrivate() {}
+OpenCDMSessionPrivate::~OpenCDMSessionPrivate()
+{
+    m_log << debug << "destructed: " << static_cast<void *>(this);
+}
 
 bool OpenCDMSessionPrivate::initialize()
 {

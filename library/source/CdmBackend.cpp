@@ -40,6 +40,7 @@ void CdmBackend::notifyApplicationState(firebolt::rialto::ApplicationState state
         if (createMediaKeys())
         {
             m_appState = state;
+            m_cv.notify_one();
         }
     }
     else
@@ -94,6 +95,9 @@ bool CdmBackend::containsKey(int32_t keySessionId, const std::vector<uint8_t> &k
 bool CdmBackend::createKeySession(firebolt::rialto::KeySessionType sessionType, bool isLDL, int32_t &keySessionId)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
+    // Sometimes app tries to create session before reaching RUNNING state. We have to wait for it.
+    m_cv.wait_for(lock, std::chrono::seconds(1),
+                  [this](){ return firebolt::rialto::ApplicationState::RUNNING == m_appState; });
     if (!m_mediaKeys)
     {
         return false;

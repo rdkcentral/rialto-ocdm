@@ -97,7 +97,7 @@ bool CdmBackend::createKeySession(firebolt::rialto::KeySessionType sessionType, 
     std::unique_lock<std::mutex> lock{m_mutex};
     // Sometimes app tries to create session before reaching RUNNING state. We have to wait for it.
     m_cv.wait_for(lock, std::chrono::seconds(1),
-                  [this](){ return firebolt::rialto::ApplicationState::RUNNING == m_appState; });
+                  [this]() { return firebolt::rialto::ApplicationState::RUNNING == m_appState; });
     if (!m_mediaKeys)
     {
         return false;

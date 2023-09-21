@@ -21,8 +21,8 @@
 #define OPENCDM_SYSTEM_PRIVATE_H_
 
 #include "CdmBackend.h"
-#include "MessageDispatcher.h"
 #include "Logger.h"
+#include "MessageDispatcher.h"
 #include "OpenCDMSystem.h"
 #include <IControl.h>
 #include <memory>

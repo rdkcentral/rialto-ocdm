@@ -23,9 +23,9 @@
 #include "ICdmBackend.h"
 #include "Logger.h"
 #include "MessageDispatcher.h"
-#include <condition_variable>
 #include <IControlClient.h>
 #include <IMediaKeys.h>
+#include <condition_variable>
 #include <memory>
 #include <mutex>
 #include <string>

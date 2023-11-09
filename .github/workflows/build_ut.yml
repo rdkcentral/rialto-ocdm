@@ -75,7 +75,7 @@ jobs:
       # Run the build script
       - name: build_ut.py script
         run: |
-              python build_ut.py -c -xml -f -cov
+          python build_ut.py -c -xml -f -cov
 
       # Process the test results
       - name: Check results

@@ -26,7 +26,11 @@ name: build_ut
 on:
   # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
-    branches: [ "master", "rdkcentral:master" ]
+    branches: 
+      - master
+      - rdkcentral:master
+      - A_DummyBranch-Rialto-390-OCDM
+
   pull_request:
     branches: [ "master", "rdkcentral:master" ]
 
@@ -56,12 +60,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-
-      # Setup gstreamer 1.0
-      - name: Build gstreamer library
-        run: |
-          sudo apt-get update
-          sudo apt-get install libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio
 
       # Setup github for lcov 2.0
       - name: Build lcov library

@@ -22,65 +22,61 @@ set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 include( CheckCXXCompilerFlag )
 
-if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeys.h)
-    file(DOWNLOAD
-        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IMediaKeys.h
-        ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeys.h)
+# Default to 'master' if branch is not specified
+if(BUILD_BRANCH)
+    message("======= Branch specified, using '${BUILD_BRANCH}' branch =======")
+else()
+    set(BUILD_BRANCH "master")
+    message("======= No branch specified, using 'master' branch as default =======")
 endif()
 
-if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeysClient.h)
-    file(DOWNLOAD
-        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IMediaKeysClient.h
-        ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeysClient.h)
-endif()
+# Function to download the relevant files, and to check if the file downloaded is empty 
+function(downloadAndCheck URL FILE)
+    if((FILE MATCHES "open_cdm_adapter.h") OR (FILE MATCHES "open_cdm_ext.h") OR (FILE MATCHES "open_cdm.h")) # Special case for the different path files
+        set(FILE_PATH ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/${FILE})
+    else()
+        set(FILE_PATH ${CMAKE_SOURCE_DIR}/tests/third-party/include/${FILE})
+    endif()
 
-if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/MediaCommon.h)
-    file(DOWNLOAD
-        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/MediaCommon.h
-        ${CMAKE_SOURCE_DIR}/tests/third-party/include/MediaCommon.h)
-endif()
+    if(NOT EXISTS ${FILE_PATH})
+        file(DOWNLOAD ${URL} ${FILE_PATH})
+        message("Downloaded ${FILE}")
+        
+        # If the file is empty
+        file(READ ${FILE_PATH} fileContents)
+        if("${fileContents}" STREQUAL "")
+            message(FATAL_ERROR "The downloaded ${FILE} file is empty!")
+        endif()
+    endif()
+endfunction()
 
-if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/ControlCommon.h)
-    file(DOWNLOAD
-        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/ControlCommon.h
-        ${CMAKE_SOURCE_DIR}/tests/third-party/include/ControlCommon.h)
-endif()
 
-if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/IControlClient.h)
-    file(DOWNLOAD
-        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IControlClient.h
-        ${CMAKE_SOURCE_DIR}/tests/third-party/include/IControlClient.h)
-endif()
+# List of files to download
+set(FILE_LIST
+    open_cdm_adapter.h
+    open_cdm_ext.h
+    open_cdm.h
+    ControlCommon.h
+    IControl.h
+    IControlClient.h
+    IMediaKeys.h
+    IMediaKeysCapabilities.h
+    IMediaKeysClient.h
+    MediaCommon.h
+)
 
-if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/IControl.h)
-    file(DOWNLOAD
-        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IControl.h
-        ${CMAKE_SOURCE_DIR}/tests/third-party/include/IControl.h)
-endif()
+# Loop through the list and call the function
+foreach(FILE_NAME ${FILE_LIST})
+    if((FILE_NAME MATCHES "open_cdm_ext.h") OR (FILE_NAME MATCHES "open_cdm.h")) # Special case for header file as the path is different
+        set(BASE_URL https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/)
+    elseif(FILE_NAME MATCHES "open_cdm_adapter.h") # Special case for header file as the path is different
+        set(BASE_URL https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/adapter/)
+    else()
+        set(BASE_URL https://raw.githubusercontent.com/rdkcentral/rialto/${BUILD_BRANCH}/media/public/include/)
+    endif()
 
-if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeysCapabilities.h)
-    file(DOWNLOAD
-        https://raw.githubusercontent.com/rdkcentral/rialto/master/media/public/include/IMediaKeysCapabilities.h
-        ${CMAKE_SOURCE_DIR}/tests/third-party/include/IMediaKeysCapabilities.h)
-endif()
-
-if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm.h)
-    file(DOWNLOAD
-        https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/open_cdm.h
-        ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm.h)
-endif()
-
-if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm_ext.h)
-    file(DOWNLOAD
-        https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/open_cdm_ext.h
-        ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm_ext.h)
-endif()
-
-if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm_adapter.h)
-    file(DOWNLOAD
-        https://raw.githubusercontent.com/rdkcentral/ThunderClientLibraries/master/Source/ocdm/adapter/open_cdm_adapter.h
-        ${CMAKE_SOURCE_DIR}/tests/third-party/include/opencdm/open_cdm_adapter.h)
-endif()
+    downloadAndCheck(${BASE_URL}${FILE_NAME} ${FILE_NAME})
+endforeach()
 
 add_library(
     ocdmRialtoThirdParty

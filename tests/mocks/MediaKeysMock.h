@@ -59,10 +59,7 @@ public:
 class MediaKeysFactoryMock : public IMediaKeysFactory
 {
 public:
-    MOCK_METHOD(std::unique_ptr<IMediaKeys>, createMediaKeys,
-                (const std::string &keySystem,
-                 std::weak_ptr<firebolt::rialto::client::IMediaKeysIpcFactory> mediaKeysIpcFactory),
-                (const, override));
+    MOCK_METHOD(std::unique_ptr<IMediaKeys>, createMediaKeys, (const std::string &keySystem), (const, override));
 };
 } // namespace firebolt::rialto
 

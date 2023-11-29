@@ -47,8 +47,7 @@ public:
     void changeStateToRunning()
     {
         ASSERT_TRUE(m_mediaKeysFactoryMock);
-
-        EXPECT_CALL(*m_mediaKeysFactoryMock, createMediaKeys(kKeySystem, _))
+        EXPECT_CALL(*m_mediaKeysFactoryMock, createMediaKeys(kKeySystem))
             .WillOnce(Return(ByMove(std::move(m_mediaKeysMock))));
         m_sut.notifyApplicationState(firebolt::rialto::ApplicationState::RUNNING);
     }
@@ -83,7 +82,7 @@ TEST_F(CdmBackendTests, ShouldInitializeMediaKeysWhenSwitchedToRunningAgain)
 {
     changeStateToRunning();
     m_sut.notifyApplicationState(firebolt::rialto::ApplicationState::INACTIVE);
-    EXPECT_CALL(*m_mediaKeysFactoryMock, createMediaKeys(kKeySystem, _))
+    EXPECT_CALL(*m_mediaKeysFactoryMock, createMediaKeys(kKeySystem))
         .WillOnce(Return(ByMove(std::make_unique<StrictMock<firebolt::rialto::MediaKeysMock>>())));
     m_sut.notifyApplicationState(firebolt::rialto::ApplicationState::RUNNING);
 }
@@ -108,14 +107,14 @@ TEST_F(CdmBackendTests, ShouldFailToInitializeInRunningStateWhenFactoryIsNull)
 TEST_F(CdmBackendTests, ShouldFailToInitializeInRunningStateWhenMediaKeysIsNull)
 {
     ASSERT_TRUE(m_mediaKeysFactoryMock);
-    EXPECT_CALL(*m_mediaKeysFactoryMock, createMediaKeys(kKeySystem, _)).WillOnce(Return(nullptr));
+    EXPECT_CALL(*m_mediaKeysFactoryMock, createMediaKeys(kKeySystem)).WillOnce(Return(nullptr));
     EXPECT_FALSE(m_sut.initialize(firebolt::rialto::ApplicationState::RUNNING));
 }
 
 TEST_F(CdmBackendTests, ShouldInitializeInRunningState)
 {
     ASSERT_TRUE(m_mediaKeysFactoryMock);
-    EXPECT_CALL(*m_mediaKeysFactoryMock, createMediaKeys(kKeySystem, _))
+    EXPECT_CALL(*m_mediaKeysFactoryMock, createMediaKeys(kKeySystem))
         .WillOnce(Return(ByMove(std::make_unique<StrictMock<firebolt::rialto::MediaKeysMock>>())));
     EXPECT_TRUE(m_sut.initialize(firebolt::rialto::ApplicationState::RUNNING));
 }

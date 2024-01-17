@@ -138,12 +138,12 @@ jobs:
       #     echo "::set-output name=body::$body"
 
       # Create comment with coverage info
-      - name: Create Coverage Comment
-        if: ${{ success() && github.ref != 'refs/heads/master' }}
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.get-comment-body.outputs.body }}
+      # - name: Create Coverage Comment
+      #   if: ${{ success() && github.ref != 'refs/heads/master' }}
+      #   uses: peter-evans/create-or-update-comment@v2
+      #   with:
+      #     issue-number: ${{ github.event.pull_request.number }}
+      #     body: ${{ steps.get-comment-body.outputs.body }}
 
   checks-the-cov-report:
     name: Checks the Coverage Report

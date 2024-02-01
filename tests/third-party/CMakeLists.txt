@@ -57,7 +57,6 @@ set(FILE_LIST
     open_cdm_ext.h
     open_cdm.h
     ControlCommon.h
-    IClientLogHandler.h
     IControl.h
     IControlClient.h
     IMediaKeys.h

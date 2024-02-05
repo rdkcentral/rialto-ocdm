@@ -1,4 +1,0 @@
-# Changelog
-
-Work in progress
-

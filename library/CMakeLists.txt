@@ -54,9 +54,6 @@ target_include_directories(
         PRIVATE
         )
 
-include(CMakePrintHelpers)
-cmake_print_variables(Rialto::RialtoClient)
-
 target_link_libraries(
         ocdmRialto
 

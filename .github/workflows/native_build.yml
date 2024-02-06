@@ -41,6 +41,7 @@ jobs:
         with:
           repository: rdkcentral/rialto
           path: ./rialto
+          fetch-depth: 0
 
       - name: Install Dependencies
         run: |
@@ -59,6 +60,7 @@ jobs:
           BRANCH=${GITHUB_HEAD_REF##*/}
           cd rialto
           # This will fail if there's no corresponding branch in rialto
+          # ...but that's ok since we set continue-on-error
           git checkout $BRANCH
 
       - name: Native build Rialto

@@ -17,10 +17,11 @@
 #  limitations under the License.
 #
 
-find_package( Rialto REQUIRED )
-find_package( ocdm REQUIRED )
+find_package(Rialto 1.0 REQUIRED)
 
-set(LIB_OCDM_RIALTO_SOURCES
+add_library(ocdmRialto
+
+        SHARED
         source/open_cdm.cpp
         source/open_cdm_adapter.cpp
         source/open_cdm_ext.cpp
@@ -34,8 +35,6 @@ set(LIB_OCDM_RIALTO_SOURCES
         source/MessageDispatcher.cpp
         source/RialtoGStreamerEMEProtectionMetadata.cpp)
 
-add_library(ocdmRialto SHARED ${LIB_OCDM_RIALTO_SOURCES} )
-
 set_target_properties(
         ocdmRialto
         PROPERTIES LINK_FLAGS "-Wl,--unresolved-symbols=report-all"
@@ -47,20 +46,25 @@ target_include_directories(
         ocdmRialto
 
         PUBLIC
-        $<INSTALL_INTERFACE:include/rialto>
+        include
+        ${CMAKE_INCLUDE_PATH}
+        ${CMAKE_INCLUDE_PATH}/rialto
+        ${GStreamerApp_INCLUDE_DIRS}
 
         PRIVATE
-        include
-        ${RIALTO_INCLUDE_DIR}
-        ${GStreamerApp_INCLUDE_DIRS}
         )
+
+include(CMakePrintHelpers)
+cmake_print_variables(Rialto::RialtoClient)
 
 target_link_libraries(
         ocdmRialto
 
+        PUBLIC
+        ${GStreamerApp_LIBRARIES}
+
         PRIVATE
         Rialto::RialtoClient
-        ${GStreamerApp_LIBRARIES}
         )
 
 include( GNUInstallDirs )

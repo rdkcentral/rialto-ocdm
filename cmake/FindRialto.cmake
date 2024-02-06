@@ -2,7 +2,7 @@
 # If not stated otherwise in this file or this component's LICENSE file the
 # following copyright and licenses apply:
 #
-#  Copyright 2022 Sky UK
+#  Copyright 2024 Sky UK
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -17,6 +17,14 @@
 #  limitations under the License.
 #
 
+#############
+# NOTE
+# NOTE: This file is a copy of gstreamer/cmake/FindRialto.cmake
+# NOTE: Please keep these two files "in step"
+# NOTE: ...except for the different licence
+# NOTE
+#############
+
 # - Try to find the Rialto library.
 #
 # The following are set after configuration is done:
@@ -24,7 +32,7 @@
 #  RIALTO_INCLUDE_DIRS
 #  RIALTO_LIBRARY_DIRS
 #  RIALTO_LIBRARIES
-find_path( RIALTO_INCLUDE_DIR NAMES IMediaKeys.h PATH_SUFFIXES rialto)
+find_path( RIALTO_INCLUDE_DIR NAMES IMediaPipeline.h PATH_SUFFIXES rialto)
 find_library( RIALTO_LIBRARY NAMES libRialtoClient.so RialtoClient )
 
 #message( "RIALTO_INCLUDE_DIR include dir = ${RIALTO_INCLUDE_DIR}" )

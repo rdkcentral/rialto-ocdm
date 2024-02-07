@@ -46,22 +46,22 @@ target_include_directories(
         ocdmRialto
 
         PUBLIC
+
+        PRIVATE
         include
         ${CMAKE_INCLUDE_PATH}
         ${CMAKE_INCLUDE_PATH}/rialto
         ${GStreamerApp_INCLUDE_DIRS}
-
-        PRIVATE
         )
 
 target_link_libraries(
         ocdmRialto
 
         PUBLIC
-        ${GStreamerApp_LIBRARIES}
 
         PRIVATE
         Rialto::RialtoClient
+        ${GStreamerApp_LIBRARIES}
         )
 
 include( GNUInstallDirs )

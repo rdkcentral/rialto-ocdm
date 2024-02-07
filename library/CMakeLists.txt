@@ -45,8 +45,6 @@ set_target_properties(
 target_include_directories(
         ocdmRialto
 
-        PUBLIC
-
         PRIVATE
         include
         ${CMAKE_INCLUDE_PATH}
@@ -56,8 +54,6 @@ target_include_directories(
 
 target_link_libraries(
         ocdmRialto
-
-        PUBLIC
 
         PRIVATE
         Rialto::RialtoClient

@@ -48,11 +48,12 @@ OpenCDMSystem *opencdm_create_system(const char keySystem[])
     {
         if (std::strlen(kTags) > 0)
         {
-            kLog<< mil << "Release Tag(s): "<< kTags << "(Commit ID: "<< kSrcRev << ")";
+            kLog << mil << "Release Tag(s): " << kTags << " (Commit ID: " << kSrcRev << ")";
         }
         else
         {
-            kLog<< mil << "Release Tag(s): No Release Tags!"<< "(Commit ID: "<< kSrcRev << ")";
+            kLog << mil << "Release Tag(s): No Release Tags!"
+                 << " (Commit ID: " << kSrcRev << ")";
         }
     }
     else

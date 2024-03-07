@@ -49,8 +49,6 @@ endif()
 add_compile_definitions(SRCREV="${SRCREV}")
 add_compile_definitions(TAGS="${TAGS}")
 
-message("SRCREV!!!!!!! ${SRCREV}")
-message("TAGS!!!!!!!!! ${TAGS}")
 add_compile_definitions( RIALTO_ENABLE_DECRYPT_BUFFER )
 
 if ( COVERAGE_ENABLED )

@@ -108,6 +108,3 @@ endif()
 # Preprocesser Variable
 add_compile_definitions(SRCREV="${SRCREV}")
 add_compile_definitions(TAGS="${TAGS}")
-
-message("SRCREV: ${SRCREV}")
-message("TAGS: ${TAGS}")

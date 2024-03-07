@@ -40,9 +40,6 @@ bool isPlayreadyKeysystem(const std::string &keySystem)
 OpenCDMSystem *opencdm_create_system(const char keySystem[])
 {
     kLog << debug << __func__;
-    // const std::string kCommitId{COMMIT_ID};
-    // kLog << info << "Commit ID: " << (kCommitId.empty() ? "Unknown" : kCommitId.c_str());
-
 
     const char kSrcRev[] = SRCREV;
     const char kTags[] = TAGS;
@@ -62,7 +59,6 @@ OpenCDMSystem *opencdm_create_system(const char keySystem[])
     {
         kLog << warn << "Failed to get git commit ID!";
     }
-
 
     OpenCDMSystem *result = nullptr;
     opencdm_create_system_extended(keySystem, &result);

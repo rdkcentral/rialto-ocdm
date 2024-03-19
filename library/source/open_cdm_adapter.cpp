@@ -30,11 +30,13 @@ OpenCDMError opencdm_gstreamer_session_decrypt_ex(struct OpenCDMSession *session
                                                   GstBuffer *subSample, const uint32_t subSampleCount, GstBuffer *IV,
                                                   GstBuffer *keyID, uint32_t initWithLast15, GstCaps *caps)
 {
+    kLog << info << "Before the if statament in opencdm_gstreamer_session_decrypt_ex function";
     if (nullptr == session)
     {
         kLog << error << "Failed to decrypt - session is NULL";
         return ERROR_FAIL;
     }
+    kLog << info << "After the if statament in opencdm_gstreamer_session_decrypt_ex function";
     session->addProtectionMeta(buffer, subSample, subSampleCount, IV, keyID, initWithLast15);
     return ERROR_NONE;
 }
@@ -43,6 +45,7 @@ OpenCDMError opencdm_gstreamer_session_decrypt(struct OpenCDMSession *session, G
                                                const uint32_t subSampleCount, GstBuffer *IV, GstBuffer *keyID,
                                                uint32_t initWithLast15)
 {
+    kLog << info << "Inside the opencdm_gstreamer_session_decrypt function";
     return opencdm_gstreamer_session_decrypt_ex(session, buffer, subSample, subSampleCount, IV, keyID, initWithLast15,
                                                 nullptr);
 }

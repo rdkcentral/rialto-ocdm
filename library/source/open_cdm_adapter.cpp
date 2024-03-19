@@ -29,14 +29,14 @@ const Logger kLog{"open_cdm_adapter"};
 OpenCDMError opencdm_gstreamer_session_decrypt_ex(struct OpenCDMSession *session, GstBuffer *buffer,
                                                   GstBuffer *subSample, const uint32_t subSampleCount, GstBuffer *IV,
                                                   GstBuffer *keyID, uint32_t initWithLast15, GstCaps *caps)
-{
-    kLog << info << "Before the if statament in opencdm_gstreamer_session_decrypt_ex function";
+{mil
+    kLog << mil << "Before the if statament in opencdm_gstreamer_session_decrypt_ex function";
     if (nullptr == session)
     {
         kLog << error << "Failed to decrypt - session is NULL";
         return ERROR_FAIL;
     }
-    kLog << info << "After the if statament in opencdm_gstreamer_session_decrypt_ex function";
+    kLog << mil << "After the if statament in opencdm_gstreamer_session_decrypt_ex function";
     session->addProtectionMeta(buffer, subSample, subSampleCount, IV, keyID, initWithLast15);
     return ERROR_NONE;
 }
@@ -45,7 +45,7 @@ OpenCDMError opencdm_gstreamer_session_decrypt(struct OpenCDMSession *session, G
                                                const uint32_t subSampleCount, GstBuffer *IV, GstBuffer *keyID,
                                                uint32_t initWithLast15)
 {
-    kLog << info << "Inside the opencdm_gstreamer_session_decrypt function";
+    kLog << mil << "Inside the opencdm_gstreamer_session_decrypt function";
     return opencdm_gstreamer_session_decrypt_ex(session, buffer, subSample, subSampleCount, IV, keyID, initWithLast15,
                                                 nullptr);
 }
@@ -64,7 +64,7 @@ OpenCDMError opencdm_gstreamer_session_decrypt_buffer(struct OpenCDMSession *ses
         kLog << error << "Failed to decrypt - could not append protection meta";
         return ERROR_FAIL;
     }
-    kLog << info << "Inside the rialto_enable_decrypt_buffer preprocessor";
+    kLog << mil << "Inside the rialto_enable_decrypt_buffer preprocessor";
     return ERROR_NONE;
 }
 #endif

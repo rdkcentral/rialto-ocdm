@@ -62,7 +62,6 @@ OpenCDMError opencdm_gstreamer_session_decrypt_buffer(struct OpenCDMSession *ses
         return ERROR_FAIL;
     }
     kLog << info << "Inside the rialto_enable_decrypt_buffer preprocessor";
-    asdfasdf
     return ERROR_NONE;
 }
 #endif

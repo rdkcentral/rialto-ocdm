@@ -41,6 +41,8 @@ find_package( Threads REQUIRED )
 
 pkg_check_modules( GStreamerApp REQUIRED IMPORTED_TARGET gstreamer-app-1.0 )
 
+option(RIALTO_ENABLE_DECRYPT_BUFFER "Enable decrypt buffering" ON)
+
 if ( RIALTO_ENABLE_DECRYPT_BUFFER )
     add_compile_definitions( RIALTO_ENABLE_DECRYPT_BUFFER )
 endif()

@@ -61,7 +61,7 @@ OpenCDMError opencdm_gstreamer_session_decrypt_buffer(struct OpenCDMSession *ses
         kLog << error << "Failed to decrypt - could not append protection meta";
         return ERROR_FAIL;
     }
-
+    kLog << info << "Inside the rialto_enable_decrypt_buffer preprocessor";
     return ERROR_NONE;
 }
 #endif

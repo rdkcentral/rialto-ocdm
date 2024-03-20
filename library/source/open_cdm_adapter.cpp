@@ -29,7 +29,7 @@ const Logger kLog{"open_cdm_adapter"};
 OpenCDMError opencdm_gstreamer_session_decrypt_ex(struct OpenCDMSession *session, GstBuffer *buffer,
                                                   GstBuffer *subSample, const uint32_t subSampleCount, GstBuffer *IV,
                                                   GstBuffer *keyID, uint32_t initWithLast15, GstCaps *caps)
-{mil
+{
     kLog << mil << "Before the if statament in opencdm_gstreamer_session_decrypt_ex function";
     if (nullptr == session)
     {

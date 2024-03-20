@@ -262,6 +262,7 @@ void OpenCDMSessionPrivate::addProtectionMeta(GstBuffer *buffer, GstBuffer *subS
 
 bool OpenCDMSessionPrivate::addProtectionMeta(GstBuffer *buffer)
 {
+    m_log << mil <<"CHECKING !!!!!!!!!!!!!!!";
     GstProtectionMeta *protectionMeta = reinterpret_cast<GstProtectionMeta *>(gst_buffer_get_protection_meta(buffer));
     if (!protectionMeta)
     {

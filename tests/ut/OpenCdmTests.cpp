@@ -396,3 +396,17 @@ TEST_F(OpenCdmTests, ShouldCloseSession)
     EXPECT_CALL(m_openCdmSessionMock, closeSession()).WillOnce(Return(true));
     EXPECT_EQ(ERROR_NONE, opencdm_session_close(&m_openCdmSessionMock));
 }
+
+TEST_F(OpenCdmTests, ShouldSupportCertificate)
+{
+    EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
+    EXPECT_CALL(*m_mediaKeysCapabilitiesMock, isServerCertificateSupported(kNetflixKeySystem)).WillOnce(Return(true));
+    EXPECT_EQ(OpenCDMBool::OPENCDM_BOOL_TRUE, opencdm_system_supports_server_certificate(&m_openCdmSystemMock));
+}
+
+TEST_F(OpenCdmTests, ShouldNotSupportCertificate)
+{
+    EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
+    EXPECT_CALL(*m_mediaKeysCapabilitiesMock, isServerCertificateSupported(kNetflixKeySystem)).WillOnce(Return(false));
+    EXPECT_EQ(OpenCDMBool::OPENCDM_BOOL_FALSE, opencdm_system_supports_server_certificate(&m_openCdmSystemMock));
+}

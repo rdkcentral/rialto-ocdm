@@ -59,6 +59,16 @@ bool MediaKeysCapabilitiesBackend::getSupportedKeySystemVersion(const std::strin
     return result;
 }
 
+bool MediaKeysCapabilitiesBackend::isServerCertificateSupported(const std::string &keySystem)
+{
+    bool result{false};
+    if (m_mediaKeysCapabilities)
+    {
+        result = m_mediaKeysCapabilities->isServerCertificateSupported(keySystem);
+    }
+    return result;
+}
+
 MediaKeysCapabilitiesBackend::MediaKeysCapabilitiesBackend()
 {
     std::shared_ptr<firebolt::rialto::IMediaKeysCapabilitiesFactory> factory =

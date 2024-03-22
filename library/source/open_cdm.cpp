@@ -200,7 +200,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
             kLog << error << "Failed to generate request";
 
             opencdm_session_close(newSession);
-            ActiveSessions::instance().remove(newSession);
+            opencdm_destruct_session(newSession);
             return ERROR_FAIL;
         }
     }
@@ -213,9 +213,21 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
 OpenCDMError opencdm_destruct_session(struct OpenCDMSession *session)
 {
     kLog << debug << __func__;
-    // MKS is destructed in opencdm_session_close or in opencdm_session_clean_decrypt_context
-    ActiveSessions::instance().remove(session);
-    return ERROR_NONE;
+    OpenCDMError result = ERROR_INVALID_SESSION;
+    if (session)
+    {
+        if (session->releaseSession())
+        {
+            result = ERROR_NONE;
+        }
+        else
+        {
+            kLog << error << "Failed to release the key session";
+            result = ERROR_FAIL;
+        }
+        ActiveSessions::instance().remove(session);
+    }
+    return result;
 }
 
 OpenCDMError opencdm_session_load(struct OpenCDMSession *session)

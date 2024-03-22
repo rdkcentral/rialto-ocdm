@@ -480,3 +480,24 @@ TEST_F(CdmBackendTests, ShouldGetCdmKeySessionId)
     changeStateToRunning();
     EXPECT_TRUE(m_sut.getCdmKeySessionId(kKeySessionId, cdmKeySessionId));
 }
+
+TEST_F(CdmBackendTests, ShouldFailToReleaseKeySessionWhenMediaKeysIsNotPresent)
+{
+    EXPECT_FALSE(m_sut.releaseKeySession(kKeySessionId));
+}
+
+TEST_F(CdmBackendTests, ShouldFailToReleaseKeySession)
+{
+    EXPECT_CALL(*m_mediaKeysMock, releaseKeySession(kKeySessionId))
+        .WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::FAIL));
+    changeStateToRunning();
+    EXPECT_FALSE(m_sut.releaseKeySession(kKeySessionId));
+}
+
+TEST_F(CdmBackendTests, ShouldReleaseKeySession)
+{
+    EXPECT_CALL(*m_mediaKeysMock, releaseKeySession(kKeySessionId))
+        .WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::OK));
+    changeStateToRunning();
+    EXPECT_TRUE(m_sut.releaseKeySession(kKeySessionId));
+}

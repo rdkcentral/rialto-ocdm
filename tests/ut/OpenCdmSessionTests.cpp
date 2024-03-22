@@ -662,3 +662,31 @@ TEST_F(OpenCdmSessionTests, ShouldReturnLastDrmError)
         .WillOnce(DoAll(SetArgReferee<1>(kError), Return(true)));
     EXPECT_EQ(m_sut->getLastDrmError(), kError);
 }
+
+TEST_F(OpenCdmSessionTests, ShouldNotReleaseSessionWhenCdmBackendIsNull)
+{
+    createInvalidSut();
+    EXPECT_FALSE(m_sut->releaseSession());
+}
+
+TEST_F(OpenCdmSessionTests, ShouldNotReleaseSessionWhenNotInitialized)
+{
+    createSut();
+    EXPECT_FALSE(m_sut->releaseSession());
+}
+
+TEST_F(OpenCdmSessionTests, ShouldFailToReleaseSessionWhenOperationFails)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, releaseKeySession(kKeySessionId)).WillOnce(Return(false));
+    EXPECT_FALSE(m_sut->releaseSession());
+}
+
+TEST_F(OpenCdmSessionTests, ShouldReleaseSession)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, releaseKeySession(kKeySessionId)).WillOnce(Return(true));
+    EXPECT_TRUE(m_sut->releaseSession());
+}

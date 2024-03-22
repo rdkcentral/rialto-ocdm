@@ -52,6 +52,7 @@ public:
     virtual bool getLastDrmError(int32_t keySessionId, uint32_t &errorCode) = 0;
     virtual bool getDrmTime(uint64_t &drmTime) = 0;
     virtual bool getCdmKeySessionId(int32_t keySessionId, std::string &cdmKeySessionId) = 0;
+    virtual bool releaseKeySession(int32_t keySessionId) = 0;
 };
 
 #endif // I_CDM_BACKEND_H_

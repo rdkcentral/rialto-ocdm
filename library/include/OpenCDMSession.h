@@ -59,6 +59,7 @@ public:
     virtual bool addProtectionMeta(GstBuffer *buffer) = 0;
     virtual bool closeSession() = 0;
     virtual bool removeSession() = 0;
+    virtual bool releaseSession() = 0;
     virtual KeyStatus status(const std::vector<uint8_t> &key) const = 0;
 
     virtual const std::string &getSessionId() const = 0;

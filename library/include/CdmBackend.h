@@ -60,6 +60,7 @@ public:
     bool getLastDrmError(int32_t keySessionId, uint32_t &errorCode) override;
     bool getDrmTime(uint64_t &drmTime) override;
     bool getCdmKeySessionId(int32_t keySessionId, std::string &cdmKeySessionId) override;
+    bool releaseKeySession(int32_t keySessionId) override;
 
 private:
     bool createMediaKeys();

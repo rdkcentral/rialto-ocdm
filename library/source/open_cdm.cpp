@@ -213,21 +213,12 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
 OpenCDMError opencdm_destruct_session(struct OpenCDMSession *session)
 {
     kLog << debug << __func__;
-    OpenCDMError result = ERROR_INVALID_SESSION;
     if (session)
     {
-        if (session->releaseSession())
-        {
-            result = ERROR_NONE;
-        }
-        else
-        {
-            kLog << error << "Failed to release the key session";
-            result = ERROR_FAIL;
-        }
         ActiveSessions::instance().remove(session);
+        return ERROR_NONE;
     }
-    return result;
+    return ERROR_INVALID_SESSION;
 }
 
 OpenCDMError opencdm_session_load(struct OpenCDMSession *session)

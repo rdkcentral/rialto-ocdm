@@ -68,7 +68,6 @@ public:
     bool addProtectionMeta(GstBuffer *buffer) override;
     bool closeSession() override;
     bool removeSession() override;
-    bool releaseSession() override;
     KeyStatus status(const std::vector<uint8_t> &key) const override;
 
     const std::string &getSessionId() const override;
@@ -77,6 +76,7 @@ public:
 private:
     void initializeCdmKeySessionId();
     void updateChallenge(const std::vector<unsigned char> &challenge);
+    void releaseSession();
 
 private:
     Logger m_log;

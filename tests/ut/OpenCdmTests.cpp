@@ -216,7 +216,6 @@ TEST_F(OpenCdmTests, ShouldFailToConstructWidevineSessionWhenGenerateRequestFail
     EXPECT_CALL(m_openCdmSessionMock, initialize()).WillOnce(Return(true));
     EXPECT_CALL(m_openCdmSessionMock, generateRequest(kInitDataType, kInitData, kCdmData)).WillOnce(Return(false));
     EXPECT_CALL(m_openCdmSessionMock, closeSession()).WillOnce(Return(true));
-    EXPECT_CALL(m_openCdmSessionMock, releaseSession()).WillOnce(Return(true));
     EXPECT_EQ(ERROR_FAIL, opencdm_construct_session(&m_openCdmSystemMock, kLicenseType, kInitDataType.c_str(),
                                                     kInitData.data(), kInitData.size(), kCdmData.data(),
                                                     kCdmData.size(), &m_callbacks, &m_userData, &resultSession));
@@ -239,14 +238,12 @@ TEST_F(OpenCdmTests, ShouldConstructWidevineSession)
 
 TEST_F(OpenCdmTests, ShouldDestructSession)
 {
-    EXPECT_CALL(m_openCdmSessionMock, releaseSession()).WillOnce(Return(true));
     EXPECT_EQ(ERROR_NONE, opencdm_destruct_session(&m_openCdmSessionMock));
 }
 
 TEST_F(OpenCdmTests, ShouldFailToDestructSession)
 {
-    EXPECT_CALL(m_openCdmSessionMock, releaseSession()).WillOnce(Return(false));
-    EXPECT_EQ(ERROR_FAIL, opencdm_destruct_session(&m_openCdmSessionMock));
+    EXPECT_EQ(ERROR_INVALID_SESSION, opencdm_destruct_session(nullptr));
 }
 
 TEST_F(OpenCdmTests, ShouldFailToLoadSessionWhenItIsNull)

@@ -76,6 +76,10 @@ OpenCDMSessionPrivate::OpenCDMSessionPrivate(const std::shared_ptr<ICdmBackend> 
 OpenCDMSessionPrivate::~OpenCDMSessionPrivate()
 {
     m_log << debug << "destructed: " << static_cast<void *>(this);
+    if (m_isInitialized)
+    {
+        releaseSession();
+    }
 }
 
 bool OpenCDMSessionPrivate::initialize()
@@ -361,28 +365,19 @@ bool OpenCDMSessionPrivate::removeSession()
     return false;
 }
 
-bool OpenCDMSessionPrivate::releaseSession()
+void OpenCDMSessionPrivate::releaseSession()
 {
-    if (!m_cdmBackend)
-    {
-        m_log << error << "Cdm is NULL or not initialized";
-        return false;
-    }
-
     if (-1 != m_rialtoSessionId)
     {
         if (m_cdmBackend->releaseKeySession(m_rialtoSessionId))
         {
             m_log << info << "Successfully released the session";
-            return true;
         }
         else
         {
             m_log << warn << "Failed to release the session.";
         }
     }
-
-    return false;
 }
 
 bool OpenCDMSessionPrivate::containsKey(const std::vector<uint8_t> &keyId)

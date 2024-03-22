@@ -47,7 +47,6 @@ public:
     MOCK_METHOD(bool, addProtectionMeta, (GstBuffer * buffer), (override));
     MOCK_METHOD(bool, closeSession, (), (override));
     MOCK_METHOD(bool, removeSession, (), (override));
-    MOCK_METHOD(bool, releaseSession, (), (override));
     MOCK_METHOD(KeyStatus, status, (const std::vector<uint8_t> &key), (const, override));
     MOCK_METHOD(const std::string &, getSessionId, (), (const, override));
     MOCK_METHOD(uint32_t, getLastDrmError, (), (const, override));

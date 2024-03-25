@@ -76,6 +76,7 @@ public:
 private:
     void initializeCdmKeySessionId();
     void updateChallenge(const std::vector<unsigned char> &challenge);
+    void releaseSession();
 
 private:
     Logger m_log;

@@ -175,6 +175,8 @@ protected:
                               "skip_byte_block", G_TYPE_UINT, kPatternClearBlocks, NULL);
         gst_buffer_add_protection_meta(m_buffer, info);
     }
+
+    void teardownSut() { EXPECT_CALL(*m_cdmBackendMock, releaseKeySession(kKeySessionId)).WillOnce(Return(true)); }
 };
 
 TEST_F(OpenCdmSessionTests, ShouldNotInitializeWhenBackendOrDispatcherIsNull)
@@ -195,18 +197,22 @@ TEST_F(OpenCdmSessionTests, ShouldInitialize)
 {
     createSut();
     initializeSut();
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldInitializeWithAllPossibleLicenseTypes)
 {
     createSut(LicenseType::PersistentUsageRecord);
     initializeSut(firebolt::rialto::KeySessionType::UNKNOWN);
+    teardownSut();
 
     createSut(LicenseType::PersistentLicense);
     initializeSut(firebolt::rialto::KeySessionType::PERSISTENT_LICENCE);
+    teardownSut();
 
     createSut(static_cast<LicenseType>(7)); // some uknown license type
     initializeSut(firebolt::rialto::KeySessionType::UNKNOWN);
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotInitializeTwice)
@@ -214,6 +220,7 @@ TEST_F(OpenCdmSessionTests, ShouldNotInitializeTwice)
     createSut();
     initializeSut();
     EXPECT_TRUE(m_sut->initialize());
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotGenerateRequestWhenBackendIsNull)
@@ -241,6 +248,7 @@ TEST_F(OpenCdmSessionTests, ShouldNotGenerateRequestWhenOperationFails)
     EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1)).WillOnce(Return(false));
     EXPECT_CALL(*m_cdmBackendMock, getLastDrmError(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_FALSE(m_sut->generateRequest(kInitDataType, kBytes1, kBytes2));
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldGenerateRequest)
@@ -250,6 +258,7 @@ TEST_F(OpenCdmSessionTests, ShouldGenerateRequest)
     EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1)).WillOnce(Return(true));
     EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_TRUE(m_sut->generateRequest(kInitDataType, kBytes1, kBytes2));
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldGenerateRequestForAllInitDataTypes)
@@ -265,6 +274,7 @@ TEST_F(OpenCdmSessionTests, ShouldGenerateRequestForAllInitDataTypes)
         .WillOnce(Return(true));
     EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_TRUE(m_sut->generateRequest("webm", kBytes1, kBytes2));
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotLoadSessionWhenCdmBackendIsNull)
@@ -286,6 +296,7 @@ TEST_F(OpenCdmSessionTests, ShouldFailToLoadSessionWhenOperationFails)
     EXPECT_CALL(*m_cdmBackendMock, loadSession(kKeySessionId)).WillOnce(Return(false));
     EXPECT_CALL(*m_cdmBackendMock, getLastDrmError(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_FALSE(m_sut->loadSession());
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldLoadSession)
@@ -294,6 +305,7 @@ TEST_F(OpenCdmSessionTests, ShouldLoadSession)
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock, loadSession(kKeySessionId)).WillOnce(Return(true));
     EXPECT_TRUE(m_sut->loadSession());
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotUpdateSessionWhenCdmBackendIsNull)
@@ -315,6 +327,7 @@ TEST_F(OpenCdmSessionTests, ShouldFailToUpdateSessionWhenOperationFails)
     EXPECT_CALL(*m_cdmBackendMock, updateSession(kKeySessionId, kBytes1)).WillOnce(Return(false));
     EXPECT_CALL(*m_cdmBackendMock, getLastDrmError(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_FALSE(m_sut->updateSession(kBytes1));
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldUpdateSession)
@@ -323,6 +336,7 @@ TEST_F(OpenCdmSessionTests, ShouldUpdateSession)
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock, updateSession(kKeySessionId, kBytes1)).WillOnce(Return(true));
     EXPECT_TRUE(m_sut->updateSession(kBytes1));
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotGetChallengeDataWhenCdmBackendIsNull)
@@ -347,6 +361,7 @@ TEST_F(OpenCdmSessionTests, ShouldFailToGetChallengeDataWhenOperationFails)
     EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1)).WillOnce(Return(false));
     EXPECT_CALL(*m_cdmBackendMock, getLastDrmError(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_FALSE(m_sut->getChallengeData(challengeData));
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldGetChallengeData)
@@ -359,6 +374,7 @@ TEST_F(OpenCdmSessionTests, ShouldGetChallengeData)
     EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _)).WillOnce(Return(true));
     EXPECT_TRUE(m_sut->getChallengeData(challengeData));
     EXPECT_EQ(challengeData, kBytes1);
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldAddBasicProtectionMeta)
@@ -371,6 +387,7 @@ TEST_F(OpenCdmSessionTests, ShouldAddBasicProtectionMeta)
 
     verifyMetadata();
     cleanBuffers();
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldAddBasicProtectionMetaWithPlayreadyKey)
@@ -388,6 +405,7 @@ TEST_F(OpenCdmSessionTests, ShouldAddBasicProtectionMetaWithPlayreadyKey)
 
     verifyMetadata();
     cleanBuffers();
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldAddProtectionMetaWithAdditionalFields)
@@ -403,6 +421,7 @@ TEST_F(OpenCdmSessionTests, ShouldAddProtectionMetaWithAdditionalFields)
     verifyMetadata();
     verifyMetadataAdditionalFields();
     cleanBuffers();
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotAddProtectionMetaWhenGstProtectionMetaIsNotPresent)
@@ -415,6 +434,7 @@ TEST_F(OpenCdmSessionTests, ShouldNotAddProtectionMetaWhenGstProtectionMetaIsNot
     EXPECT_FALSE(m_sut->addProtectionMeta(m_buffer));
 
     cleanBuffers();
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldAddProtectionMetaFromGstProtectionMeta)
@@ -430,6 +450,7 @@ TEST_F(OpenCdmSessionTests, ShouldAddProtectionMetaFromGstProtectionMeta)
     verifyMetadata();
     verifyMetadataAdditionalFields();
     cleanBuffers();
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldAddProtectionMetaFromGstProtectionMetaWithPlayreadyKey)
@@ -446,6 +467,7 @@ TEST_F(OpenCdmSessionTests, ShouldAddProtectionMetaFromGstProtectionMetaWithPlay
     verifyMetadata();
     verifyMetadataAdditionalFields();
     cleanBuffers();
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotCloseSessionWhenCdmBackendIsNull)
@@ -466,6 +488,7 @@ TEST_F(OpenCdmSessionTests, ShouldFailToCloseSessionWhenOperationFails)
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock, closeKeySession(kKeySessionId)).WillOnce(Return(false));
     EXPECT_FALSE(m_sut->closeSession());
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldCloseSession)
@@ -474,6 +497,7 @@ TEST_F(OpenCdmSessionTests, ShouldCloseSession)
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock, closeKeySession(kKeySessionId)).WillOnce(Return(true));
     EXPECT_TRUE(m_sut->closeSession());
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotRemoveSessionWhenCdmBackendIsNull)
@@ -494,6 +518,7 @@ TEST_F(OpenCdmSessionTests, ShouldFailToRemoveSessionWhenOperationFails)
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock, removeKeySession(kKeySessionId)).WillOnce(Return(false));
     EXPECT_FALSE(m_sut->removeSession());
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldRemoveSession)
@@ -502,6 +527,7 @@ TEST_F(OpenCdmSessionTests, ShouldRemoveSession)
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock, removeKeySession(kKeySessionId)).WillOnce(Return(true));
     EXPECT_TRUE(m_sut->removeSession());
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotContainKeyWhenCdmBackendIsNull)
@@ -522,6 +548,7 @@ TEST_F(OpenCdmSessionTests, ShouldNotContainKeyWhenOperationReturnsFalse)
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock, containsKey(kKeySessionId, kBytes1)).WillOnce(Return(false));
     EXPECT_FALSE(m_sut->containsKey(kBytes1));
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldContainKey)
@@ -530,6 +557,7 @@ TEST_F(OpenCdmSessionTests, ShouldContainKey)
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock, containsKey(kKeySessionId, kBytes1)).WillOnce(Return(true));
     EXPECT_TRUE(m_sut->containsKey(kBytes1));
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotSetDrmHeaderWhenCdmBackendIsNull)
@@ -550,6 +578,7 @@ TEST_F(OpenCdmSessionTests, ShouldFailToSetDrmHeaderWhenOperationFails)
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock, setDrmHeader(kKeySessionId, kBytes1)).WillOnce(Return(false));
     EXPECT_FALSE(m_sut->setDrmHeader(kBytes1));
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldSetDrmHeader)
@@ -558,6 +587,7 @@ TEST_F(OpenCdmSessionTests, ShouldSetDrmHeader)
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock, setDrmHeader(kKeySessionId, kBytes1)).WillOnce(Return(true));
     EXPECT_TRUE(m_sut->setDrmHeader(kBytes1));
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotProcessLicenseRequestWhenNotInitialized)
@@ -571,6 +601,7 @@ TEST_F(OpenCdmSessionTests, ShouldProcessLicenseRequest)
     createSut();
     initializeSut();
     requestLicense();
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotProcessLicenseRenewalWhenNotInitialized)
@@ -586,6 +617,7 @@ TEST_F(OpenCdmSessionTests, ShouldProcessLicenseRenewal)
     EXPECT_CALL(OcdmSessionsCallbacksMock::instance(),
                 processChallengeCallback(m_sut.get(), &m_userData, _, kBytes1.data(), kBytes1.size()));
     m_sut->onLicenseRenewal(kKeySessionId, kBytes1);
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldNotProcessKeyStatusUpdateWhenNotInitialized)
@@ -610,6 +642,7 @@ TEST_F(OpenCdmSessionTests, ShouldProcessKeyStatusUpdates)
     EXPECT_EQ(m_sut->status(kBytes1), InternalError);
     updateKeyStatus(kBytes1, firebolt::rialto::KeyStatus::RELEASED);
     EXPECT_EQ(m_sut->status(kBytes1), Released);
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldReturnInternalErrorForUnknownKey)
@@ -617,6 +650,7 @@ TEST_F(OpenCdmSessionTests, ShouldReturnInternalErrorForUnknownKey)
     createSut();
     initializeSut();
     EXPECT_EQ(m_sut->status(kBytes1), InternalError);
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldReturnEmptySessionIdWhenNotInitialized)
@@ -633,6 +667,7 @@ TEST_F(OpenCdmSessionTests, ShouldReturnDefaultSessionIdWhenGetCdmKeySessionIdFa
     EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_TRUE(m_sut->generateRequest(kInitDataType, kBytes1, kBytes2));
     EXPECT_EQ(m_sut->getSessionId(), "0");
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldReturnSessionId)
@@ -645,6 +680,7 @@ TEST_F(OpenCdmSessionTests, ShouldReturnSessionId)
         .WillOnce(DoAll(SetArgReferee<1>(cdmSessionId), Return(true)));
     EXPECT_TRUE(m_sut->generateRequest(kInitDataType, kBytes1, kBytes2));
     EXPECT_EQ(m_sut->getSessionId(), cdmSessionId);
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldFailToReturnLastDrmErrorWhenCdmBackendIsNull)
@@ -661,4 +697,12 @@ TEST_F(OpenCdmSessionTests, ShouldReturnLastDrmError)
     EXPECT_CALL(*m_cdmBackendMock, getLastDrmError(kKeySessionId, _))
         .WillOnce(DoAll(SetArgReferee<1>(kError), Return(true)));
     EXPECT_EQ(m_sut->getLastDrmError(), kError);
+    teardownSut();
+}
+
+TEST_F(OpenCdmSessionTests, TeardownFailure)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(*m_cdmBackendMock, releaseKeySession(kKeySessionId)).WillOnce(Return(false));
 }

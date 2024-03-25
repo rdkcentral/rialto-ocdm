@@ -31,9 +31,9 @@ namespace
 {
 const Logger kLog{"open_cdm"};
 
-bool isPlayreadyKeysystem(const std::string &keySystem)
+bool isNetflixPlayreadyKeysystem(const std::string &keySystem)
 {
-    return keySystem.find("playready") != std::string::npos;
+    return keySystem.find("netflix") != std::string::npos;
 }
 } // namespace
 
@@ -185,7 +185,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
         return ERROR_INVALID_SESSION;
     }
 
-    if (!isPlayreadyKeysystem(system->keySystem()))
+    if (!isNetflixPlayreadyKeysystem(system->keySystem()))
     {
         if (!newSession->initialize())
         {
@@ -200,7 +200,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
             kLog << error << "Failed to generate request";
 
             opencdm_session_close(newSession);
-            ActiveSessions::instance().remove(newSession);
+            opencdm_destruct_session(newSession);
             return ERROR_FAIL;
         }
     }
@@ -213,9 +213,12 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
 OpenCDMError opencdm_destruct_session(struct OpenCDMSession *session)
 {
     kLog << debug << __func__;
-    // MKS is destructed in opencdm_session_close or in opencdm_session_clean_decrypt_context
-    ActiveSessions::instance().remove(session);
-    return ERROR_NONE;
+    if (session)
+    {
+        ActiveSessions::instance().remove(session);
+        return ERROR_NONE;
+    }
+    return ERROR_INVALID_SESSION;
 }
 
 OpenCDMError opencdm_session_load(struct OpenCDMSession *session)
@@ -387,4 +390,14 @@ OpenCDMError opencdm_session_close(struct OpenCDMSession *session)
     }
 
     return result;
+}
+
+OpenCDMBool opencdm_system_supports_server_certificate(struct OpenCDMSystem *system)
+{
+    kLog << debug << __func__;
+    if (MediaKeysCapabilitiesBackend::instance().isServerCertificateSupported(system->keySystem()))
+    {
+        return OpenCDMBool::OPENCDM_BOOL_TRUE;
+    }
+    return OpenCDMBool::OPENCDM_BOOL_FALSE;
 }

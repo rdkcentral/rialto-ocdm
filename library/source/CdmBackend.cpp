@@ -248,6 +248,16 @@ bool CdmBackend::getCdmKeySessionId(int32_t keySessionId, std::string &cdmKeySes
     return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->getCdmKeySessionId(keySessionId, cdmKeySessionId);
 }
 
+bool CdmBackend::releaseKeySession(int32_t keySessionId)
+{
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
+    {
+        return false;
+    }
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->releaseKeySession(keySessionId);
+}
+
 bool CdmBackend::createMediaKeys()
 {
     if (!m_mediaKeysFactory)

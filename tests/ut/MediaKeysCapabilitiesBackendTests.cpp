@@ -76,3 +76,9 @@ TEST_F(MediaKeysCapabilitiesBackendTests, shouldGetSupportedKeySystemVersion)
     EXPECT_CALL(*m_mediaKeysCapabilitiesMock, getSupportedKeySystemVersion(kKeySystem, _)).WillOnce(Return(true));
     EXPECT_TRUE(MediaKeysCapabilitiesBackend::instance().getSupportedKeySystemVersion(kKeySystem, version));
 }
+
+TEST_F(MediaKeysCapabilitiesBackendTests, shouldGetSupportedServerCertificate)
+{
+    EXPECT_CALL(*m_mediaKeysCapabilitiesMock, isServerCertificateSupported(kKeySystem)).WillOnce(Return(true));
+    EXPECT_TRUE(MediaKeysCapabilitiesBackend::instance().isServerCertificateSupported(kKeySystem));
+}

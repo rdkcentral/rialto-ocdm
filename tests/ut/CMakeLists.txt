@@ -51,10 +51,6 @@ add_compile_definitions(TAGS="${TAGS}")
 
 add_compile_definitions( RIALTO_ENABLE_DECRYPT_BUFFER )
 
-if ( COVERAGE_ENABLED )
-    add_compile_options(-coverage)
-endif()
-
 add_library(
         ocdmRialtoTestLib
 
@@ -92,14 +88,6 @@ target_link_libraries(
         ${GStreamerApp_LIBRARIES}
 )
 
-if ( COVERAGE_ENABLED )
-    target_link_libraries(
-        ocdmRialtoTestLib
-
-        gcov
-        )
-endif()
-
 add_gtests (
         RialtoOcdmUnitTests
 
@@ -134,11 +122,3 @@ target_link_libraries(
         ocdmRialtoTestLib
         ${GStreamerApp_LIBRARIES}
 )
-
-if ( COVERAGE_ENABLED )
-    target_link_libraries(
-        RialtoOcdmUnitTests
-
-        gcov
-        )
-endif()

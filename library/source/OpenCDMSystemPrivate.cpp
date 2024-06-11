@@ -44,7 +44,7 @@ OpenCDMSystemPrivate::OpenCDMSystemPrivate(const std::string &system, const std:
         return;
     }
     firebolt::rialto::ApplicationState initialState{firebolt::rialto::ApplicationState::UNKNOWN};
-    m_control->registerClient(m_cdmBackend, initialState);
+    m_control->registerClientAndUnregisterOnDestruction(m_cdmBackend, initialState);
     m_cdmBackend->initialize(initialState);
 }
 

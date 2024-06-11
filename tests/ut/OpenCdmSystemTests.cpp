@@ -63,7 +63,7 @@ protected:
     void createValidSut()
     {
         EXPECT_CALL(*m_controlFactoryMock, createControl()).WillOnce(Return(m_controlMock));
-        EXPECT_CALL(*m_controlMock, registerClient(_, _)).WillOnce(DoAll(SetArgReferee<1>(kAppState), Return(true)));
+        EXPECT_CALL(*m_controlMock, registerClientAndUnregisterOnDestruction(_, _)).WillOnce(DoAll(SetArgReferee<1>(kAppState), Return(true)));
         EXPECT_CALL(*m_mediaKeysFactoryMock, createMediaKeys(kKeySystem)).WillOnce(Return(ByMove(std::move(m_mediaKeys))));
 
         auto messageDispatcher = std::make_shared<MessageDispatcher>();

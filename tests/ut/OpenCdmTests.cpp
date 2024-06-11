@@ -69,7 +69,7 @@ protected:
 TEST_F(OpenCdmTests, ShouldCreateAndDestroySystem)
 {
     EXPECT_CALL(*m_controlFactoryMock, createControl()).WillOnce(Return(m_controlMock));
-    EXPECT_CALL(*m_controlMock, registerClient(_, _)).WillOnce(Return(true));
+    EXPECT_CALL(*m_controlMock, registerClientAndUnregisterOnDestruction(_, _)).WillOnce(Return(true));
     auto *system{opencdm_create_system(kNetflixKeySystem.c_str())};
     EXPECT_NE(nullptr, system);
     EXPECT_EQ(ERROR_NONE, opencdm_destruct_system(system));

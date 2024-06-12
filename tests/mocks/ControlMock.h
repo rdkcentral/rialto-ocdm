@@ -35,7 +35,8 @@ public:
 class ControlMock : public IControl
 {
 public:
-    MOCK_METHOD(bool, registerClientAndUnregisterOnDestruction, (std::weak_ptr<IControlClient> client, ApplicationState &appState), (override));
+    MOCK_METHOD(bool, registerClientAndUnregisterOnDestruction,
+                (std::weak_ptr<IControlClient> client, ApplicationState &appState), (override));
 };
 } // namespace firebolt::rialto
 

@@ -83,7 +83,6 @@ public:
     void verifyLogFile(const Severity &severity)
     {
         auto presentSeverities{readLogFile()};
-        presentSeverities.size();
         for (const Severity &s : presentSeverities)
         {
             EXPECT_TRUE(s <= severity);

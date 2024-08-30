@@ -47,7 +47,6 @@ OpenCDMError opencdm_gstreamer_session_decrypt(struct OpenCDMSession *session, G
                                                 nullptr);
 }
 
-#ifdef RIALTO_ENABLE_DECRYPT_BUFFER
 OpenCDMError opencdm_gstreamer_session_decrypt_buffer(struct OpenCDMSession *session, GstBuffer *buffer, GstCaps *caps)
 {
     if (nullptr == session)
@@ -64,7 +63,6 @@ OpenCDMError opencdm_gstreamer_session_decrypt_buffer(struct OpenCDMSession *ses
 
     return ERROR_NONE;
 }
-#endif
 
 OpenCDMError opencdm_gstreamer_transform_caps(GstCaps **caps)
 {

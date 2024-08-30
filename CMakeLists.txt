@@ -41,10 +41,6 @@ find_package( Threads REQUIRED )
 
 pkg_check_modules( GStreamerApp REQUIRED IMPORTED_TARGET gstreamer-app-1.0 )
 
-if ( RIALTO_ENABLE_DECRYPT_BUFFER )
-    add_compile_definitions( RIALTO_ENABLE_DECRYPT_BUFFER )
-endif()
-
 # Config and target for building the unit tests
 if( NOT CMAKE_BUILD_FLAG STREQUAL "UnitTests" )
     add_subdirectory(library)

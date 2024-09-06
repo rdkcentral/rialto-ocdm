@@ -417,7 +417,6 @@ TEST_F(OpenCdmTests, ShouldNotSupportCertificate)
 
 TEST_F(OpenCdmTests, ShouldNotSupportSessionDecrypt)
 {
-    EXPECT_EQ(ERROR_METHOD_NOT_IMPLEMENTED,
-              opencdm_session_decrypt(&m_openCdmSessionMock, nullptr, 0, EncryptionScheme::Clear,
-                                      EncryptionPattern{0, 0}, nullptr, 0, nullptr, 0, 0));
+    EXPECT_EQ(ERROR_FAIL, opencdm_session_decrypt(&m_openCdmSessionMock, nullptr, 0, EncryptionScheme::Clear,
+                                                  EncryptionPattern{0, 0}, nullptr, 0, nullptr, 0, 0));
 }

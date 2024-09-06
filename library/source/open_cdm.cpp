@@ -408,5 +408,5 @@ OpenCDMError opencdm_session_decrypt(struct OpenCDMSession *session, uint8_t enc
                                      const uint8_t *keyId, const uint16_t keyIdLength, uint32_t initWithLast15)
 {
     kLog << warn << __func__ << " not implemented";
-    return ERROR_METHOD_NOT_IMPLEMENTED;
+    return ERROR_FAIL;
 }

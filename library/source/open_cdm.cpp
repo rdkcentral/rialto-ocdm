@@ -401,3 +401,12 @@ OpenCDMBool opencdm_system_supports_server_certificate(struct OpenCDMSystem *sys
     }
     return OpenCDMBool::OPENCDM_BOOL_FALSE;
 }
+
+OpenCDMError opencdm_session_decrypt(struct OpenCDMSession *session, uint8_t encrypted[],
+                                     const uint32_t encryptedLength, const EncryptionScheme encScheme,
+                                     const EncryptionPattern pattern, const uint8_t *IV, uint16_t IVLength,
+                                     const uint8_t *keyId, const uint16_t keyIdLength, uint32_t initWithLast15)
+{
+    kLog << warn << __func__ << " not implemented";
+    return ERROR_METHOD_NOT_IMPLEMENTED;
+}

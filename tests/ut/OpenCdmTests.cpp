@@ -414,3 +414,10 @@ TEST_F(OpenCdmTests, ShouldNotSupportCertificate)
     EXPECT_CALL(*m_mediaKeysCapabilitiesMock, isServerCertificateSupported(kNetflixKeySystem)).WillOnce(Return(false));
     EXPECT_EQ(OpenCDMBool::OPENCDM_BOOL_FALSE, opencdm_system_supports_server_certificate(&m_openCdmSystemMock));
 }
+
+TEST_F(OpenCdmTests, ShouldNotSupportSessionDecrypt)
+{
+    EXPECT_EQ(ERROR_METHOD_NOT_IMPLEMENTED,
+              opencdm_session_decrypt(&m_openCdmSessionMock, nullptr, 0, EncryptionScheme::Clear,
+                                      EncryptionPattern{0, 0}, nullptr, 0, nullptr, 0, 0));
+}

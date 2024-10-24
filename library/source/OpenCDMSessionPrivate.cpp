@@ -207,9 +207,9 @@ bool OpenCDMSessionPrivate::getChallengeData(std::vector<uint8_t> &challengeData
         return false;
     }
     std::unique_lock<std::mutex> lock{m_mutex};
-    m_challengeCv.wait(lock, [this]() { return !m_challengeData.empty(); });
+    m_challengeCv.wait_for(lock, std::chrono::seconds{1}, [this]() { return !m_challengeData.empty(); });
     challengeData = m_challengeData;
-    return true;
+    return !challengeData.empty();
 }
 
 void OpenCDMSessionPrivate::addProtectionMeta(GstBuffer *buffer, GstBuffer *subSample, const uint32_t subSampleCount,

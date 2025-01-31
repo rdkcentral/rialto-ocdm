@@ -34,8 +34,8 @@ OpenCDMSystem *createSystem(const char system[], const std::string &metadata)
 OpenCDMSystemPrivate::OpenCDMSystemPrivate(const std::string &system, const std::string &metadata,
                                            const std::shared_ptr<MessageDispatcher> &messageDispatcher,
                                            const std::shared_ptr<CdmBackend> &cdmBackend)
-    : m_log{"OpenCDMSystemPrivate"}, m_keySystem(system),
-      m_metadata(metadata), m_control{firebolt::rialto::IControlFactory::createFactory()->createControl()},
+    : m_log{"OpenCDMSystemPrivate"}, m_keySystem(system), m_metadata(metadata),
+      m_control{firebolt::rialto::IControlFactory::createFactory()->createControl()},
       m_messageDispatcher{messageDispatcher}, m_cdmBackend{cdmBackend}
 {
     m_log << debug << "constructed: " << static_cast<void *>(this);

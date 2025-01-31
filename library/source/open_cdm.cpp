@@ -52,8 +52,7 @@ OpenCDMSystem *opencdm_create_system(const char keySystem[])
         }
         else
         {
-            kLog << mil << "Release Tag(s): No Release Tags!"
-                 << " (Commit ID: " << kSrcRev << ")";
+            kLog << mil << "Release Tag(s): No Release Tags!" << " (Commit ID: " << kSrcRev << ")";
         }
     }
     else

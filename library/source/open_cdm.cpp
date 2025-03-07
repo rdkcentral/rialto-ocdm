@@ -52,8 +52,7 @@ OpenCDMSystem *opencdm_create_system(const char keySystem[])
         }
         else
         {
-            kLog << mil << "Release Tag(s): No Release Tags!"
-                 << " (Commit ID: " << kSrcRev << ")";
+            kLog << mil << "Release Tag(s): No Release Tags!" << " (Commit ID: " << kSrcRev << ")";
         }
     }
     else
@@ -175,7 +174,8 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
         return ERROR_FAIL;
     }
     std::string initializationDataType(initDataType);
-    std::vector<uint8_t> initDataVec((uint8_t *)(initData), (uint8_t *)(initData) + initDataLength);
+    std::vector<uint8_t> initDataVec(reinterpret_cast<const uint8_t *>(initData),
+                                     reinterpret_cast<const uint8_t *>(initData) + initDataLength);
 
     OpenCDMSession *newSession =
         system->createSession(licenseType, callbacks, userData, initializationDataType, initDataVec);
@@ -193,7 +193,8 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
             ActiveSessions::instance().remove(newSession);
             return ERROR_FAIL;
         }
-        std::vector<uint8_t> cdmDataVec((uint8_t *)(CDMData), (uint8_t *)(CDMData) + CDMDataLength);
+        std::vector<uint8_t> cdmDataVec(reinterpret_cast<const uint8_t *>(CDMData),
+                                        reinterpret_cast<const uint8_t *>(CDMData) + CDMDataLength);
 
         if (!newSession->generateRequest(initializationDataType, initDataVec, cdmDataVec /*not used yet*/))
         {

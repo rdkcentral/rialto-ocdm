@@ -24,7 +24,7 @@
 static gboolean rialto_eme_protection_metadata_init(GstMeta *meta, gpointer params, GstBuffer *buffer)
 {
     // NOLINTNEXTLINE(readability/casting)
-    GstRialtoProtectionMetadata *emeta = (GstRialtoProtectionMetadata *)meta;
+    GstRialtoProtectionMetadata *emeta = reinterpret_cast<GstRialtoProtectionMetadata *>(meta);
 
     emeta->info = NULL;
 
@@ -35,7 +35,7 @@ static gboolean rialto_eme_protection_metadata_init(GstMeta *meta, gpointer para
 static gboolean rialto_eme_protection_metadata_free(GstMeta *meta, GstBuffer *buffer)
 {
     // NOLINTNEXTLINE(readability/casting)
-    GstRialtoProtectionMetadata *emeta = (GstRialtoProtectionMetadata *)meta;
+    GstRialtoProtectionMetadata *emeta = reinterpret_cast<GstRialtoProtectionMetadata *>(meta);
 
     if (emeta->info)
     {

@@ -57,7 +57,6 @@ protected:
     StrictMock<firebolt::rialto::MediaKeysMock> &m_mediaKeysMock{*m_mediaKeys};
     OpenCDMSessionCallbacks m_callbacks{processChallengeCallback, keyUpdateCallback, errorMessageCallback,
                                         keysUpdatedCallback};
-    int m_userData{12};
     std::unique_ptr<OpenCDMSystemPrivate> m_sut;
 
     void createValidSut()
@@ -94,7 +93,8 @@ TEST_F(OpenCdmSystemTests, ShouldReturnMetadata)
 TEST_F(OpenCdmSystemTests, ShouldCreateSession)
 {
     createValidSut();
-    OpenCDMSession *session{m_sut->createSession(kLicenseType, &m_callbacks, &m_userData, kInitDataType, kBytes)};
+    int userData{12};
+    OpenCDMSession *session{m_sut->createSession(kLicenseType, &m_callbacks, &userData, kInitDataType, kBytes)};
     ASSERT_NE(nullptr, session);
     ActiveSessions::instance().remove(session);
 }

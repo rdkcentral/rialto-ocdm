@@ -4,6 +4,9 @@
         <id>missingInclude</id>
     </suppress>
     <suppress>
+        <id>missingIncludeSystem</id>
+    </suppress>
+    <suppress>
         <id>unusedFunction</id>
         <symbolName>rialto_eme_protection_metadata_get_type</symbolName>
     </suppress>
@@ -12,7 +15,11 @@
         <symbolName>rialto_mse_protection_metadata_get_info</symbolName>
     </suppress>
     <suppress>
-        <id>constParameter</id>
+        <id>constParameterPointer</id>
         <symbolName>system</symbolName>
+    </suppress>
+    <suppress>
+        <id>unusedStructMember</id>
+        <symbolName>OpenCdmTests::m_userData</symbolName>
     </suppress>
 </suppressions>

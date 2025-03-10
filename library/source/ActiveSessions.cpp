@@ -42,8 +42,7 @@ OpenCDMSession *ActiveSessions::create(const std::shared_ptr<ICdmBackend> &cdm,
 OpenCDMSession *ActiveSessions::get(const std::vector<uint8_t> &keyId)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
-    auto sessionIter{std::find_if(m_activeSessions.begin(), m_activeSessions.end(),
-                                  [&](const auto &iter)
+    auto sessionIter{std::find_if(m_activeSessions.begin(), m_activeSessions.end(), [&](const auto &iter)
                                   { return iter.first->status(keyId) != KeyStatus::InternalError; })};
     if (sessionIter != m_activeSessions.end())
     {

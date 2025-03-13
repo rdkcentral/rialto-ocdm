@@ -274,3 +274,13 @@ bool CdmBackend::createMediaKeys()
     }
     return true;
 }
+
+bool CdmBackend::getMetricSystemData(std::vector<uint8_t> &buffer)
+{
+    std::unique_lock<std::mutex> lock{m_mutex};
+    if (!m_mediaKeys)
+    {
+        return false;
+    }
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->getMetricSystemData(buffer);
+}

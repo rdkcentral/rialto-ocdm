@@ -124,3 +124,12 @@ bool OpenCDMSystemPrivate::deleteDrmStore() const
     }
     return m_cdmBackend->deleteDrmStore();
 }
+
+bool OpenCDMSystemPrivate::getMetricSystemData(uint32_t &bufferLength, std::vector<uint8_t> &buffer) const
+{
+    if (!m_cdmBackend)
+    {
+        return false;
+    }
+    return m_cdmBackend->getMetricSystemData(buffer); 
+}

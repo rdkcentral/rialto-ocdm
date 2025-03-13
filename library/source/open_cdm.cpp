@@ -411,3 +411,19 @@ OpenCDMError opencdm_session_decrypt(struct OpenCDMSession *session, uint8_t enc
     kLog << warn << __func__ << " not implemented";
     return ERROR_FAIL;
 }
+
+OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem* system, uint32_t* bufferLength, std::vector<uint8_t> &buffer)
+{
+    kLog << debug << __func__;
+    if (!system || !bufferLength)
+    {
+        kLog << error << "Ptr is null";
+        return ERROR_FAIL;
+    }
+    if (!system->getMetricSystemData(*bufferLength, buffer))
+    {
+        kLog << error << "Failed to get metric system data";
+        return ERROR_FAIL;
+    }
+    return ERROR_NONE;
+}

@@ -40,6 +40,7 @@ public:
     MOCK_METHOD(bool, getDrmStoreHash, (std::vector<unsigned char> & drmStoreHash), (const, override));
     MOCK_METHOD(bool, deleteKeyStore, (), (const, override));
     MOCK_METHOD(bool, deleteDrmStore, (), (const, override));
+    MOCK_METHOD(bool, getMetricSystemData, (uint32_t *bufferLength, uint8_t *buffer), (const, override));
 };
 
 #endif // OPENCDM_SYSTEM_MOCK_H_

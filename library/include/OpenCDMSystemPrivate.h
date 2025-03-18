@@ -52,8 +52,7 @@ public:
     bool getDrmStoreHash(std::vector<unsigned char> &drmStoreHash) const;
     bool deleteKeyStore() const;
     bool deleteDrmStore() const;
-    bool getMetricSystemData(uint32_t &bufferLength, std::vector<uint8_t> &buffer) const;
-  
+    bool getMetricSystemData(uint32_t *bufferLength, uint8_t *buffer) const;
 
 private:
     Logger m_log;

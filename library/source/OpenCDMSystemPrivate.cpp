@@ -125,11 +125,34 @@ bool OpenCDMSystemPrivate::deleteDrmStore() const
     return m_cdmBackend->deleteDrmStore();
 }
 
-bool OpenCDMSystemPrivate::getMetricSystemData(uint32_t &bufferLength, std::vector<uint8_t> &buffer) const
+bool OpenCDMSystemPrivate::getMetricSystemData(uint32_t* bufferLength, uint8_t* buffer) const
 {
-    if (!m_cdmBackend)
+    if (!m_cdmBackend || !bufferLength)
     {
         return false;
     }
-    return m_cdmBackend->getMetricSystemData(buffer); 
+    
+    std::vector<uint8_t> tempBuffer;
+
+    if (!m_cdmBackend->getMetricSystemData(tempBuffer))
+    {
+        return false;
+    }
+
+    if(!buffer)
+    {
+        *bufferLength = tempBuffer.size();
+        return true;
+    }
+    
+    if (*bufferLength < tempBuffer.size())
+    {
+        *bufferLength = tempBuffer.size();
+        return false; 
+    }
+    
+    memcpy(buffer, tempBuffer.data(), tempBuffer.size());
+    *bufferLength = tempBuffer.size();
+    
+    return true;
 }

@@ -50,6 +50,7 @@ public:
     MOCK_METHOD(bool, getDrmTime, (uint64_t & drmTime), (override));
     MOCK_METHOD(bool, getCdmKeySessionId, (int32_t keySessionId, std::string &cdmKeySessionId), (override));
     MOCK_METHOD(bool, releaseKeySession, (int32_t keySessionId), (override));
+    MOCK_METHOD(bool, getMetricSystemData, (std::vector<uint8_t> &buffer), (override));
 };
 
 #endif // CDM_BACKEND_MOCK_H_

@@ -61,7 +61,7 @@ public:
     bool getDrmTime(uint64_t &drmTime) override;
     bool getCdmKeySessionId(int32_t keySessionId, std::string &cdmKeySessionId) override;
     bool releaseKeySession(int32_t keySessionId) override;
-    bool getMetricSystemData(std::vector<uint8_t> &buffer) override;    
+    bool getMetricSystemData(std::vector<uint8_t> &buffer) override;
 
 private:
     bool createMediaKeys();

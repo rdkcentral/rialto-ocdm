@@ -412,7 +412,7 @@ OpenCDMError opencdm_session_decrypt(struct OpenCDMSession *session, uint8_t enc
     return ERROR_FAIL;
 }
 
-OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem* system, uint32_t* bufferLength, uint8_t* buffer)
+OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem *system, uint32_t *bufferLength, uint8_t *buffer)
 {
     kLog << debug << __func__;
     if (!system || !bufferLength)
@@ -423,7 +423,7 @@ OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem* system, uint32
 
     uint32_t requiredSize = *bufferLength;
 
-    if(!buffer)
+    if (!buffer)
     {
         if (!system->getMetricSystemData(&requiredSize, nullptr))
         {
@@ -433,7 +433,7 @@ OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem* system, uint32
         *bufferLength = requiredSize;
         return ERROR_FAIL;
     }
-    
+
     if (!system->getMetricSystemData(bufferLength, buffer))
     {
         kLog << error << "Failed to get metric system data";

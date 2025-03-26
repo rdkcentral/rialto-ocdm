@@ -255,9 +255,9 @@ TEST_F(OpenCdmSystemTests, ShouldGetMetricSystemData)
         .WillRepeatedly(DoAll(SetArgReferee<0>(kBuffer), Return(firebolt::rialto::MediaKeyErrorStatus::OK)));
 
     uint32_t bufferLength = 0;
-    EXPECT_TRUE(m_sut->getMetricSystemData(&bufferLength, nullptr)); 
+    EXPECT_TRUE(m_sut->getMetricSystemData(&bufferLength, nullptr));
 
-    buffer.resize(bufferLength); 
+    buffer.resize(bufferLength);
 
     EXPECT_TRUE(m_sut->getMetricSystemData(&bufferLength, buffer.data()));
     EXPECT_EQ(kBuffer, buffer);
@@ -293,8 +293,8 @@ TEST_F(OpenCdmSystemTests, ShouldNotGetMetricSystemDataWhenBufferLengthIsNull)
 TEST_F(OpenCdmSystemTests, ShouldNotGetMetricSystemDataWhenBufferTooSmall)
 {
     const std::vector<uint8_t> kBuffer{1, 2, 3, 4};
-    std::vector<uint8_t> buffer(2, 0); 
-    uint32_t bufferLength = buffer.size(); 
+    std::vector<uint8_t> buffer(2, 0);
+    uint32_t bufferLength = buffer.size();
 
     createValidSut();
 

@@ -503,13 +503,13 @@ TEST_F(CdmBackendTests, ShouldReleaseKeySession)
 }
 
 TEST_F(CdmBackendTests, ShouldFailToGetSystemMetricDataWhenMediaKeysIsNotPresent)
-{   
+{
     std::vector<uint8_t> buffer;
     EXPECT_FALSE(m_sut.getMetricSystemData(buffer));
 }
 
 TEST_F(CdmBackendTests, ShouldFailToGetSystemMetricData)
-{   
+{
     std::vector<uint8_t> buffer;
     EXPECT_CALL(*m_mediaKeysMock, getMetricSystemData(buffer)).WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::FAIL));
     changeStateToRunning();
@@ -517,7 +517,7 @@ TEST_F(CdmBackendTests, ShouldFailToGetSystemMetricData)
 }
 
 TEST_F(CdmBackendTests, ShouldGetMetricSystemData)
-{   
+{
     std::vector<uint8_t> buffer;
     EXPECT_CALL(*m_mediaKeysMock, getMetricSystemData(buffer)).WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::OK));
     changeStateToRunning();

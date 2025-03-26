@@ -23,8 +23,8 @@
 #include "OpenCDMSessionMock.h"
 #include "OpenCDMSystemMock.h"
 #include "opencdm/open_cdm.h"
-#include <gtest/gtest.h>
 #include <cstring>
+#include <gtest/gtest.h>
 
 using firebolt::rialto::ControlFactoryMock;
 using firebolt::rialto::ControlMock;
@@ -434,17 +434,16 @@ TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenOperationFails)
 {
     uint8_t buffer;
     uint32_t bufferLength;
-    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_,_)).WillOnce(Return(false));
+    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_, _)).WillOnce(Return(false));
     EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, &buffer));
 }
 
 TEST_F(OpenCdmTests, ShouldGetMetricSystemData)
 {
-    uint8_t buffer[1024];       
+    uint8_t buffer[1024];
     uint32_t bufferLength = sizeof(buffer);
 
-    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(&bufferLength, buffer))
-        .WillOnce(Return(true));
+    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(&bufferLength, buffer)).WillOnce(Return(true));
 
     EXPECT_EQ(ERROR_NONE, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, buffer));
 }
@@ -462,5 +461,5 @@ TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenBufferIsNull)
     EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_, nullptr))
         .WillOnce(DoAll(testing::SetArgPointee<0>(kBufferLength), Return(false)));
 
-    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, nullptr));  
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, nullptr));
 }

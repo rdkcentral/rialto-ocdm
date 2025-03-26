@@ -425,6 +425,7 @@ OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem *system, uint32
 
     if (!buffer)
     {
+        kLog << error << "Buffer is null";
         if (!system->getMetricSystemData(&requiredSize, nullptr))
         {
             kLog << error << "Failed to get metric system data size";

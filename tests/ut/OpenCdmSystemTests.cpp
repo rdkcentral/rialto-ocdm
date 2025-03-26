@@ -274,3 +274,18 @@ TEST_F(OpenCdmSystemTests, ShouldNotGetMetricSystemDataWhenOperationFails)
 
     EXPECT_FALSE(m_sut->getMetricSystemData(&bufferLength, buffer.data()));
 }
+
+TEST_F(OpenCdmSystemTests, ShouldNotGetMetricSystemDataWhenCdmServieIsNull)
+{
+    std::vector<uint8_t> buffer{};
+    uint32_t bufferLength = buffer.size();
+    createInvalidSut();
+    EXPECT_FALSE(m_sut->getMetricSystemData(&bufferLength, buffer.data()));
+}
+
+TEST_F(OpenCdmSystemTests, ShouldNotGetMetricSystemDataWhenBufferLengthIsNull)
+{
+    std::vector<uint8_t> buffer{};
+    createValidSut();
+    EXPECT_FALSE(m_sut->getMetricSystemData(nullptr, buffer.data()));
+}

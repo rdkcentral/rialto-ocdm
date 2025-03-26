@@ -420,3 +420,11 @@ TEST_F(OpenCdmTests, ShouldNotSupportSessionDecrypt)
     EXPECT_EQ(ERROR_FAIL, opencdm_session_decrypt(&m_openCdmSessionMock, nullptr, 0, EncryptionScheme::Clear,
                                                   EncryptionPattern{0, 0}, nullptr, 0, nullptr, 0, 0));
 }
+
+TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenOneOfArgsIsNull)
+{
+    uint8_t buffer;
+    uint32_t bufferLength;
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, nullptr, &buffer));
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(nullptr, &bufferLength, &buffer));
+}

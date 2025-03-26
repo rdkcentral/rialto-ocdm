@@ -448,3 +448,17 @@ TEST_F(OpenCdmTests, ShouldGetMetricSystemData)
 
     EXPECT_EQ(ERROR_NONE, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, buffer));
 }
+
+TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenBufferIsNull)
+{
+    uint32_t bufferLength = 0;
+    uint32_t requiredSize = 1024;
+
+    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(&bufferLength, nullptr))
+        .WillOnce(DoAll(SetArgReferee<0>(requiredSize), Return(true)));
+
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, nullptr));
+
+    EXPECT_EQ(requiredSize, bufferLength);
+
+}

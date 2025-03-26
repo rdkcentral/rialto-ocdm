@@ -24,6 +24,7 @@
 #include "OpenCDMSystemMock.h"
 #include "opencdm/open_cdm.h"
 #include <gtest/gtest.h>
+#include <cstring>
 
 using firebolt::rialto::ControlFactoryMock;
 using firebolt::rialto::ControlMock;
@@ -427,4 +428,12 @@ TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenOneOfArgsIsNull)
     uint32_t bufferLength;
     EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, nullptr, &buffer));
     EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(nullptr, &bufferLength, &buffer));
+}
+
+TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenOperationFails)
+{
+    uint8_t buffer;
+    uint32_t bufferLength;
+    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_,_)).WillOnce(Return(false));
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, &buffer));
 }

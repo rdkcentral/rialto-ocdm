@@ -242,3 +242,23 @@ TEST_F(OpenCdmSystemTests, ShouldDeleteDrmStore)
     EXPECT_CALL(m_mediaKeysMock, deleteDrmStore()).WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::OK));
     EXPECT_TRUE(m_sut->deleteDrmStore());
 }
+
+TEST_F(OpenCdmSystemTests, ShouldGetMetricSystemData)
+{
+    const std::vector<uint8_t> kBuffer{1, 2, 3, 4};
+    std::vector<uint8_t> buffer{};
+
+    createValidSut();
+
+    EXPECT_CALL(m_mediaKeysMock, getMetricSystemData(_))
+        .Times(2)
+        .WillRepeatedly(DoAll(SetArgReferee<0>(kBuffer), Return(firebolt::rialto::MediaKeyErrorStatus::OK)));
+
+    uint32_t bufferLength = 0;
+    EXPECT_TRUE(m_sut->getMetricSystemData(&bufferLength, nullptr)); 
+
+    buffer.resize(bufferLength); 
+
+    EXPECT_TRUE(m_sut->getMetricSystemData(&bufferLength, buffer.data()));
+    EXPECT_EQ(kBuffer, buffer);
+}

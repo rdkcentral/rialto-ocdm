@@ -415,9 +415,15 @@ OpenCDMError opencdm_session_decrypt(struct OpenCDMSession *session, uint8_t enc
 OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem *system, uint32_t *bufferLength, uint8_t *buffer)
 {
     kLog << debug << __func__;
-    if (!system || !bufferLength)
+    if (!system)
     {
-        kLog << error << "Ptr is null";
+        kLog << error << "System ptr is null";
+        return ERROR_FAIL;
+    }
+
+    if (!bufferLength)
+    {
+        kLog << error << "Buffer length ptr is null";
         return ERROR_FAIL;
     }
 
@@ -425,14 +431,14 @@ OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem *system, uint32
 
     if (!buffer)
     {
-        kLog << error << "Buffer is null";
+        kLog << warn << "Buffer is null";
         if (!system->getMetricSystemData(&requiredSize, nullptr))
         {
             kLog << error << "Failed to get metric system data size";
             return ERROR_FAIL;
         }
-        *bufferLength = requiredSize;
-        return ERROR_FAIL;
+        kLog << warn << "Buffer size is too small";
+        return ERROR_BUFFER_TOO_SMALL;
     }
 
     if (!system->getMetricSystemData(bufferLength, buffer))

@@ -458,7 +458,7 @@ TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenBufferIsNull)
 
 TEST_F(OpenCdmTests, ShouldReturnBufferTooSmallWhenBufferIsInsufficient)
 {
-    uint32_t bufferLength = 8; 
+    uint32_t bufferLength = 8;
     uint32_t length = 16;
     std::vector<uint8_t> buffer(bufferLength);
 

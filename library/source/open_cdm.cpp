@@ -427,22 +427,21 @@ OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem *system, uint32
         return ERROR_FAIL;
     }
 
-    uint32_t requiredSize = *bufferLength;
-
     if (!buffer)
     {
-        kLog << warn << "Buffer is null";
-        if (!system->getMetricSystemData(&requiredSize, nullptr))
-        {
-            kLog << error << "Failed to get metric system data size";
-            return ERROR_FAIL;
-        }
-        kLog << warn << "Buffer size is too small";
-        return ERROR_BUFFER_TOO_SMALL;
+        kLog << error << "Buffer ptr is null";
+        return ERROR_FAIL;
     }
 
+    uint32_t length = *bufferLength;
     if (!system->getMetricSystemData(bufferLength, buffer))
     {
+        if (*bufferLength > length)
+        {
+            kLog << error << "Buffer too small";
+            return ERROR_BUFFER_TOO_SMALL;
+        }
+
         kLog << error << "Failed to get metric system data";
         return ERROR_FAIL;
     }

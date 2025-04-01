@@ -451,14 +451,7 @@ TEST_F(OpenCdmTests, ShouldGetMetricSystemData)
 TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenBufferIsNull)
 {
     uint32_t bufferLength = 0;
-    uint32_t kBufferLength = 1024;
 
-    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_, nullptr))
-        .WillOnce(DoAll(testing::SetArgPointee<0>(kBufferLength), Return(true)));
-
-    EXPECT_EQ(ERROR_BUFFER_TOO_SMALL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, nullptr));
-    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_, nullptr))
-        .WillOnce(DoAll(testing::SetArgPointee<0>(kBufferLength), Return(false)));
-
+    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_, nullptr)).Times(0);
     EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, nullptr));
 }

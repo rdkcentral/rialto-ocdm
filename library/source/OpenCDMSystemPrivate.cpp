@@ -139,12 +139,6 @@ bool OpenCDMSystemPrivate::getMetricSystemData(uint32_t *bufferLength, uint8_t *
         return false;
     }
 
-    if (!buffer)
-    {
-        *bufferLength = tempBuffer.size();
-        return true;
-    }
-
     if (*bufferLength < tempBuffer.size())
     {
         *bufferLength = tempBuffer.size();

@@ -433,7 +433,7 @@ TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenOneOfArgsIsNull)
 TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenOperationFails)
 {
     uint8_t buffer;
-    uint32_t bufferLength;
+    uint32_t bufferLength{1024};
     EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_, _)).WillOnce(Return(false));
     EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, &buffer));
 }

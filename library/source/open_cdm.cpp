@@ -434,6 +434,7 @@ OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem *system, uint32
     }
 
     uint32_t length = *bufferLength;
+
     if (!system->getMetricSystemData(bufferLength, buffer))
     {
         if (*bufferLength > length)

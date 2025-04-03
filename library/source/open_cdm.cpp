@@ -433,19 +433,21 @@ OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem *system, uint32
         return ERROR_FAIL;
     }
 
-    uint32_t length = *bufferLength;
-
-    if (!system->getMetricSystemData(bufferLength, buffer))
+    std::vector<uint8_t> bufferVec;
+    if (!system->getMetricSystemData(bufferVec))
     {
-        if (*bufferLength > length)
-        {
-            kLog << error << "Buffer too small";
-            return ERROR_BUFFER_TOO_SMALL;
-        }
-
         kLog << error << "Failed to get metric system data";
         return ERROR_FAIL;
     }
 
+    if (*bufferLength < bufferVec.size())
+    {
+        kLog << error << "Buffer is too small - return size " << bufferVec.size() << " does not fit in buffer of size "
+             << *bufferLength;
+        return ERROR_BUFFER_TOO_SMALL;
+    }
+
+    std::memcpy(buffer, bufferVec.data(), bufferVec.size());
+    *bufferLength = bufferVec.size();
     return ERROR_NONE;
 }

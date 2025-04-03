@@ -422,51 +422,38 @@ TEST_F(OpenCdmTests, ShouldNotSupportSessionDecrypt)
                                                   EncryptionPattern{0, 0}, nullptr, 0, nullptr, 0, 0));
 }
 
-TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenOneOfArgsIsNull)
+TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenOneOfParamsIsNull)
 {
-    uint8_t buffer;
-    uint32_t bufferLength;
-    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, nullptr, &buffer));
-    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(nullptr, &bufferLength, &buffer));
+    std::vector<uint8_t> buffer{1, 2, 3, 4};
+    uint32_t bufferLength = buffer.size();
+
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(nullptr, &bufferLength, buffer.data()));
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, nullptr, buffer.data()));
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, nullptr));
 }
 
 TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenOperationFails)
 {
-    uint8_t buffer[1024];
-    uint32_t bufferLength = sizeof(buffer);
-    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_, _)).WillOnce(Return(false));
-    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, buffer));
+    std::vector<uint8_t> buffer{1, 2, 3, 4};
+    uint32_t bufferLength = buffer.size();
+    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_)).WillOnce(Return(false));
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, buffer.data()));
+}
+
+TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWithBufferTooSmall)
+{
+    std::vector<uint8_t> buffer{1, 2, 3, 4};
+    std::vector<uint8_t> smallBuffer{1, 2};
+    uint32_t bufferLength = smallBuffer.size();
+    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_)).WillOnce(DoAll(SetArgReferee<0>(buffer), Return(true)));
+    EXPECT_EQ(ERROR_BUFFER_TOO_SMALL,
+              opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, smallBuffer.data()));
 }
 
 TEST_F(OpenCdmTests, ShouldGetMetricSystemData)
 {
-    uint8_t buffer[1024];
-    uint32_t bufferLength = sizeof(buffer);
-
-    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(&bufferLength, buffer)).WillOnce(Return(true));
-
-    EXPECT_EQ(ERROR_NONE, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, buffer));
-}
-
-TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenBufferIsNull)
-{
-    uint32_t bufferLength = 0;
-
-    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_, nullptr)).Times(0);
-    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, nullptr));
-}
-
-TEST_F(OpenCdmTests, ShouldReturnBufferTooSmallWhenBufferIsInsufficient)
-{
-    uint32_t bufferLength = 8;
-    uint32_t length = 16;
-    std::vector<uint8_t> buffer(bufferLength);
-
-    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_, buffer.data()))
-        .WillOnce(DoAll(testing::SetArgPointee<0>(length), Return(false)));
-
-    EXPECT_EQ(opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, buffer.data()),
-              OpenCDMError::ERROR_BUFFER_TOO_SMALL);
-
-    EXPECT_EQ(bufferLength, length);
+    std::vector<uint8_t> buffer{1, 2, 3, 4};
+    uint32_t bufferLength = buffer.size();
+    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_)).WillOnce(DoAll(SetArgReferee<0>(buffer), Return(true)));
+    EXPECT_EQ(ERROR_NONE, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, buffer.data()));
 }

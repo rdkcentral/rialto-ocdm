@@ -46,7 +46,7 @@ struct OpenCDMSystem
     virtual bool getDrmStoreHash(std::vector<unsigned char> &drmStoreHash) const = 0;
     virtual bool deleteKeyStore() const = 0;
     virtual bool deleteDrmStore() const = 0;
-    virtual bool getMetricSystemData(uint32_t *bufferLength, uint8_t *buffer) const = 0;
+    virtual bool getMetricSystemData(std::vector<uint8_t> &buffer) const = 0;
 };
 
 #endif // OPENCDM_SYSTEM_H_

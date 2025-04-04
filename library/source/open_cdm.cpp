@@ -411,3 +411,43 @@ OpenCDMError opencdm_session_decrypt(struct OpenCDMSession *session, uint8_t enc
     kLog << warn << __func__ << " not implemented";
     return ERROR_FAIL;
 }
+
+OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem *system, uint32_t *bufferLength, uint8_t *buffer)
+{
+    kLog << debug << __func__;
+    if (!system)
+    {
+        kLog << error << "System ptr is null";
+        return ERROR_FAIL;
+    }
+
+    if (!bufferLength)
+    {
+        kLog << error << "Buffer length ptr is null";
+        return ERROR_FAIL;
+    }
+
+    if (!buffer)
+    {
+        kLog << error << "Buffer ptr is null";
+        return ERROR_FAIL;
+    }
+
+    std::vector<uint8_t> bufferVec;
+    if (!system->getMetricSystemData(bufferVec))
+    {
+        kLog << error << "Failed to get metric system data";
+        return ERROR_FAIL;
+    }
+
+    if (*bufferLength < bufferVec.size())
+    {
+        kLog << error << "Buffer is too small - return size " << bufferVec.size() << " does not fit in buffer of size "
+             << *bufferLength;
+        return ERROR_BUFFER_TOO_SMALL;
+    }
+
+    std::memcpy(buffer, bufferVec.data(), bufferVec.size());
+    *bufferLength = bufferVec.size();
+    return ERROR_NONE;
+}

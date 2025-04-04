@@ -23,6 +23,7 @@
 #include "OpenCDMSessionMock.h"
 #include "OpenCDMSystemMock.h"
 #include "opencdm/open_cdm.h"
+#include <cstring>
 #include <gtest/gtest.h>
 
 using firebolt::rialto::ControlFactoryMock;
@@ -419,4 +420,40 @@ TEST_F(OpenCdmTests, ShouldNotSupportSessionDecrypt)
 {
     EXPECT_EQ(ERROR_FAIL, opencdm_session_decrypt(&m_openCdmSessionMock, nullptr, 0, EncryptionScheme::Clear,
                                                   EncryptionPattern{0, 0}, nullptr, 0, nullptr, 0, 0));
+}
+
+TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenOneOfParamsIsNull)
+{
+    std::vector<uint8_t> buffer{1, 2, 3, 4};
+    uint32_t bufferLength = buffer.size();
+
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(nullptr, &bufferLength, buffer.data()));
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, nullptr, buffer.data()));
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, nullptr));
+}
+
+TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWhenOperationFails)
+{
+    std::vector<uint8_t> buffer{1, 2, 3, 4};
+    uint32_t bufferLength = buffer.size();
+    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_)).WillOnce(Return(false));
+    EXPECT_EQ(ERROR_FAIL, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, buffer.data()));
+}
+
+TEST_F(OpenCdmTests, ShouldFailToGetMetricSystemDataWithBufferTooSmall)
+{
+    std::vector<uint8_t> buffer{1, 2, 3, 4};
+    std::vector<uint8_t> smallBuffer{1, 2};
+    uint32_t bufferLength = smallBuffer.size();
+    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_)).WillOnce(DoAll(SetArgReferee<0>(buffer), Return(true)));
+    EXPECT_EQ(ERROR_BUFFER_TOO_SMALL,
+              opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, smallBuffer.data()));
+}
+
+TEST_F(OpenCdmTests, ShouldGetMetricSystemData)
+{
+    std::vector<uint8_t> buffer{1, 2, 3, 4};
+    uint32_t bufferLength = buffer.size();
+    EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_)).WillOnce(DoAll(SetArgReferee<0>(buffer), Return(true)));
+    EXPECT_EQ(ERROR_NONE, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, buffer.data()));
 }

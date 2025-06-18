@@ -49,7 +49,7 @@ endif()
 add_compile_definitions(SRCREV="${SRCREV}")
 add_compile_definitions(TAGS="${TAGS}")
 
-if (COVERAGE_ENABLED)
+if ( COVERAGE_ENABLED )
     add_compile_options(-coverage)
     add_link_options(--coverage)
 endif ()

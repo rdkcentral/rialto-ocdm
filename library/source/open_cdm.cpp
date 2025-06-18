@@ -52,8 +52,7 @@ OpenCDMSystem *opencdm_create_system(const char keySystem[])
         }
         else
         {
-            kLog << mil << "Release Tag(s): No Release Tags!"
-                 << " (Commit ID: " << kSrcRev << ")";
+            kLog << mil << "Release Tag(s): No Release Tags!" << " (Commit ID: " << kSrcRev << ")";
         }
     }
     else
@@ -175,7 +174,8 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
         return ERROR_FAIL;
     }
     std::string initializationDataType(initDataType);
-    std::vector<uint8_t> initDataVec((uint8_t *)(initData), (uint8_t *)(initData) + initDataLength);
+    std::vector<uint8_t> initDataVec(reinterpret_cast<const uint8_t *>(initData),
+                                     reinterpret_cast<const uint8_t *>(initData) + initDataLength);
 
     OpenCDMSession *newSession =
         system->createSession(licenseType, callbacks, userData, initializationDataType, initDataVec);
@@ -193,7 +193,8 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
             ActiveSessions::instance().remove(newSession);
             return ERROR_FAIL;
         }
-        std::vector<uint8_t> cdmDataVec((uint8_t *)(CDMData), (uint8_t *)(CDMData) + CDMDataLength);
+        std::vector<uint8_t> cdmDataVec(reinterpret_cast<const uint8_t *>(CDMData),
+                                        reinterpret_cast<const uint8_t *>(CDMData) + CDMDataLength);
 
         if (!newSession->generateRequest(initializationDataType, initDataVec, cdmDataVec /*not used yet*/))
         {
@@ -400,4 +401,53 @@ OpenCDMBool opencdm_system_supports_server_certificate(struct OpenCDMSystem *sys
         return OpenCDMBool::OPENCDM_BOOL_TRUE;
     }
     return OpenCDMBool::OPENCDM_BOOL_FALSE;
+}
+
+OpenCDMError opencdm_session_decrypt(struct OpenCDMSession *session, uint8_t encrypted[],
+                                     const uint32_t encryptedLength, const EncryptionScheme encScheme,
+                                     const EncryptionPattern pattern, const uint8_t *IV, uint16_t IVLength,
+                                     const uint8_t *keyId, const uint16_t keyIdLength, uint32_t initWithLast15)
+{
+    kLog << warn << __func__ << " not implemented";
+    return ERROR_FAIL;
+}
+
+OpenCDMError opencdm_get_metric_system_data(struct OpenCDMSystem *system, uint32_t *bufferLength, uint8_t *buffer)
+{
+    kLog << debug << __func__;
+    if (!system)
+    {
+        kLog << error << "System ptr is null";
+        return ERROR_FAIL;
+    }
+
+    if (!bufferLength)
+    {
+        kLog << error << "Buffer length ptr is null";
+        return ERROR_FAIL;
+    }
+
+    if (!buffer)
+    {
+        kLog << error << "Buffer ptr is null";
+        return ERROR_FAIL;
+    }
+
+    std::vector<uint8_t> bufferVec;
+    if (!system->getMetricSystemData(bufferVec))
+    {
+        kLog << error << "Failed to get metric system data";
+        return ERROR_FAIL;
+    }
+
+    if (*bufferLength < bufferVec.size())
+    {
+        kLog << error << "Buffer is too small - return size " << bufferVec.size() << " does not fit in buffer of size "
+             << *bufferLength;
+        return ERROR_BUFFER_TOO_SMALL;
+    }
+
+    std::memcpy(buffer, bufferVec.data(), bufferVec.size());
+    *bufferLength = bufferVec.size();
+    return ERROR_NONE;
 }

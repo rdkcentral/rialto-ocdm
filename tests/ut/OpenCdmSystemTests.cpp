@@ -57,7 +57,6 @@ protected:
     StrictMock<firebolt::rialto::MediaKeysMock> &m_mediaKeysMock{*m_mediaKeys};
     OpenCDMSessionCallbacks m_callbacks{processChallengeCallback, keyUpdateCallback, errorMessageCallback,
                                         keysUpdatedCallback};
-    int m_userData{12};
     std::unique_ptr<OpenCDMSystemPrivate> m_sut;
 
     void createValidSut()
@@ -94,7 +93,8 @@ TEST_F(OpenCdmSystemTests, ShouldReturnMetadata)
 TEST_F(OpenCdmSystemTests, ShouldCreateSession)
 {
     createValidSut();
-    OpenCDMSession *session{m_sut->createSession(kLicenseType, &m_callbacks, &m_userData, kInitDataType, kBytes)};
+    int userData{12};
+    OpenCDMSession *session{m_sut->createSession(kLicenseType, &m_callbacks, &userData, kInitDataType, kBytes)};
     ASSERT_NE(nullptr, session);
     ActiveSessions::instance().remove(session);
 }
@@ -241,4 +241,30 @@ TEST_F(OpenCdmSystemTests, ShouldDeleteDrmStore)
     createValidSut();
     EXPECT_CALL(m_mediaKeysMock, deleteDrmStore()).WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::OK));
     EXPECT_TRUE(m_sut->deleteDrmStore());
+}
+
+TEST_F(OpenCdmSystemTests, ShouldNotGetMetricSystemDataWhenCdmServiceIsNull)
+{
+    std::vector<uint8_t> buffer{};
+    createInvalidSut();
+    EXPECT_FALSE(m_sut->getMetricSystemData(buffer));
+}
+
+TEST_F(OpenCdmSystemTests, ShouldNotGetMetricSystemDataWhenOperationFails)
+{
+    std::vector<uint8_t> buffer{};
+    createValidSut();
+    EXPECT_CALL(m_mediaKeysMock, getMetricSystemData(buffer)).WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::FAIL));
+    EXPECT_FALSE(m_sut->getMetricSystemData(buffer));
+}
+
+TEST_F(OpenCdmSystemTests, ShouldGetMetricSystemData)
+{
+    const std::vector<uint8_t> kBuffer{1, 2, 3, 4};
+    std::vector<uint8_t> buffer{};
+    createValidSut();
+    EXPECT_CALL(m_mediaKeysMock, getMetricSystemData(_))
+        .WillOnce(DoAll(SetArgReferee<0>(kBuffer), Return(firebolt::rialto::MediaKeyErrorStatus::OK)));
+    EXPECT_TRUE(m_sut->getMetricSystemData(buffer));
+    EXPECT_EQ(kBuffer, buffer);
 }

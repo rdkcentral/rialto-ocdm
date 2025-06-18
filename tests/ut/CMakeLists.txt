@@ -49,8 +49,6 @@ endif()
 add_compile_definitions(SRCREV="${SRCREV}")
 add_compile_definitions(TAGS="${TAGS}")
 
-add_compile_definitions( RIALTO_ENABLE_DECRYPT_BUFFER )
-
 add_library(
         ocdmRialtoTestLib
 

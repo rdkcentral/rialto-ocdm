@@ -17,7 +17,6 @@
 #  limitations under the License.
 #
 
-find_package(EthanLog REQUIRED)
 find_package(Rialto 1.0 REQUIRED)
 
 add_library(ocdmRialto
@@ -57,12 +56,17 @@ target_link_libraries(
         ocdmRialto
 
         PRIVATE
-        EthanLog::EthanLog
         Rialto::RialtoClient
         ${GStreamerApp_LIBRARIES}
         )
 
-target_compile_definitions(ocdmRialto PRIVATE USE_ETHANLOG)
+if (NATIVE_BUILD OR CMAKE_BUILD_FLAG STREQUAL "UnitTests")
+    message(STATUS "EthanLog is disabled")
+else ()
+    find_package(EthanLog REQUIRED)
+    target_compile_definitions(ocdmRialto PRIVATE USE_ETHANLOG)
+    target_link_libraries(ocdmRialto PRIVATE EthanLog::EthanLog)
+endif ()
 
 include( GNUInstallDirs )
 

@@ -62,6 +62,8 @@ target_link_libraries(
         ${GStreamerApp_LIBRARIES}
         )
 
+target_compile_definitions(ocdmRialto PRIVATE USE_ETHANLOG)
+
 include( GNUInstallDirs )
 
 set (LIB_RIALTO_OCDM_PUBLIC_HEADERS

@@ -20,10 +20,35 @@
 #include "Logger.h"
 #include <chrono>
 #include <ctime>
-#include <ethanlog.h>
 #include <iomanip>
 #include <iostream>
 #include <unistd.h>
+
+#ifdef USE_ETHANLOG
+
+#include <ethanlog.h>
+
+#define SYSTEM_LOG_FATAL(filename, function, line, ...) ethanlog(ETHAN_LOG_FATAL, filename, function, line, __VA_ARGS__)
+#define SYSTEM_LOG_ERROR(filename, function, line, ...) ethanlog(ETHAN_LOG_ERROR, filename, function, line, __VA_ARGS__)
+#define SYSTEM_LOG_WARN(filename, function, line, ...)                                                                 \
+    ethanlog(ETHAN_LOG_WARNING, filename, function, line, __VA_ARGS__)
+#define SYSTEM_LOG_MIL(filename, function, line, ...)                                                                  \
+    ethanlog(ETHAN_LOG_MILESTONE, filename, function, line, __VA_ARGS__)
+#define SYSTEM_LOG_INFO(filename, function, line, ...) ethanlog(ETHAN_LOG_INFO, filename, function, line, __VA_ARGS__)
+#define SYSTEM_LOG_DEBUG(filename, function, line, ...) ethanlog(ETHAN_LOG_DEBUG, filename, function, line, __VA_ARGS__)
+
+#else
+
+#include <syslog.h>
+
+#define SYSTEM_LOG_FATAL(filename, function, line, ...) syslog(LOG_CRIT, __VA_ARGS__)
+#define SYSTEM_LOG_ERROR(filename, function, line, ...) syslog(LOG_ERR, __VA_ARGS__)
+#define SYSTEM_LOG_WARN(filename, function, line, ...) syslog(LOG_WARNING, __VA_ARGS__)
+#define SYSTEM_LOG_MIL(filename, function, line, ...) syslog(LOG_NOTICE, __VA_ARGS__)
+#define SYSTEM_LOG_INFO(filename, function, line, ...) syslog(LOG_INFO, __VA_ARGS__)
+#define SYSTEM_LOG_DEBUG(filename, function, line, ...) syslog(LOG_DEBUG, __VA_ARGS__)
+
+#endif
 
 namespace
 {
@@ -86,25 +111,6 @@ std::string toString(const Severity &severity)
     return "???";
 }
 
-int convertSeverity(const Severity &severity)
-{
-    switch (severity)
-    {
-    case Severity::fatal:
-        return ETHAN_LOG_FATAL;
-    case Severity::error:
-        return ETHAN_LOG_ERROR;
-    case Severity::warn:
-        return ETHAN_LOG_WARNING;
-    case Severity::mil:
-        return ETHAN_LOG_MILESTONE;
-    case Severity::info:
-        return ETHAN_LOG_INFO;
-    case Severity::debug:
-    default:
-        return ETHAN_LOG_DEBUG;
-    }
-}
 } // namespace
 
 LogFile &LogFile::instance()
@@ -186,7 +192,28 @@ Flusher::~Flusher()
         }
         else
         {
-            ethanlog(convertSeverity(m_severity), nullptr, nullptr, -1, "%s", m_stream.str().c_str());
+            switch (m_severity)
+            {
+            case Severity::fatal:
+                SYSTEM_LOG_FATAL(nullptr, nullptr, -1, "%s", m_stream.str().c_str());
+                break;
+            case Severity::error:
+                SYSTEM_LOG_ERROR(nullptr, nullptr, -1, "%s", m_stream.str().c_str());
+                break;
+            case Severity::warn:
+                SYSTEM_LOG_WARN(nullptr, nullptr, -1, "%s", m_stream.str().c_str());
+                break;
+            case Severity::mil:
+                SYSTEM_LOG_MIL(nullptr, nullptr, -1, "%s", m_stream.str().c_str());
+                break;
+            case Severity::info:
+                SYSTEM_LOG_INFO(nullptr, nullptr, -1, "%s", m_stream.str().c_str());
+                break;
+            case Severity::debug:
+            default:
+                SYSTEM_LOG_DEBUG(nullptr, nullptr, -1, "%s", m_stream.str().c_str());
+                break;
+            }
         }
     }
     m_stream.str("");

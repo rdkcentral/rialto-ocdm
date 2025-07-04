@@ -20,9 +20,9 @@
 #include "Logger.h"
 #include <chrono>
 #include <ctime>
+#include <ethanlog.h>
 #include <iomanip>
 #include <iostream>
-#include <syslog.h>
 #include <unistd.h>
 
 namespace
@@ -91,18 +91,18 @@ int convertSeverity(const Severity &severity)
     switch (severity)
     {
     case Severity::fatal:
-        return LOG_CRIT;
+        return ETHAN_LOG_FATAL;
     case Severity::error:
-        return LOG_ERR;
+        return ETHAN_LOG_ERROR;
     case Severity::warn:
-        return LOG_WARNING;
+        return ETHAN_LOG_WARNING;
     case Severity::mil:
-        return LOG_NOTICE;
+        return ETHAN_LOG_MILESTONE;
     case Severity::info:
-        return LOG_INFO;
+        return ETHAN_LOG_INFO;
     case Severity::debug:
     default:
-        return LOG_DEBUG;
+        return ETHAN_LOG_DEBUG;
     }
 }
 } // namespace
@@ -186,7 +186,7 @@ Flusher::~Flusher()
         }
         else
         {
-            syslog(convertSeverity(m_severity), "%s", m_stream.str().c_str());
+            ethanlog(convertSeverity(m_severity), nullptr, nullptr, -1, "%s", m_stream.str().c_str());
         }
     }
     m_stream.str("");

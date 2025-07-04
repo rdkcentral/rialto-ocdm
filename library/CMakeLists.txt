@@ -17,6 +17,7 @@
 #  limitations under the License.
 #
 
+find_package(EthanLog REQUIRED)
 find_package(Rialto 1.0 REQUIRED)
 
 add_library(ocdmRialto
@@ -56,6 +57,7 @@ target_link_libraries(
         ocdmRialto
 
         PRIVATE
+        EthanLog::EthanLog
         Rialto::RialtoClient
         ${GStreamerApp_LIBRARIES}
         )

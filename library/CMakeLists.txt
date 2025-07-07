@@ -60,12 +60,12 @@ target_link_libraries(
         ${GStreamerApp_LIBRARIES}
         )
 
-if (NATIVE_BUILD OR CMAKE_BUILD_FLAG STREQUAL "UnitTests")
-    message(STATUS "EthanLog is disabled")
-else ()
-    find_package(EthanLog REQUIRED)
+find_package(EthanLog)
+if (EthanLog_FOUND)
     target_compile_definitions(ocdmRialto PRIVATE USE_ETHANLOG)
     target_link_libraries(ocdmRialto PRIVATE EthanLog::EthanLog)
+else ()
+    message(WARNING "EthanLog not found")
 endif ()
 
 include( GNUInstallDirs )

@@ -61,7 +61,8 @@ target_link_libraries(
         )
 
 find_package(EthanLog)
-if (EthanLog_FOUND)
+if (EthanLog_FOUND AND RIALTO_ENABLE_ETHAN_LOG)
+    message(STATUS "EthanLog is enabled")
     target_compile_definitions(ocdmRialto PRIVATE USE_ETHANLOG)
     target_link_libraries(ocdmRialto PRIVATE EthanLog::EthanLog)
 else ()

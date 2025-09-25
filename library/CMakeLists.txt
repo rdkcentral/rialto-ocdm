@@ -60,6 +60,15 @@ target_link_libraries(
         ${GStreamerApp_LIBRARIES}
         )
 
+find_package(EthanLog)
+if (EthanLog_FOUND AND RIALTO_ENABLE_ETHAN_LOG)
+    message(STATUS "EthanLog is enabled")
+    target_compile_definitions(ocdmRialto PRIVATE USE_ETHANLOG)
+    target_link_libraries(ocdmRialto PRIVATE EthanLog::EthanLog)
+else ()
+    message(STATUS "EthanLog is disabled")
+endif ()
+
 include( GNUInstallDirs )
 
 set (LIB_RIALTO_OCDM_PUBLIC_HEADERS

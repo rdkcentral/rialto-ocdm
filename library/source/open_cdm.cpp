@@ -31,9 +31,9 @@ namespace
 {
 const Logger kLog{"open_cdm"};
 
-bool isPlayreadyKeysystem(const std::string &keySystem)
+bool isNetflixPlayreadyKeysystem(const std::string &keySystem)
 {
-    return keySystem.find("playready") != std::string::npos;
+    return keySystem.find("netflix") != std::string::npos;
 }
 } // namespace
 
@@ -185,7 +185,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
         return ERROR_INVALID_SESSION;
     }
 
-    if (!isPlayreadyKeysystem(system->keySystem()))
+    if (!isNetflixPlayreadyKeysystem(system->keySystem()))
     {
         if (!newSession->initialize())
         {

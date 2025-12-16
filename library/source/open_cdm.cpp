@@ -35,6 +35,25 @@ bool isNetflixPlayreadyKeysystem(const std::string &keySystem)
 {
     return keySystem.find("netflix") != std::string::npos;
 }
+
+bool isAmazonApp(const uint8_t *data, uint16_t dataLength)
+{
+    if (data && dataLength > 0)
+    {
+        std::string dataContent(reinterpret_cast<const char*>(data), dataLength);
+        // Check for UTF-8/ASCII amazon
+        if (dataContent.find("amazon") != std::string::npos)
+        {
+            return true;
+        }
+        // Check for UTF-16LE amazon (a\0m\0a\0z\0o\0n\0)
+        if (dataContent.find("a\0m\0a\0z\0o\0n", 0, 12) != std::string::npos)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 } // namespace
 
 OpenCDMSystem *opencdm_create_system(const char keySystem[])
@@ -185,7 +204,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
         return ERROR_INVALID_SESSION;
     }
 
-    if (!isNetflixPlayreadyKeysystem(system->keySystem()))
+    if (!isNetflixPlayreadyKeysystem(system->keySystem()) && !isAmazonApp(initData, initDataLength))
     {
         if (!newSession->initialize())
         {

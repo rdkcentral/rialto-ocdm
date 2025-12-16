@@ -104,6 +104,16 @@ bool OpenCDMSessionPrivate::initialize(bool isLDL)
         m_messageDispatcherClient = m_messageDispatcher->createClient(this);
         m_isInitialized = true;
         m_log << info << "Successfully created a session";
+
+	if (!m_queuedDrmHeader.empty())
+        {
+            m_log << info << "Setting queued DRM header.";
+            if (!m_cdmBackend->setDrmHeader(m_rialtoSessionId, m_queuedDrmHeader))
+            {
+                m_log << error << "Failed to set queued DRM header.";
+            }
+            m_queuedDrmHeader.clear();
+        }
     }
     return true;
 }
@@ -407,7 +417,12 @@ bool OpenCDMSessionPrivate::setDrmHeader(const std::vector<uint8_t> &drmHeader)
     {
         return m_cdmBackend->setDrmHeader(m_rialtoSessionId, drmHeader);
     }
-    return false;
+    else
+    {
+        m_log << info << "Queueing DRM header until session is initialized.";
+        m_queuedDrmHeader = drmHeader;
+    }
+    return true;
 }
 
 bool OpenCDMSessionPrivate::selectKeyId(const std::vector<uint8_t> &keyId)

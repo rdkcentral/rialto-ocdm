@@ -566,10 +566,22 @@ TEST_F(OpenCdmSessionTests, ShouldNotSetDrmHeaderWhenCdmBackendIsNull)
     EXPECT_FALSE(m_sut->setDrmHeader(kBytes1));
 }
 
-TEST_F(OpenCdmSessionTests, ShouldNotSetDrmHeaderWhenNotInitialized)
+TEST_F(OpenCdmSessionTests, ShouldQueueDrmHeaderWhenNotInitialized)
 {
     createSut();
-    EXPECT_FALSE(m_sut->setDrmHeader(kBytes1));
+    EXPECT_TRUE(m_sut->setDrmHeader(kBytes1));
+    EXPECT_CALL(*m_cdmBackendMock, setDrmHeader(kKeySessionId, kBytes1)).WillOnce(Return(true));
+    initializeSut();
+    teardownSut();
+}
+
+TEST_F(OpenCdmSessionTests, ShouldFailToSetQueuedDrmHeader)
+{
+    createSut();
+    EXPECT_TRUE(m_sut->setDrmHeader(kBytes1));
+    EXPECT_CALL(*m_cdmBackendMock, setDrmHeader(kKeySessionId, kBytes1)).WillOnce(Return(false));
+    initializeSut();
+    teardownSut();
 }
 
 TEST_F(OpenCdmSessionTests, ShouldFailToSetDrmHeaderWhenOperationFails)

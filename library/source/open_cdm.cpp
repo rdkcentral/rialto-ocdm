@@ -30,11 +30,6 @@
 namespace
 {
 const Logger kLog{"open_cdm"};
-
-bool isNetflixPlayreadyKeysystem(const std::string &keySystem)
-{
-    return keySystem.find("netflix") != std::string::npos;
-}
 } // namespace
 
 OpenCDMSystem *opencdm_create_system(const char keySystem[])
@@ -185,25 +180,22 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
         return ERROR_INVALID_SESSION;
     }
 
-    if (!isNetflixPlayreadyKeysystem(system->keySystem()))
+    if (!newSession->initialize())
     {
-        if (!newSession->initialize())
-        {
-            kLog << error << "Failed to create session";
-            ActiveSessions::instance().remove(newSession);
-            return ERROR_FAIL;
-        }
-        std::vector<uint8_t> cdmDataVec(reinterpret_cast<const uint8_t *>(CDMData),
-                                        reinterpret_cast<const uint8_t *>(CDMData) + CDMDataLength);
+        kLog << error << "Failed to create session";
+        ActiveSessions::instance().remove(newSession);
+        return ERROR_FAIL;
+    }
+    std::vector<uint8_t> cdmDataVec(reinterpret_cast<const uint8_t *>(CDMData),
+                                    reinterpret_cast<const uint8_t *>(CDMData) + CDMDataLength);
 
-        if (!newSession->generateRequest(initializationDataType, initDataVec, cdmDataVec /*not used yet*/))
-        {
-            kLog << error << "Failed to generate request";
+    if (!newSession->generateRequest(initializationDataType, initDataVec, cdmDataVec /*not used yet*/))
+    {
+        kLog << error << "Failed to generate request";
 
-            opencdm_session_close(newSession);
-            opencdm_destruct_session(newSession);
-            return ERROR_FAIL;
-        }
+        opencdm_session_close(newSession);
+        opencdm_destruct_session(newSession);
+        return ERROR_FAIL;
     }
 
     *session = newSession;

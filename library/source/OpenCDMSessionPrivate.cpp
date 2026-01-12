@@ -202,6 +202,10 @@ bool OpenCDMSessionPrivate::getChallengeDataSize(uint32_t &size, bool isLdl)
         m_log << error << "Cdm is NULL or not initialized";
         return false;
     }
+
+    // Challenge will be reinitialized. Clear any previous data.
+    m_challengeData.clear();
+
     if ((m_initDataType != firebolt::rialto::InitDataType::UNKNOWN) && (-1 != m_rialtoSessionId))
     {
         const firebolt::rialto::LimitedDurationLicense kLdlState =

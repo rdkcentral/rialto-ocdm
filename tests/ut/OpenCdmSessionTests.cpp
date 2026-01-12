@@ -29,6 +29,7 @@
 using testing::_;
 using testing::ByMove;
 using testing::DoAll;
+using testing::Invoke;
 using testing::Return;
 using testing::SetArgReferee;
 using testing::StrictMock;
@@ -357,11 +358,15 @@ TEST_F(OpenCdmSessionTests, ShouldGetChallengeData)
     uint32_t challengeDataSize{0};
     createSut();
     initializeSut();
-
-    requestLicense();
     EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1,
                                                    firebolt::rialto::LimitedDurationLicense::DISABLED))
-        .WillOnce(Return(true));
+        .WillOnce(Invoke(
+            [&](int32_t, firebolt::rialto::InitDataType, const std::vector<uint8_t> &,
+                firebolt::rialto::LimitedDurationLicense)
+            {
+                requestLicense();
+                return true;
+            }));
     EXPECT_TRUE(m_sut->getChallengeDataSize(challengeDataSize, kIsLdl));
     EXPECT_EQ(challengeDataSize, kBytes1.size());
 
@@ -402,10 +407,15 @@ TEST_F(OpenCdmSessionTests, ShouldGetChallengeDataSize)
     uint32_t challengeDataSize{0};
     createSut();
     initializeSut();
-    requestLicense(); // Do it first, to have single-threaded test and avoid deadlock
     EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1,
                                                    firebolt::rialto::LimitedDurationLicense::DISABLED))
-        .WillOnce(Return(true));
+        .WillOnce(Invoke(
+            [&](int32_t, firebolt::rialto::InitDataType, const std::vector<uint8_t> &,
+                firebolt::rialto::LimitedDurationLicense)
+            {
+                requestLicense();
+                return true;
+            }));
     EXPECT_TRUE(m_sut->getChallengeDataSize(challengeDataSize, kIsLdl));
     EXPECT_EQ(challengeDataSize, kBytes1.size());
     teardownSut();

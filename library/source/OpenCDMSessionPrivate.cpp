@@ -204,7 +204,10 @@ bool OpenCDMSessionPrivate::getChallengeDataSize(uint32_t &size, bool isLdl)
     }
 
     // Challenge will be reinitialized. Clear any previous data.
-    m_challengeData.clear();
+    {
+        std::unique_lock<std::mutex> lock{m_mutex};
+        m_challengeData.clear();
+    }
 
     if ((m_initDataType != firebolt::rialto::InitDataType::UNKNOWN) && (-1 != m_rialtoSessionId))
     {

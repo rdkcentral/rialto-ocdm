@@ -191,6 +191,7 @@ bool OpenCDMSessionPrivate::updateSession(const std::vector<uint8_t> &license)
 bool OpenCDMSessionPrivate::getChallengeData(std::vector<uint8_t> &challengeData, bool isLdl)
 {
     // Challenge data should be filled in by getChallengeDataSize in earlier call
+    std::unique_lock<std::mutex> lock{m_mutex};
     challengeData = m_challengeData;
     return !challengeData.empty();
 }
@@ -206,6 +207,8 @@ bool OpenCDMSessionPrivate::getChallengeDataSize(uint32_t &size, bool isLdl)
     // Challenge will be reinitialized. Clear any previous data.
     {
         std::unique_lock<std::mutex> lock{m_mutex};
+        // Temporary hack - wait for previous challenge to be received before clearing it.
+        m_challengeCv.wait_for(lock, std::chrono::milliseconds{250}, [this]() { return !m_challengeData.empty(); });
         m_challengeData.clear();
     }
 

@@ -210,7 +210,7 @@ OpenCDMError opencdm_session_get_challenge_data(struct OpenCDMSession *mOpenCDMS
             kLog << error << "Failed to get challenge data - operation returned NOK status";
             return ERROR_FAIL;
         }
-        *challengeSize = static_cast<uint32_t>(challengeVec.size());
+        *challengeSize = challengeVec.size();
         memcpy(challenge, challengeVec.data(), challengeVec.size());
     }
     return ERROR_NONE;

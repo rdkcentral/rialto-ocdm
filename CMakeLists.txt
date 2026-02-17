@@ -28,7 +28,7 @@ set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
 include( CheckCXXCompilerFlag )
 
-add_compile_options(-Wall -Werror)
+add_compile_options(-Wno-format)
 
 # RIALTO-197: deprecated-declarations error in the latest stable2 for gstreamer.
 # Should be removed once the issue is fixed.

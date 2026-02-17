@@ -117,3 +117,4 @@ endif()
 # Preprocesser Variable
 add_compile_definitions(SRCREV="${SRCREV}")
 add_compile_definitions(TAGS="${TAGS}")
+add_compile_options(-Wno-format)

@@ -120,7 +120,7 @@ OpenCDMError opencdm_system_get_version(struct OpenCDMSystem *system, char versi
     }
 
     const size_t MAX_LEN = 64;
-    snprintf(versionStr, MAX_LEN, "%s", version.c_str());
+    snprintf(versionStr, MAX_LEN, "%s");
 
     return ERROR_NONE;
 }

@@ -233,7 +233,7 @@ bool OpenCDMSessionPrivate::getChallengeDataSize(uint32_t &size, bool isLdl)
     }
     std::unique_lock<std::mutex> lock{m_mutex};
     m_challengeCv.wait_for(lock, std::chrono::seconds{1}, [this]() { return !m_challengeData.empty(); });
-    size = static_cast<int32_t>(m_challengeData.size());
+    size = m_challengeData.size();
     return !m_challengeData.empty();
 }
 

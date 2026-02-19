@@ -451,7 +451,6 @@ void OpenCDMSessionPrivate::onLicenseRequest(int32_t keySessionId,
                                              const std::vector<unsigned char> &licenseRequestMessage,
                                              const std::string &url)
 {
-    m_log << mil << "onLicenseRequest, size: " << licenseRequestMessage.size();
     if (keySessionId == m_rialtoSessionId)
     {
         updateChallenge(licenseRequestMessage);
@@ -481,7 +480,6 @@ void OpenCDMSessionPrivate::onLicenseRenewal(int32_t keySessionId, const std::ve
 void OpenCDMSessionPrivate::updateChallenge(const std::vector<unsigned char> &challenge)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
-    m_log << mil << "Received challenge for session, size: " << challenge.size();
     m_challengeData = challenge;
     m_challengeCv.notify_one();
 }

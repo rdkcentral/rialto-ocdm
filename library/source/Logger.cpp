@@ -54,35 +54,34 @@ namespace
 {
 Severity getLogLevel()
 {
-    // const char *debugVar = getenv("RIALTO_DEBUG");
-    // if (debugVar)
-    // {
-    //     std::string varStr{debugVar};
-    //     if ("0" == varStr)
-    //         return Severity::fatal;
-    //     if ("1" == varStr)
-    //         return Severity::error;
-    //     if ("2" == varStr)
-    //         return Severity::warn;
-    //     if ("3" == varStr)
-    //         return Severity::mil;
-    //     if ("4" == varStr)
-    //         return Severity::info;
-    //     if ("5" == varStr)
-    //         return Severity::debug;
-    // }
-    return Severity::debug;
+    const char *debugVar = getenv("RIALTO_DEBUG");
+    if (debugVar)
+    {
+        std::string varStr{debugVar};
+        if ("0" == varStr)
+            return Severity::fatal;
+        if ("1" == varStr)
+            return Severity::error;
+        if ("2" == varStr)
+            return Severity::warn;
+        if ("3" == varStr)
+            return Severity::mil;
+        if ("4" == varStr)
+            return Severity::info;
+        if ("5" == varStr)
+            return Severity::debug;
+    }
+    return Severity::warn;
 }
 
 bool isConsoleLogEnabled()
 {
-    // const char *debugVar = getenv("RIALTO_CONSOLE_LOG");
-    // if (debugVar)
-    // {
-    //     return std::string(debugVar) == "1";
-    // }
-    // return false;
-    return true;
+    const char *debugVar = getenv("RIALTO_CONSOLE_LOG");
+    if (debugVar)
+    {
+        return std::string(debugVar) == "1";
+    }
+    return false;
 }
 
 std::string getRialtoLogPath()

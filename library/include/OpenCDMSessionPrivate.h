@@ -59,7 +59,7 @@ public:
     bool loadSession() override;
     bool updateSession(const std::vector<uint8_t> &license) override;
     bool getChallengeData(std::vector<uint8_t> &challengeData, bool isLdl) override;
-    virtual bool getChallengeDataSize(uint32_t &size, bool isLdl) override;
+    bool getChallengeDataSize(uint32_t &size, bool isLdl) override;
     bool containsKey(const std::vector<uint8_t> &keyId) override;
     bool setDrmHeader(const std::vector<uint8_t> &drmHeader) override;
     bool selectKeyId(const std::vector<uint8_t> &keyId) override;

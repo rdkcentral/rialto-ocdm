@@ -29,14 +29,14 @@ class OpenCDMSessionMock : public OpenCDMSession
 {
 public:
     MOCK_METHOD(bool, initialize, (), (override));
-    MOCK_METHOD(bool, initialize, (bool), (override));
     MOCK_METHOD(bool, generateRequest,
                 (const std::string &initDataType, const std::vector<uint8_t> &initData,
                  const std::vector<uint8_t> &cdmData),
                 (override));
     MOCK_METHOD(bool, loadSession, (), (override));
     MOCK_METHOD(bool, updateSession, (const std::vector<uint8_t> &license), (override));
-    MOCK_METHOD(bool, getChallengeData, (std::vector<uint8_t> & challengeData), (override));
+    MOCK_METHOD(bool, getChallengeData, (std::vector<uint8_t> & challengeData, bool isLdl), (override));
+    MOCK_METHOD(bool, getChallengeDataSize, (uint32_t & size, bool isLdl), (override));
     MOCK_METHOD(bool, containsKey, (const std::vector<uint8_t> &keyId), (override));
     MOCK_METHOD(bool, setDrmHeader, (const std::vector<uint8_t> &drmHeader), (override));
     MOCK_METHOD(bool, selectKeyId, (const std::vector<uint8_t> &keyId), (override));

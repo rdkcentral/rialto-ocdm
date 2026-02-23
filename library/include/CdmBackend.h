@@ -44,9 +44,10 @@ public:
 
     bool selectKeyId(int32_t keySessionId, const std::vector<uint8_t> &keyId) override;
     bool containsKey(int32_t keySessionId, const std::vector<uint8_t> &keyId) override;
-    bool createKeySession(firebolt::rialto::KeySessionType sessionType, bool isLDL, int32_t &keySessionId) override;
+    bool createKeySession(firebolt::rialto::KeySessionType sessionType, int32_t &keySessionId) override;
     bool generateRequest(int32_t keySessionId, firebolt::rialto::InitDataType initDataType,
-                         const std::vector<uint8_t> &initData) override;
+                         const std::vector<uint8_t> &initData,
+                         const firebolt::rialto::LimitedDurationLicense &ldlState) override;
     bool loadSession(int32_t keySessionId) override;
     bool updateSession(int32_t keySessionId, const std::vector<uint8_t> &responseData) override;
     bool setDrmHeader(int32_t keySessionId, const std::vector<uint8_t> &requestData) override;

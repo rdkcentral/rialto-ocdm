@@ -92,7 +92,7 @@ bool CdmBackend::containsKey(int32_t keySessionId, const std::vector<uint8_t> &k
     return m_mediaKeys->containsKey(keySessionId, keyId);
 }
 
-bool CdmBackend::createKeySession(firebolt::rialto::KeySessionType sessionType, bool isLDL, int32_t &keySessionId)
+bool CdmBackend::createKeySession(firebolt::rialto::KeySessionType sessionType, int32_t &keySessionId)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
     // Sometimes app tries to create session before reaching RUNNING state. We have to wait for it.
@@ -103,11 +103,12 @@ bool CdmBackend::createKeySession(firebolt::rialto::KeySessionType sessionType, 
         return false;
     }
     return firebolt::rialto::MediaKeyErrorStatus::OK ==
-           m_mediaKeys->createKeySession(sessionType, m_mediaKeysClient, isLDL, keySessionId);
+           m_mediaKeys->createKeySession(sessionType, m_mediaKeysClient, keySessionId);
 }
 
 bool CdmBackend::generateRequest(int32_t keySessionId, firebolt::rialto::InitDataType initDataType,
-                                 const std::vector<uint8_t> &initData)
+                                 const std::vector<uint8_t> &initData,
+                                 const firebolt::rialto::LimitedDurationLicense &ldlState)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
     if (!m_mediaKeys)
@@ -115,7 +116,7 @@ bool CdmBackend::generateRequest(int32_t keySessionId, firebolt::rialto::InitDat
         return false;
     }
     return firebolt::rialto::MediaKeyErrorStatus::OK ==
-           m_mediaKeys->generateRequest(keySessionId, initDataType, initData);
+           m_mediaKeys->generateRequest(keySessionId, initDataType, initData, ldlState);
 }
 
 bool CdmBackend::loadSession(int32_t keySessionId)

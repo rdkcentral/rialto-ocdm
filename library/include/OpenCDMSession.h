@@ -45,12 +45,12 @@ public:
     virtual ~OpenCDMSession() = default;
 
     virtual bool initialize() = 0;
-    virtual bool initialize(bool) = 0;
     virtual bool generateRequest(const std::string &initDataType, const std::vector<uint8_t> &initData,
                                  const std::vector<uint8_t> &cdmData) = 0;
     virtual bool loadSession() = 0;
     virtual bool updateSession(const std::vector<uint8_t> &license) = 0;
-    virtual bool getChallengeData(std::vector<uint8_t> &challengeData) = 0;
+    virtual bool getChallengeData(std::vector<uint8_t> &challengeData, bool isLdl) = 0;
+    virtual bool getChallengeDataSize(uint32_t &size, bool isLdl) = 0;
     virtual bool containsKey(const std::vector<uint8_t> &keyId) = 0;
     virtual bool setDrmHeader(const std::vector<uint8_t> &drmHeader) = 0;
     virtual bool selectKeyId(const std::vector<uint8_t> &keyId) = 0;

@@ -84,11 +84,6 @@ OpenCDMSessionPrivate::~OpenCDMSessionPrivate()
 
 bool OpenCDMSessionPrivate::initialize()
 {
-    return initialize(false);
-}
-
-bool OpenCDMSessionPrivate::initialize(bool isLDL)
-{
     if (!m_cdmBackend || !m_messageDispatcher)
     {
         m_log << error << "Cdm/message dispatcher is NULL or not initialized";
@@ -96,7 +91,7 @@ bool OpenCDMSessionPrivate::initialize(bool isLDL)
     }
     if (!m_isInitialized)
     {
-        if (!m_cdmBackend->createKeySession(m_sessionType, isLDL, m_rialtoSessionId))
+        if (!m_cdmBackend->createKeySession(m_sessionType, m_rialtoSessionId))
         {
             m_log << error << "Failed to create a session. Got drm error %u", getLastDrmError();
             return false;
@@ -104,6 +99,16 @@ bool OpenCDMSessionPrivate::initialize(bool isLDL)
         m_messageDispatcherClient = m_messageDispatcher->createClient(this);
         m_isInitialized = true;
         m_log << info << "Successfully created a session";
+
+        if (!m_queuedDrmHeader.empty())
+        {
+            m_log << info << "Setting queued DRM header.";
+            if (!m_cdmBackend->setDrmHeader(m_rialtoSessionId, m_queuedDrmHeader))
+            {
+                m_log << error << "Failed to set queued DRM header.";
+            }
+            m_queuedDrmHeader.clear();
+        }
     }
     return true;
 }
@@ -120,7 +125,8 @@ bool OpenCDMSessionPrivate::generateRequest(const std::string &initDataType, con
 
     if ((dataType != firebolt::rialto::InitDataType::UNKNOWN) && (-1 != m_rialtoSessionId))
     {
-        if (m_cdmBackend->generateRequest(m_rialtoSessionId, dataType, initData))
+        if (m_cdmBackend->generateRequest(m_rialtoSessionId, dataType, initData,
+                                          firebolt::rialto::LimitedDurationLicense::NOT_SPECIFIED))
         {
             m_log << info << "Successfully generated the request for the session";
             initializeCdmKeySessionId();
@@ -182,19 +188,38 @@ bool OpenCDMSessionPrivate::updateSession(const std::vector<uint8_t> &license)
     return false;
 }
 
-bool OpenCDMSessionPrivate::getChallengeData(std::vector<uint8_t> &challengeData)
+bool OpenCDMSessionPrivate::getChallengeData(std::vector<uint8_t> &challengeData, bool isLdl)
+{
+    // Challenge data should be filled in by getChallengeDataSize in earlier call
+    std::unique_lock<std::mutex> lock{m_mutex};
+    challengeData = m_challengeData;
+    return !challengeData.empty();
+}
+
+bool OpenCDMSessionPrivate::getChallengeDataSize(uint32_t &size, bool isLdl)
 {
     if (!m_cdmBackend)
     {
         m_log << error << "Cdm is NULL or not initialized";
         return false;
     }
+
+    // Challenge will be reinitialized. Clear any previous data.
+    {
+        std::unique_lock<std::mutex> lock{m_mutex};
+        // Wait for previous challenge to be received before clearing it.
+        m_challengeCv.wait_for(lock, std::chrono::milliseconds{250}, [this]() { return !m_challengeData.empty(); });
+        m_challengeData.clear();
+    }
+
     if ((m_initDataType != firebolt::rialto::InitDataType::UNKNOWN) && (-1 != m_rialtoSessionId))
     {
-        if (m_cdmBackend->generateRequest(m_rialtoSessionId, m_initDataType, m_initData))
+        const firebolt::rialto::LimitedDurationLicense kLdlState =
+            isLdl ? firebolt::rialto::LimitedDurationLicense::ENABLED
+                  : firebolt::rialto::LimitedDurationLicense::DISABLED;
+        if (m_cdmBackend->generateRequest(m_rialtoSessionId, m_initDataType, m_initData, kLdlState))
         {
             m_log << info << "Successfully generated the request for the session";
-            initializeCdmKeySessionId();
         }
         else
         {
@@ -208,8 +233,8 @@ bool OpenCDMSessionPrivate::getChallengeData(std::vector<uint8_t> &challengeData
     }
     std::unique_lock<std::mutex> lock{m_mutex};
     m_challengeCv.wait_for(lock, std::chrono::seconds{1}, [this]() { return !m_challengeData.empty(); });
-    challengeData = m_challengeData;
-    return !challengeData.empty();
+    size = m_challengeData.size();
+    return !m_challengeData.empty();
 }
 
 void OpenCDMSessionPrivate::addProtectionMeta(GstBuffer *buffer, GstBuffer *subSample, const uint32_t subSampleCount,
@@ -407,7 +432,12 @@ bool OpenCDMSessionPrivate::setDrmHeader(const std::vector<uint8_t> &drmHeader)
     {
         return m_cdmBackend->setDrmHeader(m_rialtoSessionId, drmHeader);
     }
-    return false;
+    else
+    {
+        m_log << info << "Queueing DRM header until session is initialized.";
+        m_queuedDrmHeader = drmHeader;
+    }
+    return true;
 }
 
 bool OpenCDMSessionPrivate::selectKeyId(const std::vector<uint8_t> &keyId)

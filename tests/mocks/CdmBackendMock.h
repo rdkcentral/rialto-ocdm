@@ -31,11 +31,10 @@ public:
     MOCK_METHOD(bool, initialize, (const firebolt::rialto::ApplicationState &initialState), (override));
     MOCK_METHOD(bool, selectKeyId, (int32_t keySessionId, const std::vector<uint8_t> &keyId), (override));
     MOCK_METHOD(bool, containsKey, (int32_t keySessionId, const std::vector<uint8_t> &keyId), (override));
-    MOCK_METHOD(bool, createKeySession, (firebolt::rialto::KeySessionType sessionType, int32_t &keySessionId),
-                (override));
+    MOCK_METHOD(bool, createKeySession,
+                (firebolt::rialto::KeySessionType sessionType, bool isLDL, int32_t &keySessionId), (override));
     MOCK_METHOD(bool, generateRequest,
-                (int32_t keySessionId, firebolt::rialto::InitDataType initDataType,
-                 const std::vector<uint8_t> &initData, const firebolt::rialto::LimitedDurationLicense &ldlState),
+                (int32_t keySessionId, firebolt::rialto::InitDataType initDataType, const std::vector<uint8_t> &initData),
                 (override));
     MOCK_METHOD(bool, loadSession, (int32_t keySessionId), (override));
     MOCK_METHOD(bool, updateSession, (int32_t keySessionId, const std::vector<uint8_t> &responseData), (override));

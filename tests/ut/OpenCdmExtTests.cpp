@@ -216,42 +216,40 @@ TEST_F(OpenCdmExtTests, ShouldFailToGetChallengeDataWhenOneOfParamsIsNull)
     EXPECT_EQ(ERROR_FAIL, opencdm_session_get_challenge_data(&m_openCdmSessionMock, nullptr, nullptr, kIsLdl));
 }
 
-TEST_F(OpenCdmExtTests, ShouldFailToGetChallengeDataWhenGetChallengeDataFails)
+TEST_F(OpenCdmExtTests, ShouldFailToGetChallengeDataWhenInitialisationFails)
 {
     uint32_t challengeSize{0};
-    EXPECT_CALL(m_openCdmSessionMock, getChallengeDataSize(_, kIsLdl)).WillOnce(Return(false));
+    EXPECT_CALL(m_openCdmSessionMock, initialize(kIsLdl)).WillOnce(Return(false));
     EXPECT_EQ(ERROR_FAIL, opencdm_session_get_challenge_data(&m_openCdmSessionMock, nullptr, &challengeSize, kIsLdl));
 }
 
-TEST_F(OpenCdmExtTests, ShouldFailToGetGetChallengeDataWhenSecondOperationFails)
+TEST_F(OpenCdmExtTests, ShouldFailToGetChallengeDataWhenGetChallengeDataFails)
 {
     uint32_t challengeSize{0};
-    EXPECT_CALL(m_openCdmSessionMock, getChallengeDataSize(_, kIsLdl))
-        .WillOnce(DoAll(SetArgReferee<0>(kBytes.size()), Return(true)));
-    EXPECT_EQ(ERROR_NONE, opencdm_session_get_challenge_data(&m_openCdmSessionMock, nullptr, &challengeSize, kIsLdl));
-    EXPECT_EQ(kBytes.size(), challengeSize);
-
-    std::vector<uint8_t> challengeVec(kBytes.size(), 0);
-    EXPECT_CALL(m_openCdmSessionMock, getChallengeData(_, kIsLdl)).WillOnce(Return(false));
-    EXPECT_EQ(ERROR_FAIL,
-              opencdm_session_get_challenge_data(&m_openCdmSessionMock, challengeVec.data(), &challengeSize, kIsLdl));
+    EXPECT_CALL(m_openCdmSessionMock, initialize(kIsLdl)).WillOnce(Return(true));
+    EXPECT_CALL(m_openCdmSessionMock, getChallengeData(_)).WillOnce(Return(false));
+    EXPECT_EQ(ERROR_FAIL, opencdm_session_get_challenge_data(&m_openCdmSessionMock, nullptr, &challengeSize, kIsLdl));
 }
 
-TEST_F(OpenCdmExtTests, ShouldGetChallengeDataAndSize)
+TEST_F(OpenCdmExtTests, ShouldGetChallengeDataSize)
 {
     uint32_t challengeSize{0};
-    EXPECT_CALL(m_openCdmSessionMock, getChallengeDataSize(_, kIsLdl))
-        .WillOnce(DoAll(SetArgReferee<0>(kBytes.size()), Return(true)));
+    EXPECT_CALL(m_openCdmSessionMock, initialize(kIsLdl)).WillOnce(Return(true));
+    EXPECT_CALL(m_openCdmSessionMock, getChallengeData(_)).WillOnce(DoAll(SetArgReferee<0>(kBytes), Return(true)));
     EXPECT_EQ(ERROR_NONE, opencdm_session_get_challenge_data(&m_openCdmSessionMock, nullptr, &challengeSize, kIsLdl));
     EXPECT_EQ(kBytes.size(), challengeSize);
+}
 
-    // Second call should get the cached data only
-    std::vector<uint8_t> challengeVec(kBytes.size(), 0);
-    EXPECT_CALL(m_openCdmSessionMock, getChallengeData(_, kIsLdl)).WillOnce(DoAll(SetArgReferee<0>(kBytes), Return(true)));
+TEST_F(OpenCdmExtTests, ShouldGetChallengeData)
+{
+    uint32_t challengeSize{0};
+    std::vector<uint8_t> resultChallenge(kBytes.size(), 0);
+    EXPECT_CALL(m_openCdmSessionMock, initialize(kIsLdl)).WillOnce(Return(true));
+    EXPECT_CALL(m_openCdmSessionMock, getChallengeData(_)).WillOnce(DoAll(SetArgReferee<0>(kBytes), Return(true)));
     EXPECT_EQ(ERROR_NONE,
-              opencdm_session_get_challenge_data(&m_openCdmSessionMock, challengeVec.data(), &challengeSize, kIsLdl));
+              opencdm_session_get_challenge_data(&m_openCdmSessionMock, resultChallenge.data(), &challengeSize, kIsLdl));
     EXPECT_EQ(kBytes.size(), challengeSize);
-    EXPECT_EQ(kBytes, challengeVec);
+    EXPECT_EQ(kBytes, resultChallenge);
 }
 
 TEST_F(OpenCdmExtTests, ShouldCancelChallengeData)

@@ -183,11 +183,24 @@ TEST_F(OpenCdmTests, ShouldFailToConstructSessionWhenSessionIsInvalid)
     EXPECT_EQ(nullptr, resultSession);
 }
 
+TEST_F(OpenCdmTests, ShouldConstructPlayreadySession)
+{
+    OpenCDMSession *resultSession{nullptr};
+    EXPECT_CALL(m_openCdmSystemMock, createSession(kLicenseType, &m_callbacks, &m_userData, kInitDataType, kInitData))
+        .WillOnce(Return(&m_openCdmSessionMock));
+    EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
+    EXPECT_EQ(ERROR_NONE, opencdm_construct_session(&m_openCdmSystemMock, kLicenseType, kInitDataType.c_str(),
+                                                    kInitData.data(), kInitData.size(), kCdmData.data(),
+                                                    kCdmData.size(), &m_callbacks, &m_userData, &resultSession));
+    EXPECT_EQ(&m_openCdmSessionMock, resultSession);
+}
+
 TEST_F(OpenCdmTests, ShouldFailToConstructWidevineSessionWhenInitializationFails)
 {
     OpenCDMSession *resultSession{nullptr};
     EXPECT_CALL(m_openCdmSystemMock, createSession(kLicenseType, &m_callbacks, &m_userData, kInitDataType, kInitData))
         .WillOnce(Return(&m_openCdmSessionMock));
+    EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kWidevineKeySystem));
     EXPECT_CALL(m_openCdmSessionMock, initialize()).WillOnce(Return(false));
     EXPECT_EQ(ERROR_FAIL, opencdm_construct_session(&m_openCdmSystemMock, kLicenseType, kInitDataType.c_str(),
                                                     kInitData.data(), kInitData.size(), kCdmData.data(),
@@ -200,6 +213,7 @@ TEST_F(OpenCdmTests, ShouldFailToConstructWidevineSessionWhenGenerateRequestFail
     OpenCDMSession *resultSession{nullptr};
     EXPECT_CALL(m_openCdmSystemMock, createSession(kLicenseType, &m_callbacks, &m_userData, kInitDataType, kInitData))
         .WillOnce(Return(&m_openCdmSessionMock));
+    EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kWidevineKeySystem));
     EXPECT_CALL(m_openCdmSessionMock, initialize()).WillOnce(Return(true));
     EXPECT_CALL(m_openCdmSessionMock, generateRequest(kInitDataType, kInitData, kCdmData)).WillOnce(Return(false));
     EXPECT_CALL(m_openCdmSessionMock, closeSession()).WillOnce(Return(true));
@@ -214,6 +228,7 @@ TEST_F(OpenCdmTests, ShouldConstructWidevineSession)
     OpenCDMSession *resultSession{nullptr};
     EXPECT_CALL(m_openCdmSystemMock, createSession(kLicenseType, &m_callbacks, &m_userData, kInitDataType, kInitData))
         .WillOnce(Return(&m_openCdmSessionMock));
+    EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kWidevineKeySystem));
     EXPECT_CALL(m_openCdmSessionMock, initialize()).WillOnce(Return(true));
     EXPECT_CALL(m_openCdmSessionMock, generateRequest(kInitDataType, kInitData, kCdmData)).WillOnce(Return(true));
     EXPECT_EQ(ERROR_NONE, opencdm_construct_session(&m_openCdmSystemMock, kLicenseType, kInitDataType.c_str(),

@@ -193,24 +193,20 @@ OpenCDMError opencdm_session_get_challenge_data(struct OpenCDMSession *mOpenCDMS
         kLog << error << "Failed to get challenge data - arguments are not valid";
         return ERROR_FAIL;
     }
-
-    if (0 == *challengeSize && nullptr == challenge)
+    if (!mOpenCDMSession->initialize(isLDL))
     {
-        if (!mOpenCDMSession->getChallengeDataSize(*challengeSize, isLDL != 0))
-        {
-            kLog << error << "Failed to get challenge data size - operation returned NOK status";
-            return ERROR_FAIL;
-        }
+        kLog << error << "Failed to create session";
+        return ERROR_FAIL;
     }
-    else if (nullptr != challenge)
+    std::vector<uint8_t> challengeVec;
+    if (!mOpenCDMSession->getChallengeData(challengeVec))
     {
-        std::vector<uint8_t> challengeVec;
-        if (!mOpenCDMSession->getChallengeData(challengeVec, isLDL != 0))
-        {
-            kLog << error << "Failed to get challenge data - operation returned NOK status";
-            return ERROR_FAIL;
-        }
-        *challengeSize = static_cast<uint32_t>(challengeVec.size());
+        kLog << error << "Failed to get challenge data - operation returned NOK status";
+        return ERROR_FAIL;
+    }
+    *challengeSize = challengeVec.size();
+    if (nullptr != challenge)
+    {
         memcpy(challenge, challengeVec.data(), challengeVec.size());
     }
     return ERROR_NONE;

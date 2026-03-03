@@ -26,6 +26,7 @@ OpenCDMSystem *createSystem(const char system[], const std::string &metadata)
 {
     const std::string kKeySystem{system};
     auto messageDispatcher{std::make_shared<MessageDispatcher>()};
+    printf("VRN Opencdm createsys in [%s] \n", system);
     auto cdmBackend{std::make_shared<CdmBackend>(kKeySystem, messageDispatcher,
                                                  firebolt::rialto::IMediaKeysFactory::createFactory())};
     return new OpenCDMSystemPrivate(kKeySystem, metadata, messageDispatcher, cdmBackend);
@@ -39,6 +40,7 @@ OpenCDMSystemPrivate::OpenCDMSystemPrivate(const std::string &system, const std:
       m_messageDispatcher{messageDispatcher}, m_cdmBackend{cdmBackend}
 {
     m_log << debug << "constructed: " << static_cast<void *>(this);
+    printf("VRN OpencdmSystemPrivate created for key system [%s] \n", system.c_str());
     if (!m_control || !m_cdmBackend)
     {
         return;
@@ -67,6 +69,7 @@ OpenCDMSession *OpenCDMSystemPrivate::createSession(const LicenseType licenseTyp
                                                     void *userData, const std::string &initDataType,
                                                     const std::vector<uint8_t> &initData) const
 {
+    printf("VRN Opencdm create session in sys [%s] \n", m_keySystem.c_str());
     return ActiveSessions::instance().create(m_cdmBackend, m_messageDispatcher, licenseType, callbacks, userData,
                                              initDataType, initData);
 }

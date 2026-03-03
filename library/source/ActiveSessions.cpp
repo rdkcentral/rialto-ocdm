@@ -33,6 +33,7 @@ OpenCDMSession *ActiveSessions::create(const std::shared_ptr<ICdmBackend> &cdm,
                                        const std::string &initDataType, const std::vector<uint8_t> &initData)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
+    printf("VRN Opencdm create session in sys with init data type [%s] \n", initDataType.c_str());
     OpenCDMSession *newSession =
         new OpenCDMSessionPrivate(cdm, messageDispatcher, sessionType, callbacks, context, initDataType, initData);
     m_activeSessions.insert(std::make_pair(newSession, 1));

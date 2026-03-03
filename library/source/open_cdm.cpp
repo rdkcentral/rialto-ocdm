@@ -35,6 +35,7 @@ const Logger kLog{"open_cdm"};
 OpenCDMSystem *opencdm_create_system(const char keySystem[])
 {
     kLog << debug << __func__;
+    printf("VRN Opencdm create sys in [%s] \n", keySystem);
 
     const char kSrcRev[] = SRCREV;
     const char kTags[] = TAGS;
@@ -64,6 +65,7 @@ OpenCDMSystem *opencdm_create_system(const char keySystem[])
 OpenCDMError opencdm_create_system_extended(const char keySystem[], struct OpenCDMSystem **system)
 {
     kLog << debug << __func__;
+    printf("VRN Opencdm create sys ext in [%s] \n", keySystem);
     assert(system != nullptr);
 
     *system = createSystem(keySystem, "");
@@ -163,6 +165,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
                                        struct OpenCDMSession **session)
 {
     kLog << debug << __func__;
+    printf("VRN Opencdm construct session in sys [%s] \n", system ? system->keySystem().c_str() : "null");
     if (!system)
     {
         kLog << error << "System is NULL or not initialized";

@@ -123,6 +123,7 @@ bool OpenCDMSessionPrivate::generateRequest(const std::string &initDataType, con
         if (m_cdmBackend->generateRequest(m_rialtoSessionId, dataType, initData))
         {
             m_log << info << "Successfully generated the request for the session";
+            printf("VRN Successfully generated the request for the session \n");
             initializeCdmKeySessionId();
             return true;
         }
@@ -255,6 +256,8 @@ void OpenCDMSessionPrivate::addProtectionMeta(GstBuffer *buffer, GstBuffer *subS
             }
         }
     }
+
+	printf("VRN add protec metadata via rialto mse \n");
 
     rialto_mse_add_protection_metadata(buffer, info);
 

@@ -72,6 +72,8 @@ private:
     std::mutex m_mutex;
     std::condition_variable m_cv;
     firebolt::rialto::ApplicationState m_appState;
+    // ADD THIS: track active session IDs for clean INACTIVE transition
+    std::vector<int32_t> m_activeKeySessionIds;
     const std::string m_keySystem;
     std::shared_ptr<firebolt::rialto::IMediaKeysClient> m_mediaKeysClient;
     std::shared_ptr<firebolt::rialto::IMediaKeysFactory> m_mediaKeysFactory;

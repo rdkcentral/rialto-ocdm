@@ -35,6 +35,7 @@ public:
     OpenCDMError supportsKeySystem(const std::string &keySystem);
     bool getSupportedKeySystemVersion(const std::string &keySystem, std::string &version);
     bool isServerCertificateSupported(const std::string &keySystem);
+    bool getSupportedRobustnessLevels(const std::string &keySystem, std::vector<std::string> &robustnessLevels);
 
 private:
     MediaKeysCapabilitiesBackend();

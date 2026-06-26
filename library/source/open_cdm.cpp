@@ -82,6 +82,49 @@ OpenCDMError opencdm_destruct_system(struct OpenCDMSystem *system)
     return ERROR_NONE;
 }
 
+OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system, char ***robustness,
+                                                  uint16_t *count)
+{
+    printf("%d %s KKP:Rialto\n",__LINE__,__PRETTY_FUNCTION__);fflush(stdout);
+    kLog << debug << __func__;
+    if (!system || !robustness || !count)
+    {
+        kLog << error << __func__ << ": system, robustness or count is NULL";
+        return ERROR_FAIL;
+    }
+
+    *robustness = nullptr;
+    *count = 0;
+
+    std::vector<std::string> levels;
+    if (!MediaKeysCapabilitiesBackend::instance().getSupportedRobustnessLevels(system->keySystem(), levels))
+    {
+        kLog << warn << __func__ << ": getSupportedRobustnessLevels failed or returned no levels";
+        return ERROR_FAIL;
+    }
+
+    if (levels.empty())
+    {
+        return ERROR_NONE;
+    }
+
+    char **results = static_cast<char **>(calloc(levels.size(), sizeof(char *)));
+    if (!results)
+    {
+        kLog << error << __func__ << ": failed to allocate robustness buffer";
+        return ERROR_FAIL;
+    }
+
+    for (size_t i = 0; i < levels.size(); ++i)
+    {
+        results[i] = strdup(levels[i].c_str());
+    }
+
+    *robustness = results;
+    *count = static_cast<uint16_t>(levels.size());
+    return ERROR_NONE;
+}
+
 OpenCDMError opencdm_is_type_supported(const char keySystem[], const char mimeType[])
 {
     kLog << debug << __func__;

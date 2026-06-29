@@ -85,7 +85,6 @@ OpenCDMError opencdm_destruct_system(struct OpenCDMSystem *system)
 OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system, char ***robustness,
                                                   uint16_t *count)
 {
-    printf("%d %s KKP:Rialto\n",__LINE__,__PRETTY_FUNCTION__);fflush(stdout);
     kLog << debug << __func__;
     if (!system || !robustness || !count)
     {

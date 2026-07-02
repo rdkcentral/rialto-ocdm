@@ -98,7 +98,7 @@ OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system,
     std::vector<std::string> levels;
     if (!MediaKeysCapabilitiesBackend::instance().getSupportedRobustnessLevels(system->keySystem(), levels))
     {
-        kLog << warn << __func__ << ": getSupportedRobustnessLevels failed or returned no levels";
+        kLog << warn << __func__ << ": getSupportedRobustnessLevels failed";
         return ERROR_FAIL;
     }
 

@@ -107,6 +107,11 @@ OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system,
         return ERROR_NONE;
     }
 
+    if (levels.size() > 0xFFFF)
+    {
+        kLog << error << __func__ << ": robustness level count exceeds uint16_t range";
+        return ERROR_FAIL;
+    }
     char **results = static_cast<char **>(calloc(levels.size(), sizeof(char *)));
     if (!results)
     {

@@ -498,7 +498,7 @@ TEST_F(OpenCdmTests, ShouldFailToGetSupportedRobustnessWhenTooManyLevels)
     uint16_t count{0};
     EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
     EXPECT_CALL(*m_mediaKeysCapabilitiesMock,
-                 getSupportedRobustnessLevels(kNetflixKeySystem, _))    
+                 getSupportedRobustnessLevels(kNetflixKeySystem, _))
         .WillOnce(DoAll(SetArgReferee<1>(kTooManyLevels), Return(true)));
     EXPECT_EQ(ERROR_FAIL, opencdm_system_supported_robustness(&m_openCdmSystemMock, &robustness, &count));
 }

@@ -472,7 +472,8 @@ TEST_F(OpenCdmTests, ShouldFailToGetSupportedRobustnessWhenBackendFails)
     char **robustness{nullptr};
     uint16_t count{0};
     EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
-    EXPECT_CALL(*m_mediaKeysCapabilitiesMock, getSupportedRobustnessLevels(kNetflixKeySystem, _))
+    EXPECT_CALL(*m_mediaKeysCapabilitiesMock,
+                getSupportedRobustnessLevels(kNetflixKeySystem, _))    
         .WillOnce(Return(false));
     EXPECT_EQ(ERROR_FAIL, opencdm_system_supported_robustness(&m_openCdmSystemMock, &robustness, &count));
 }

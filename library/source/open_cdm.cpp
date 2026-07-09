@@ -83,8 +83,7 @@ OpenCDMError opencdm_destruct_system(struct OpenCDMSystem *system)
     return ERROR_NONE;
 }
 
-OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system, char ***robustness,
-                                                 uint16_t *count)
+OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system, char ***robustness, uint16_t *count)
 {
     kLog << debug << __func__;
     if (!system || !robustness || !count)

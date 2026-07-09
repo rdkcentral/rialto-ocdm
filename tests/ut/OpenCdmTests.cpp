@@ -473,7 +473,7 @@ TEST_F(OpenCdmTests, ShouldFailToGetSupportedRobustnessWhenBackendFails)
     uint16_t count{0};
     EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
     EXPECT_CALL(*m_mediaKeysCapabilitiesMock,
-                 getSupportedRobustnessLevels(kNetflixKeySystem, _))
+                getSupportedRobustnessLevels(kNetflixKeySystem, _))
         .WillOnce(Return(false));
     EXPECT_EQ(ERROR_FAIL, opencdm_system_supported_robustness(&m_openCdmSystemMock, &robustness, &count));
 }
@@ -484,7 +484,7 @@ TEST_F(OpenCdmTests, ShouldGetSupportedRobustnessWhenLevelsEmpty)
     uint16_t count{0};
     EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
     EXPECT_CALL(*m_mediaKeysCapabilitiesMock,
-                 getSupportedRobustnessLevels(kNetflixKeySystem, _))
+                getSupportedRobustnessLevels(kNetflixKeySystem, _))
         .WillOnce(DoAll(SetArgReferee<1>(std::vector<std::string>{}), Return(true)));
     EXPECT_EQ(ERROR_NONE, opencdm_system_supported_robustness(&m_openCdmSystemMock, &robustness, &count));
     EXPECT_EQ(nullptr, robustness);
@@ -498,7 +498,7 @@ TEST_F(OpenCdmTests, ShouldFailToGetSupportedRobustnessWhenTooManyLevels)
     uint16_t count{0};
     EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
     EXPECT_CALL(*m_mediaKeysCapabilitiesMock,
-                 getSupportedRobustnessLevels(kNetflixKeySystem, _))
+                getSupportedRobustnessLevels(kNetflixKeySystem, _))
         .WillOnce(DoAll(SetArgReferee<1>(kTooManyLevels), Return(true)));
     EXPECT_EQ(ERROR_FAIL, opencdm_system_supported_robustness(&m_openCdmSystemMock, &robustness, &count));
 }
@@ -510,7 +510,7 @@ TEST_F(OpenCdmTests, ShouldGetSupportedRobustness)
     uint16_t count{0};
     EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
     EXPECT_CALL(*m_mediaKeysCapabilitiesMock,
-                 getSupportedRobustnessLevels(kNetflixKeySystem, _))
+                getSupportedRobustnessLevels(kNetflixKeySystem, _))
         .WillOnce(DoAll(SetArgReferee<1>(kLevels), Return(true)));
     EXPECT_EQ(ERROR_NONE, opencdm_system_supported_robustness(&m_openCdmSystemMock, &robustness, &count));
     ASSERT_NE(nullptr, robustness);

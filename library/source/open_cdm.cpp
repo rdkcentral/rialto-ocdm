@@ -25,6 +25,7 @@
 #include "OpenCDMSession.h"
 #include "OpenCDMSystemPrivate.h"
 #include <cassert>
+#include <cstdlib>
 #include <cstring>
 
 namespace

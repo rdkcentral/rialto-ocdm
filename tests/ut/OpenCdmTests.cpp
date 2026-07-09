@@ -23,6 +23,7 @@
 #include "OpenCDMSessionMock.h"
 #include "OpenCDMSystemMock.h"
 #include "opencdm/open_cdm.h"
+#include <cstdlib>
 #include <cstring>
 #include <gtest/gtest.h>
 
@@ -442,6 +443,10 @@ TEST_F(OpenCdmTests, ShouldGetMetricSystemData)
     EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_)).WillOnce(DoAll(SetArgReferee<0>(buffer), Return(true)));
     EXPECT_EQ(ERROR_NONE, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, buffer.data()));
 }
+
+// function not declared in official interface
+// NOLINTNEXTLINE(build/function_format)
+OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system, char ***robustness, uint16_t *count);
 
 TEST_F(OpenCdmTests, ShouldFailToGetSupportedRobustnessWhenSystemIsNull)
 {

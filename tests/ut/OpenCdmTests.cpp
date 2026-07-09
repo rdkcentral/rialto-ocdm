@@ -489,6 +489,17 @@ TEST_F(OpenCdmTests, ShouldGetSupportedRobustnessWhenLevelsEmpty)
     EXPECT_EQ(0, count);
 }
 
+TEST_F(OpenCdmTests, ShouldFailToGetSupportedRobustnessWhenTooManyLevels)
+{
+    const std::vector<std::string> kTooManyLevels(0x10000, "level");
+    char **robustness{nullptr};
+    uint16_t count{0};
+    EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
+    EXPECT_CALL(*m_mediaKeysCapabilitiesMock, getSupportedRobustnessLevels(kNetflixKeySystem, _))
+        .WillOnce(DoAll(SetArgReferee<1>(kTooManyLevels), Return(true)));
+    EXPECT_EQ(ERROR_FAIL, opencdm_system_supported_robustness(&m_openCdmSystemMock, &robustness, &count));
+}
+
 TEST_F(OpenCdmTests, ShouldGetSupportedRobustness)
 {
     const std::vector<std::string> kLevels{"HW_SECURE_ALL", "SW_SECURE_CRYPTO"};

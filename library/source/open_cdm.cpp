@@ -84,8 +84,6 @@ OpenCDMError opencdm_destruct_system(struct OpenCDMSystem *system)
     return ERROR_NONE;
 }
 
-// C linkage is provided by the extern "C" block in open_cdm.h (declared in ThunderClientLibraries),
-// consistent with all other opencdm_* functions in this file.
 OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system, char ***robustness, uint16_t *count)
 {
     kLog << debug << __func__;

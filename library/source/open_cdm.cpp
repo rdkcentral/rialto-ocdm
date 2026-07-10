@@ -27,6 +27,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
+#include <limits>
 
 namespace
 {
@@ -83,6 +84,8 @@ OpenCDMError opencdm_destruct_system(struct OpenCDMSystem *system)
     return ERROR_NONE;
 }
 
+// C linkage is provided by the extern "C" block in open_cdm.h (declared in ThunderClientLibraries),
+// consistent with all other opencdm_* functions in this file.
 OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system, char ***robustness, uint16_t *count)
 {
     kLog << debug << __func__;
@@ -107,17 +110,32 @@ OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system, c
         return ERROR_NONE;
     }
 
-    if (levels.size() > 0xFFFF)
+    if (levels.size() > std::numeric_limits<uint16_t>::max())
     {
         kLog << error << __func__ << ": robustness level count exceeds uint16_t range";
         return ERROR_FAIL;
     }
 
     char **results = static_cast<char **>(calloc(levels.size(), sizeof(char *)));
+    if (!results)
+    {
+        kLog << error << __func__ << ": failed to allocate robustness buffer";
+        return ERROR_FAIL;
+    }
 
     for (size_t i = 0; i < levels.size(); ++i)
     {
         results[i] = strdup(levels[i].c_str());
+        if (!results[i])
+        {
+            kLog << error << __func__ << ": failed to allocate robustness level string";
+            for (size_t j = 0; j < i; ++j)
+            {
+                free(results[j]);
+            }
+            free(results);
+            return ERROR_FAIL;
+        }
     }
 
     *robustness = results;

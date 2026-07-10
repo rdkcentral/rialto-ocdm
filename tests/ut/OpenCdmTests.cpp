@@ -490,7 +490,7 @@ TEST_F(OpenCdmTests, ShouldGetSupportedRobustnessWhenLevelsEmpty)
 
 TEST_F(OpenCdmTests, ShouldFailToGetSupportedRobustnessWhenTooManyLevels)
 {
-    const std::vector<std::string> kTooManyLevels(0x10000, "level");
+    std::vector<std::string> kTooManyLevels(0x10000);
     char **robustness{nullptr};
     uint16_t count{0};
     EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));

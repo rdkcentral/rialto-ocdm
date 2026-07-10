@@ -117,16 +117,16 @@ OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system, c
     }
 
     char **results = static_cast<char **>(calloc(levels.size(), sizeof(char *)));
-    if (!results)
+    if (!results) // LCOV_EXCL_START
     {
         kLog << error << __func__ << ": failed to allocate robustness buffer";
         return ERROR_FAIL;
-    }
+    } // LCOV_EXCL_STOP
 
     for (size_t i = 0; i < levels.size(); ++i)
     {
         results[i] = strdup(levels[i].c_str());
-        if (!results[i])
+        if (!results[i]) // LCOV_EXCL_START
         {
             kLog << error << __func__ << ": failed to allocate robustness level string";
             for (size_t j = 0; j < i; ++j)
@@ -135,7 +135,7 @@ OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system, c
             }
             free(results);
             return ERROR_FAIL;
-        }
+        } // LCOV_EXCL_STOP
     }
 
     *robustness = results;

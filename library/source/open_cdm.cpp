@@ -25,7 +25,9 @@
 #include "OpenCDMSession.h"
 #include "OpenCDMSystemPrivate.h"
 #include <cassert>
+#include <cstdlib>
 #include <cstring>
+#include <limits>
 
 namespace
 {
@@ -79,6 +81,63 @@ OpenCDMError opencdm_destruct_system(struct OpenCDMSystem *system)
         delete system;
     }
 
+    return ERROR_NONE;
+}
+
+OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system, char ***robustness, uint16_t *count)
+{
+    kLog << debug << __func__;
+    if (!system || !robustness || !count)
+    {
+        kLog << error << __func__ << ": system, robustness or count is NULL";
+        return ERROR_FAIL;
+    }
+
+    *robustness = nullptr;
+    *count = 0;
+
+    std::vector<std::string> levels;
+    if (!MediaKeysCapabilitiesBackend::instance().getSupportedRobustnessLevels(system->keySystem(), levels))
+    {
+        kLog << warn << __func__ << ": getSupportedRobustnessLevels failed";
+        return ERROR_FAIL;
+    }
+
+    if (levels.empty())
+    {
+        return ERROR_NONE;
+    }
+
+    if (levels.size() > std::numeric_limits<uint16_t>::max())
+    {
+        kLog << error << __func__ << ": robustness level count exceeds uint16_t range";
+        return ERROR_FAIL;
+    }
+
+    char **results = static_cast<char **>(calloc(levels.size(), sizeof(char *)));
+    if (!results) // LCOV_EXCL_START
+    {
+        kLog << error << __func__ << ": failed to allocate robustness buffer";
+        return ERROR_FAIL;
+    } // LCOV_EXCL_STOP
+
+    for (size_t i = 0; i < levels.size(); ++i)
+    {
+        results[i] = strdup(levels[i].c_str());
+        if (!results[i]) // LCOV_EXCL_START
+        {
+            kLog << error << __func__ << ": failed to allocate robustness level string";
+            for (size_t j = 0; j < i; ++j)
+            {
+                free(results[j]);
+            }
+            free(results);
+            return ERROR_FAIL;
+        } // LCOV_EXCL_STOP
+    }
+
+    *robustness = results;
+    *count = static_cast<uint16_t>(levels.size());
     return ERROR_NONE;
 }
 

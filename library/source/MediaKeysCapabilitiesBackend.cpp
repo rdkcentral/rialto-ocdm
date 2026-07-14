@@ -69,6 +69,17 @@ bool MediaKeysCapabilitiesBackend::isServerCertificateSupported(const std::strin
     return result;
 }
 
+bool MediaKeysCapabilitiesBackend::getSupportedRobustnessLevels(const std::string &keySystem,
+                                                                std::vector<std::string> &robustnessLevels)
+{
+    bool result{false};
+    if (m_mediaKeysCapabilities)
+    {
+        result = m_mediaKeysCapabilities->getSupportedRobustnessLevels(keySystem, robustnessLevels);
+    }
+    return result;
+}
+
 MediaKeysCapabilitiesBackend::MediaKeysCapabilitiesBackend()
 {
     std::shared_ptr<firebolt::rialto::IMediaKeysCapabilitiesFactory> factory =

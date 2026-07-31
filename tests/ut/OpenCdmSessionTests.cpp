@@ -247,7 +247,7 @@ TEST_F(OpenCdmSessionTests, ShouldNotGenerateRequestWhenOperationFails)
 {
     createSut();
     initializeSut();
-    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kLdlState))
+    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kBytes2, kLdlState))
         .WillOnce(Return(false));
     EXPECT_CALL(*m_cdmBackendMock, getLastDrmError(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_FALSE(m_sut->generateRequest(kInitDataType, kBytes1, kBytes2));
@@ -258,7 +258,7 @@ TEST_F(OpenCdmSessionTests, ShouldGenerateRequest)
 {
     createSut();
     initializeSut();
-    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kLdlState))
+    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kBytes2, kLdlState))
         .WillOnce(Return(true));
     EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_TRUE(m_sut->generateRequest(kInitDataType, kBytes1, kBytes2));
@@ -270,13 +270,13 @@ TEST_F(OpenCdmSessionTests, ShouldGenerateRequestForAllInitDataTypes)
     createSut();
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock,
-                generateRequest(kKeySessionId, firebolt::rialto::InitDataType::CENC, kBytes1, kLdlState))
+                generateRequest(kKeySessionId, firebolt::rialto::InitDataType::CENC, kBytes1, kBytes2, kLdlState))
         .WillOnce(Return(true));
     EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_TRUE(m_sut->generateRequest("cenc", kBytes1, kBytes2));
 
     EXPECT_CALL(*m_cdmBackendMock,
-                generateRequest(kKeySessionId, firebolt::rialto::InitDataType::WEBM, kBytes1, kLdlState))
+                generateRequest(kKeySessionId, firebolt::rialto::InitDataType::WEBM, kBytes1, kBytes2, kLdlState))
         .WillOnce(Return(true));
     EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_TRUE(m_sut->generateRequest("webm", kBytes1, kBytes2));
@@ -719,7 +719,7 @@ TEST_F(OpenCdmSessionTests, ShouldReturnDefaultSessionIdWhenGetCdmKeySessionIdFa
 {
     createSut();
     initializeSut();
-    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kLdlState))
+    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kBytes2, kLdlState))
         .WillOnce(Return(true));
     EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_TRUE(m_sut->generateRequest(kInitDataType, kBytes1, kBytes2));
@@ -732,7 +732,7 @@ TEST_F(OpenCdmSessionTests, ShouldReturnSessionId)
     const std::string cdmSessionId{"id"};
     createSut();
     initializeSut();
-    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kLdlState))
+    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kBytes2, kLdlState))
         .WillOnce(Return(true));
     EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _))
         .WillOnce(DoAll(SetArgReferee<1>(cdmSessionId), Return(true)));

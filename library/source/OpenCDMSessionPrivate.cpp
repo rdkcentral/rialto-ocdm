@@ -126,6 +126,7 @@ bool OpenCDMSessionPrivate::generateRequest(const std::string &initDataType, con
     if ((dataType != firebolt::rialto::InitDataType::UNKNOWN) && (-1 != m_rialtoSessionId))
     {
         if (m_cdmBackend->generateRequest(m_rialtoSessionId, dataType, initData,
+                                          cdmData,
                                           firebolt::rialto::LimitedDurationLicense::NOT_SPECIFIED))
         {
             m_log << info << "Successfully generated the request for the session";
@@ -217,7 +218,8 @@ bool OpenCDMSessionPrivate::getChallengeDataSize(uint32_t &size, bool isLdl)
         const firebolt::rialto::LimitedDurationLicense kLdlState =
             isLdl ? firebolt::rialto::LimitedDurationLicense::ENABLED
                   : firebolt::rialto::LimitedDurationLicense::DISABLED;
-        if (m_cdmBackend->generateRequest(m_rialtoSessionId, m_initDataType, m_initData, kLdlState))
+        if (m_cdmBackend->generateRequest(m_rialtoSessionId, m_initDataType, m_initData,
+                                          std::vector<uint8_t>{}, kLdlState))
         {
             m_log << info << "Successfully generated the request for the session";
         }

@@ -358,10 +358,10 @@ TEST_F(OpenCdmSessionTests, ShouldGetChallengeData)
     uint32_t challengeDataSize{0};
     createSut();
     initializeSut();
-    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1,
+    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, std::vector<uint8_t>{},
                                                    firebolt::rialto::LimitedDurationLicense::DISABLED))
         .WillOnce(Invoke(
-            [&](int32_t, firebolt::rialto::InitDataType, const std::vector<uint8_t> &,
+            [&](int32_t, firebolt::rialto::InitDataType, const std::vector<uint8_t> &, const std::vector<uint8_t> &,
                 firebolt::rialto::LimitedDurationLicense)
             {
                 requestLicense();
@@ -394,7 +394,7 @@ TEST_F(OpenCdmSessionTests, ShouldFailToGetChallengeDataSizeWhenOperationFails)
     uint32_t challengeDataSize{0};
     createSut();
     initializeSut();
-    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1,
+    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, std::vector<uint8_t>{},
                                                    firebolt::rialto::LimitedDurationLicense::DISABLED))
         .WillOnce(Return(false));
     EXPECT_CALL(*m_cdmBackendMock, getLastDrmError(kKeySessionId, _)).WillOnce(Return(false));
@@ -407,15 +407,42 @@ TEST_F(OpenCdmSessionTests, ShouldGetChallengeDataSize)
     uint32_t challengeDataSize{0};
     createSut();
     initializeSut();
-    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1,
+    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, std::vector<uint8_t>{},
                                                    firebolt::rialto::LimitedDurationLicense::DISABLED))
         .WillOnce(Invoke(
-            [&](int32_t, firebolt::rialto::InitDataType, const std::vector<uint8_t> &,
+            [&](int32_t, firebolt::rialto::InitDataType, const std::vector<uint8_t> &, const std::vector<uint8_t> &,
                 firebolt::rialto::LimitedDurationLicense)
             {
                 requestLicense();
                 return true;
             }));
+    EXPECT_TRUE(m_sut->getChallengeDataSize(challengeDataSize, kIsLdl));
+    EXPECT_EQ(challengeDataSize, kBytes1.size());
+    teardownSut();
+}
+
+TEST_F(OpenCdmSessionTests, ShouldUseStoredCdmDataWhenGettingChallengeDataSize)
+{
+    uint32_t challengeDataSize{0};
+    createSut();
+    initializeSut();
+
+    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kBytes2, kLdlState))
+        .WillOnce(Return(true));
+    EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _)).WillOnce(Return(false));
+    EXPECT_TRUE(m_sut->generateRequest(kInitDataType, kBytes1, kBytes2));
+
+    EXPECT_CALL(*m_cdmBackendMock,
+                generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kBytes2,
+                                firebolt::rialto::LimitedDurationLicense::DISABLED))
+        .WillOnce(Invoke(
+            [&](int32_t, firebolt::rialto::InitDataType, const std::vector<uint8_t> &, const std::vector<uint8_t> &,
+                firebolt::rialto::LimitedDurationLicense)
+            {
+                requestLicense();
+                return true;
+            }));
+
     EXPECT_TRUE(m_sut->getChallengeDataSize(challengeDataSize, kIsLdl));
     EXPECT_EQ(challengeDataSize, kBytes1.size());
     teardownSut();

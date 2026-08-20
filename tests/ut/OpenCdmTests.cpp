@@ -23,6 +23,7 @@
 #include "OpenCDMSessionMock.h"
 #include "OpenCDMSystemMock.h"
 #include "opencdm/open_cdm.h"
+#include <cstdlib>
 #include <cstring>
 #include <gtest/gtest.h>
 
@@ -441,4 +442,78 @@ TEST_F(OpenCdmTests, ShouldGetMetricSystemData)
     uint32_t bufferLength = buffer.size();
     EXPECT_CALL(m_openCdmSystemMock, getMetricSystemData(_)).WillOnce(DoAll(SetArgReferee<0>(buffer), Return(true)));
     EXPECT_EQ(ERROR_NONE, opencdm_get_metric_system_data(&m_openCdmSystemMock, &bufferLength, buffer.data()));
+}
+
+// function not declared in official interface
+// NOLINTNEXTLINE(build/function_format)
+OpenCDMError opencdm_system_supported_robustness(struct OpenCDMSystem *system, char ***robustness, uint16_t *count);
+
+TEST_F(OpenCdmTests, ShouldFailToGetSupportedRobustnessWhenSystemIsNull)
+{
+    char **robustness{nullptr};
+    uint16_t count{0};
+    EXPECT_EQ(ERROR_FAIL, opencdm_system_supported_robustness(nullptr, &robustness, &count));
+}
+
+TEST_F(OpenCdmTests, ShouldFailToGetSupportedRobustnessWhenRobustnessPtrIsNull)
+{
+    uint16_t count{0};
+    EXPECT_EQ(ERROR_FAIL, opencdm_system_supported_robustness(&m_openCdmSystemMock, nullptr, &count));
+}
+
+TEST_F(OpenCdmTests, ShouldFailToGetSupportedRobustnessWhenCountIsNull)
+{
+    char **robustness{nullptr};
+    EXPECT_EQ(ERROR_FAIL, opencdm_system_supported_robustness(&m_openCdmSystemMock, &robustness, nullptr));
+}
+
+TEST_F(OpenCdmTests, ShouldFailToGetSupportedRobustnessWhenBackendFails)
+{
+    char **robustness{nullptr};
+    uint16_t count{0};
+    EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
+    EXPECT_CALL(*m_mediaKeysCapabilitiesMock, getSupportedRobustnessLevels(kNetflixKeySystem, _)).WillOnce(Return(false));
+    EXPECT_EQ(ERROR_FAIL, opencdm_system_supported_robustness(&m_openCdmSystemMock, &robustness, &count));
+}
+
+TEST_F(OpenCdmTests, ShouldGetSupportedRobustnessWhenLevelsEmpty)
+{
+    char **robustness{nullptr};
+    uint16_t count{0};
+    EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
+    EXPECT_CALL(*m_mediaKeysCapabilitiesMock, getSupportedRobustnessLevels(kNetflixKeySystem, _))
+        .WillOnce(DoAll(SetArgReferee<1>(std::vector<std::string>{}), Return(true)));
+    EXPECT_EQ(ERROR_NONE, opencdm_system_supported_robustness(&m_openCdmSystemMock, &robustness, &count));
+    EXPECT_EQ(nullptr, robustness);
+    EXPECT_EQ(0, count);
+}
+
+TEST_F(OpenCdmTests, ShouldFailToGetSupportedRobustnessWhenTooManyLevels)
+{
+    std::vector<std::string> kTooManyLevels(0x10000);
+    char **robustness{nullptr};
+    uint16_t count{0};
+    EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
+    EXPECT_CALL(*m_mediaKeysCapabilitiesMock, getSupportedRobustnessLevels(kNetflixKeySystem, _))
+        .WillOnce(DoAll(SetArgReferee<1>(kTooManyLevels), Return(true)));
+    EXPECT_EQ(ERROR_FAIL, opencdm_system_supported_robustness(&m_openCdmSystemMock, &robustness, &count));
+}
+
+TEST_F(OpenCdmTests, ShouldGetSupportedRobustness)
+{
+    const std::vector<std::string> kLevels{"HW_SECURE_ALL", "SW_SECURE_CRYPTO"};
+    char **robustness{nullptr};
+    uint16_t count{0};
+    EXPECT_CALL(m_openCdmSystemMock, keySystem()).WillOnce(ReturnRef(kNetflixKeySystem));
+    EXPECT_CALL(*m_mediaKeysCapabilitiesMock, getSupportedRobustnessLevels(kNetflixKeySystem, _))
+        .WillOnce(DoAll(SetArgReferee<1>(kLevels), Return(true)));
+    EXPECT_EQ(ERROR_NONE, opencdm_system_supported_robustness(&m_openCdmSystemMock, &robustness, &count));
+    ASSERT_NE(nullptr, robustness);
+    EXPECT_EQ(static_cast<uint16_t>(kLevels.size()), count);
+    for (uint16_t i = 0; i < count; ++i)
+    {
+        EXPECT_STREQ(kLevels[i].c_str(), robustness[i]);
+        free(robustness[i]);
+    }
+    free(robustness);
 }

@@ -25,7 +25,9 @@ using firebolt::rialto::MediaKeysCapabilitiesFactoryMock;
 using firebolt::rialto::MediaKeysCapabilitiesMock;
 using testing::_;
 using testing::AtLeast;
+using testing::DoAll;
 using testing::Return;
+using testing::SetArgReferee;
 using testing::StrictMock;
 
 namespace
@@ -81,4 +83,21 @@ TEST_F(MediaKeysCapabilitiesBackendTests, shouldGetSupportedServerCertificate)
 {
     EXPECT_CALL(*m_mediaKeysCapabilitiesMock, isServerCertificateSupported(kKeySystem)).WillOnce(Return(true));
     EXPECT_TRUE(MediaKeysCapabilitiesBackend::instance().isServerCertificateSupported(kKeySystem));
+}
+
+TEST_F(MediaKeysCapabilitiesBackendTests, shouldFailToGetSupportedRobustnessLevels)
+{
+    std::vector<std::string> levels{};
+    EXPECT_CALL(*m_mediaKeysCapabilitiesMock, getSupportedRobustnessLevels(kKeySystem, _)).WillOnce(Return(false));
+    EXPECT_FALSE(MediaKeysCapabilitiesBackend::instance().getSupportedRobustnessLevels(kKeySystem, levels));
+}
+
+TEST_F(MediaKeysCapabilitiesBackendTests, shouldGetSupportedRobustnessLevels)
+{
+    const std::vector<std::string> kLevels{"HW_SECURE_ALL", "SW_SECURE_CRYPTO"};
+    std::vector<std::string> levels{};
+    EXPECT_CALL(*m_mediaKeysCapabilitiesMock, getSupportedRobustnessLevels(kKeySystem, _))
+        .WillOnce(DoAll(SetArgReferee<1>(kLevels), Return(true)));
+    EXPECT_TRUE(MediaKeysCapabilitiesBackend::instance().getSupportedRobustnessLevels(kKeySystem, levels));
+    EXPECT_EQ(kLevels, levels);
 }

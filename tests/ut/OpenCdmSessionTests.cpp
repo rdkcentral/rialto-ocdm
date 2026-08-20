@@ -432,9 +432,8 @@ TEST_F(OpenCdmSessionTests, ShouldUseStoredCdmDataWhenGettingChallengeDataSize)
     EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_TRUE(m_sut->generateRequest(kInitDataType, kBytes1, kBytes2));
 
-    EXPECT_CALL(*m_cdmBackendMock,
-                generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kBytes2,
-                                firebolt::rialto::LimitedDurationLicense::DISABLED))
+    EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kBytes2,
+                                                   firebolt::rialto::LimitedDurationLicense::DISABLED))
         .WillOnce(Invoke(
             [&](int32_t, firebolt::rialto::InitDataType, const std::vector<uint8_t> &, const std::vector<uint8_t> &,
                 firebolt::rialto::LimitedDurationLicense)

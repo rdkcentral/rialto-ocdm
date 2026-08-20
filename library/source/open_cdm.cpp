@@ -245,11 +245,8 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
         ActiveSessions::instance().remove(newSession);
         return ERROR_FAIL;
     }
-    // Dummy CDM data for simulation/testing
-    std::vector<uint8_t> cdmDataVec = {9, 5, 4, 3};
-    kLog << error << "VRN cdmDataVec (dummy): " << static_cast<int>(cdmDataVec[0]) << " "
-         << static_cast<int>(cdmDataVec[1]) << " " << static_cast<int>(cdmDataVec[2]) << " "
-         << static_cast<int>(cdmDataVec[3]);
+    std::vector<uint8_t> cdmDataVec(reinterpret_cast<const uint8_t *>(CDMData),
+                                    reinterpret_cast<const uint8_t *>(CDMData) + CDMDataLength);
 
     if (!newSession->generateRequest(initializationDataType, initDataVec, cdmDataVec))
     {

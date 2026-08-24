@@ -94,6 +94,7 @@ private:
     std::vector<uint8_t> m_initData;
     bool m_isInitialized;
     std::vector<uint8_t> m_challengeData;
+    std::vector<uint8_t> m_lastCdmData;
     std::vector<uint8_t> m_playreadyKeyId;
     std::vector<uint8_t> m_queuedDrmHeader;
     std::map<std::vector<unsigned char>, firebolt::rialto::KeyStatus> m_keyStatuses;

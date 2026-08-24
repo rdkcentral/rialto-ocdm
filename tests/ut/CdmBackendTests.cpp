@@ -185,23 +185,23 @@ TEST_F(CdmBackendTests, ShouldCreateKeySession)
 
 TEST_F(CdmBackendTests, ShouldFailToGenerateRequestWhenMediaKeysIsNotPresent)
 {
-    EXPECT_FALSE(m_sut.generateRequest(kKeySessionId, kInitDataType, kBytes, kLdlState));
+    EXPECT_FALSE(m_sut.generateRequest(kKeySessionId, kInitDataType, kBytes, kBytes, kLdlState));
 }
 
 TEST_F(CdmBackendTests, ShouldFailToGenerateRequest)
 {
-    EXPECT_CALL(*m_mediaKeysMock, generateRequest(kKeySessionId, kInitDataType, kBytes, kLdlState))
+    EXPECT_CALL(*m_mediaKeysMock, generateRequest(kKeySessionId, kInitDataType, kBytes, kBytes, kLdlState))
         .WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::FAIL));
     changeStateToRunning();
-    EXPECT_FALSE(m_sut.generateRequest(kKeySessionId, kInitDataType, kBytes, kLdlState));
+    EXPECT_FALSE(m_sut.generateRequest(kKeySessionId, kInitDataType, kBytes, kBytes, kLdlState));
 }
 
 TEST_F(CdmBackendTests, ShouldGenerateRequest)
 {
-    EXPECT_CALL(*m_mediaKeysMock, generateRequest(kKeySessionId, kInitDataType, kBytes, kLdlState))
+    EXPECT_CALL(*m_mediaKeysMock, generateRequest(kKeySessionId, kInitDataType, kBytes, kBytes, kLdlState))
         .WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::OK));
     changeStateToRunning();
-    EXPECT_TRUE(m_sut.generateRequest(kKeySessionId, kInitDataType, kBytes, kLdlState));
+    EXPECT_TRUE(m_sut.generateRequest(kKeySessionId, kInitDataType, kBytes, kBytes, kLdlState));
 }
 
 TEST_F(CdmBackendTests, ShouldFailToLoadSessionWhenMediaKeysIsNotPresent)

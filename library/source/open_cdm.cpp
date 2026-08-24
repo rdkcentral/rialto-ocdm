@@ -245,6 +245,7 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
         ActiveSessions::instance().remove(newSession);
         return ERROR_FAIL;
     }
+
     std::vector<uint8_t> cdmDataVec;
     if (CDMData && CDMDataLength > 0)
     {

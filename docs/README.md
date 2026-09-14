@@ -149,7 +149,7 @@ graph TD
 - **Build Dependencies**: `gstreamer1.0`, `gstreamer1.0-plugins-base` (for GStreamer buffer and meta APIs); `protobuf`, `protobuf-native` (Rialto IPC serialisation); `wpeframework-clientlibraries` (WPEFramework type infrastructure); `rialto` (Rialto client library providing `IMediaKeys`, `IMediaKeysCapabilities`, `IControl`); `openssl`, `jsoncpp`, `glib-2.0`.
 - **Distro Feature Gate**: Building the library requires the `enable_rialto` distro feature to be present in the Yocto configuration (`REQUIRED_DISTRO_FEATURES`).
 - **Optional Build Dependency**: `EthanLog` — when present and `RIALTO_ENABLE_ETHAN_LOG` is set at build time, the logging backend switches from syslog to EthanLog (`USE_ETHANLOG` compile definition).
-- **Startup Order**: The Rialto server process should be running and accessible to the Rialto client IPC channel before `opencdm_create_system` is called; if the server is not yet in the RUNNING state, `CdmBackend` will block for up to one second waiting for an application-state notification via `IControl` before failing.
+- **Startup Order**: The Rialto server should be reachable before `opencdm_construct_session` is called; if it is not yet in the RUNNING state, `CdmBackend::createKeySession` waits for up to one second for an application-state notification via `IControl` before failing.
 
 ---
 

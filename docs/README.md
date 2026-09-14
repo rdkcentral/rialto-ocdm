@@ -25,7 +25,7 @@ classDef VL stroke:#808080,fill:#F2F2F2,stroke-width:2px;
     end
 
 %% Middleware
-    subgraph MWLayer["RDK Core Middleware"]
+    subgraph MWLayer["RDKE/RDKV Core Middleware"]
         OCDM["rialto-ocdm\n(ocdmRialto library)"]
         RialtoClient["Rialto Client\n(RialtoClient library)"]
         RialtoServer["Rialto Server"]
@@ -35,8 +35,7 @@ classDef VL stroke:#808080,fill:#F2F2F2,stroke-width:2px;
 
 %% Vendor Layer
     subgraph VendorLayer["Vendor Layer"]
-        DRM["DRM Libraries / TEE"]
-        BSP["BSP / Platform HAL"]
+        Platform["Platform DRM Implementation"]
     end
 
     %% Connections
@@ -45,13 +44,12 @@ classDef VL stroke:#808080,fill:#F2F2F2,stroke-width:2px;
     OCDM -->|"IMediaKeys / IMediaKeysCapabilities"| RialtoClient
     OCDM -->|"GstRialtoProtectionMetadata"| GST
     RialtoClient -->|"IPC (protobuf/socket)"| RialtoServer
-    RialtoServer -->|"HAL APIs"| DRM
-    RialtoServer -->|"HAL APIs"| BSP
+    RialtoServer --> Platform
     Thunder -->|"manages"| RialtoServer
 
 class FBApps,WPE_RT Apps
 class OCDM,RialtoClient,RialtoServer,GST,Thunder RDKMW
-class DRM,BSP VL
+class Platform VL
 ```
 
 **Key Features & Responsibilities:**
@@ -70,7 +68,7 @@ class DRM,BSP VL
 
 Rialto-OCDM is designed around a layered delegation model. The public API surface is kept deliberately thin: the C functions in `open_cdm.cpp`, `open_cdm_adapter.cpp`, and `open_cdm_ext.cpp` perform only parameter validation and then delegate entirely to concrete C++ objects. All DRM state is owned by those objects, which are hidden behind abstract interfaces (`ICdmBackend`, `IMessageDispatcher`). This separation allows unit tests to substitute mock backends without modifying any API logic.
 
-The design deliberately avoids exposing any platform-specific DRM handle across the library boundary. All DRM operations are serialised through the Rialto client IPC channel. The library therefore treats `firebolt::rialto::IMediaKeys` as its sole HAL boundary: every DRM primitive—session creation, request generation, licence delivery, key selection—maps one-to-one to an `IMediaKeys` method call.
+The design deliberately avoids exposing any platform-specific DRM handle across the library boundary. All DRM operations are serialised through the Rialto client IPC channel. The library therefore treats `firebolt::rialto::IMediaKeys` as its sole HAL boundary: every DRM primitive—session creation, request generation, license delivery, key selection—maps one-to-one to an `IMediaKeys` method call.
 
 Northbound interactions (from OpenCDM callers) use the standard C API, which is entirely synchronous from the caller's perspective. Southbound interactions (toward Rialto) are managed through the Rialto client library, which internally handles IPC. The `CdmBackend` wraps this boundary with a mutex and a condition variable so that concurrent OpenCDM calls from multiple threads do not race on the shared `IMediaKeys` pointer.
 
@@ -151,7 +149,7 @@ graph TD
 - **Build Dependencies**: `gstreamer1.0`, `gstreamer1.0-plugins-base` (for GStreamer buffer and meta APIs); `protobuf`, `protobuf-native` (Rialto IPC serialisation); `wpeframework-clientlibraries` (WPEFramework type infrastructure); `rialto` (Rialto client library providing `IMediaKeys`, `IMediaKeysCapabilities`, `IControl`); `openssl`, `jsoncpp`, `glib-2.0`.
 - **Distro Feature Gate**: Building the library requires the `enable_rialto` distro feature to be present in the Yocto configuration (`REQUIRED_DISTRO_FEATURES`).
 - **Optional Build Dependency**: `EthanLog` — when present and `RIALTO_ENABLE_ETHAN_LOG` is set at build time, the logging backend switches from syslog to EthanLog (`USE_ETHANLOG` compile definition).
-- **Startup Order**: The Rialto server process must be running and accessible to the Rialto client IPC channel before `opencdm_create_system` is called. `CdmBackend` will block for up to one second waiting for the RUNNING application state notification via `IControl`.
+- **Startup Order**: The Rialto server process should be running and accessible to the Rialto client IPC channel before `opencdm_create_system` is called; if the server is not yet in the RUNNING state, `CdmBackend` will block for up to one second waiting for an application-state notification via `IControl` before failing.
 
 ---
 
@@ -239,7 +237,7 @@ sequenceDiagram
 
 #### Request Processing Call Flow
 
-The DRM session establishment flow begins when the caller constructs a session. The library validates parameters, creates the session object, calls `initialize()` to obtain a Rialto session ID, then calls `generateRequest()`. The Rialto server asynchronously delivers a license challenge via `onLicenseRequest`, which `MessageDispatcher` fans out to the owning `OpenCDMSessionPrivate`. The session stores the challenge and signals the waiting `getChallengeData` caller via a condition variable. The caller then acquires the challenge and delivers the licence response back via `opencdm_session_update`.
+The DRM session establishment flow begins when the caller constructs a session. The library validates parameters, creates the session object, calls `initialize()` to obtain a Rialto session ID, then calls `generateRequest()`. The Rialto server asynchronously delivers a license challenge via `onLicenseRequest`, which `MessageDispatcher` fans out to the owning `OpenCDMSessionPrivate`. The session stores the challenge and signals the waiting `getChallengeData` caller via a condition variable. The caller then acquires the challenge and delivers the license response back via `opencdm_session_update`.
 
 ```mermaid
 sequenceDiagram
@@ -285,6 +283,8 @@ sequenceDiagram
 ---
 
 ## Internal Modules
+
+> Note: in this repository, `source/...` and `include/...` paths in this document are relative to the `library/` directory (e.g., `library/source/...`, `library/include/...`).
 
 | Module / Class                         | Description                                                                                                                                                                                                                                                                                | Key Files                                                                                           |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
@@ -383,10 +383,10 @@ All DRM HAL interactions are routed through the Rialto client library interfaces
 | `IMediaKeys::createKeySession()`                         | Creates a new DRM key session on the Rialto server                | `source/CdmBackend.cpp`                   |
 | `IMediaKeys::generateRequest()`                          | Triggers license challenge generation for a session               | `source/CdmBackend.cpp`                   |
 | `IMediaKeys::loadSession()`                              | Loads a previously persisted DRM session                          | `source/CdmBackend.cpp`                   |
-| `IMediaKeys::updateSession()`                            | Delivers a licence response to an active session                  | `source/CdmBackend.cpp`                   |
+| `IMediaKeys::updateSession()`                            | Delivers a license response to an active session                  | `source/CdmBackend.cpp`                   |
 | `IMediaKeys::setDrmHeader()`                             | Sets a DRM-specific header on a session                           | `source/CdmBackend.cpp`                   |
 | `IMediaKeys::closeKeySession()`                          | Closes an active key session                                      | `source/CdmBackend.cpp`                   |
-| `IMediaKeys::removeKeySession()`                         | Removes a key session and releases its licences                   | `source/CdmBackend.cpp`                   |
+| `IMediaKeys::removeKeySession()`                         | Removes a key session and releases its licenses                   | `source/CdmBackend.cpp`                   |
 | `IMediaKeys::selectKeyId()`                              | Selects the active key ID for decryption                          | `source/CdmBackend.cpp`                   |
 | `IMediaKeys::containsKey()`                              | Tests whether a key ID is present in the session                  | `source/CdmBackend.cpp`                   |
 | `IMediaKeys::deleteDrmStore()`                           | Deletes the DRM store on the server                               | `source/CdmBackend.cpp`                   |

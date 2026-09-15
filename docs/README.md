@@ -232,8 +232,6 @@ sequenceDiagram
     SysPriv->>ICtrl: registerClient(cdmBackend, initialState)
     ICtrl-->>SysPriv: ApplicationState::RUNNING or INACTIVE
     SysPriv->>CdmB: initialize(initialState)
-    ICtrl-->>SysPriv: initialState returned
-    SysPriv->>CdmB: initialize(initialState)
     alt initialState == RUNNING
         CdmB->>IMK: IMediaKeysFactory::createMediaKeys(keySystem)
         IMK-->>CdmB: ready

@@ -60,13 +60,13 @@ class Platform VL
 - **GStreamer EME buffer metadata**: Registers a custom GStreamer metadata type (`GstRialtoProtectionMetadata`) that carries encryption parameters (sub-sample layout, IV, key ID) on GStreamer buffers, enabling the GStreamer decrypt element downstream to retrieve protection info without additional out-of-band signalling.
 - **Application-state-aware initialization**: Monitors the Rialto server application state via `IControl`. The `CdmBackend` defers `IMediaKeys` construction until the Rialto server transitions to the RUNNING state, ensuring no DRM calls are issued against an unavailable server.
 - **Multi-session fan-out notification**: A `MessageDispatcher` receives DRM event callbacks (license request, license renewal, key-status change) from the single `IMediaKeysClient` registered with `IMediaKeys` and fans them out to all active `OpenCDMSessionPrivate` listeners.
-- **Extended DRM store management**: Exposes key-store and DRM-store hash retrieval, deletion, LDL (Limited Duration License) session limit query, DRM time query, and per-session DRM error reporting through the extended OpenCDM API (`open_cdm_ext.h`).
+- **Extended DRM store management**: Exposes key-store and DRM-store hash retrieval, deletion, LDL (Limited Duration License) session limit queries, DRM-header setting, challenge/license-data exchange, and key-ID selection through the extended OpenCDM API (`open_cdm_ext.h`). DRM time is exposed by `opencdm_system_get_drm_time()` in `open_cdm.cpp`; session error reporting is not implemented.
 
 ---
 
 ## Design
 
-Rialto-OCDM is designed around a layered delegation model. The public API surface is kept deliberately thin: the C functions in `open_cdm.cpp`, `open_cdm_adapter.cpp`, and `open_cdm_ext.cpp` perform only parameter validation and then delegate entirely to concrete C++ objects. All DRM state is owned by those objects, which are hidden behind abstract interfaces (`ICdmBackend`, `IMessageDispatcher`). This separation allows unit tests to substitute mock backends without modifying any API logic.
+Rialto-OCDM is designed around a layered delegation model. The public API surface is kept deliberately thin: the C functions in `open_cdm.cpp`, `open_cdm_adapter.cpp`, and `open_cdm_ext.cpp` validate and translate parameters, map errors, and orchestrate lifecycle calls before delegating DRM state and operations to concrete C++ objects. All DRM state is owned by those objects, which are hidden behind abstract interfaces (`ICdmBackend`, `IMessageDispatcher`). This separation allows unit tests to substitute mock backends without modifying any API logic.
 
 The design deliberately avoids exposing any platform-specific DRM handle across the library boundary. All DRM operations are serialised through the Rialto client IPC channel. The library therefore treats `firebolt::rialto::IMediaKeys` as its sole HAL boundary for session lifecycle primitives: session creation, request generation, and license delivery each map one-to-one to an `IMediaKeys` method call. Key selection is handled differently — `opencdm_session_select_key_id()` resolves to `OpenCDMSessionPrivate::selectKeyId()`, which stores the key ID locally for GStreamer protection metadata rather than forwarding it to `CdmBackend::selectKeyId()` / `IMediaKeys::selectKeyId()`.
 
@@ -139,7 +139,7 @@ graph TD
   - `CdmBackend` uses `std::mutex` + `std::condition_variable` to guard the `IMediaKeys` pointer and to block `createKeySession` for up to one second waiting for the RUNNING application state.
   - `MessageDispatcher` uses `std::mutex` to protect its set of registered `IMediaKeysClient` pointers.
   - `ActiveSessions` uses `std::mutex` for reference-counted session creation, lookup, and removal.
-  - `OpenCDMSessionPrivate` uses `std::mutex` + `std::condition_variable` (`m_challengeCv`) to synchronise challenge-data retrieval with the asynchronous `onLicenseRequest` callback. The key-status map (`m_keyStatuses`) is updated in `onKeyStatusesChanged` and read in `status()` without holding this mutex, so concurrent access to key status between the Rialto callback thread and a caller thread is not synchronised.
+  - `OpenCDMSessionPrivate` uses `std::mutex` + `std::condition_variable` (`m_challengeCv`) to synchronise challenge-data retrieval with the asynchronous `onLicenseRequest` callback. The key-status map (`m_keyStatuses`) is updated only for a matching event when `m_callbacks->key_update_callback` is non-null, and is read in `status()` without holding this mutex, so concurrent access to key status between the Rialto callback thread and a caller thread is not synchronised.
 - **Async / Event Dispatch**: DRM events arrive asynchronously on the Rialto callback thread. `MessageDispatcher` holds its mutex for the duration of fan-out, delivering each event synchronously to every registered `IMediaKeysClient`. Session callbacks (`OpenCDMSessionCallbacks`) are then invoked inline on the same callback thread.
 
 ### Prerequisites and Dependencies
@@ -232,8 +232,14 @@ sequenceDiagram
     SysPriv->>ICtrl: registerClient(cdmBackend, initialState)
     ICtrl-->>SysPriv: ApplicationState::RUNNING or INACTIVE
     SysPriv->>CdmB: initialize(initialState)
-    CdmB->>IMK: IMediaKeysFactory::createMediaKeys(keySystem)
-    IMK-->>CdmB: ready
+    ICtrl-->>SysPriv: initialState returned
+    SysPriv->>CdmB: initialize(initialState)
+    alt initialState == RUNNING
+        CdmB->>IMK: IMediaKeysFactory::createMediaKeys(keySystem)
+        IMK-->>CdmB: ready
+    else initialState != RUNNING
+        Note over CdmB: IMediaKeys is not created; session creation waits for RUNNING
+    end
     CdmB-->>SysPriv: true
     SysPriv-->>OpenCDM: OpenCDMSystemPrivate*
     OpenCDM-->>Caller: OpenCDMSystem*
@@ -241,7 +247,7 @@ sequenceDiagram
 
 #### Request Processing Call Flow
 
-The DRM session establishment flow begins when the caller constructs a session. The library validates parameters, creates the session object, calls `initialize()` to obtain a Rialto session ID, then calls `generateRequest()`. The Rialto server asynchronously delivers a license challenge via `onLicenseRequest`, which `MessageDispatcher` fans out to the owning `OpenCDMSessionPrivate`. The session stores the challenge and signals the waiting `getChallengeData` caller via a condition variable. The caller then acquires the challenge and delivers the license response back via `opencdm_session_update`.
+The DRM session establishment flow begins when the caller constructs a session. The library validates parameters, creates the session object, calls `initialize()` to obtain a Rialto session ID, then calls `generateRequest()`. The Rialto server asynchronously delivers a license challenge via `onLicenseRequest`, which `MessageDispatcher` fans out to the owning `OpenCDMSessionPrivate`. The session stores the challenge and signals the waiting `getChallengeDataSize` caller via a condition variable; the subsequent `getChallengeData` call copies the buffered challenge. The caller then delivers the license response via `opencdm_session_update`.
 
 ```mermaid
 sequenceDiagram

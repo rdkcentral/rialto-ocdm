@@ -506,6 +506,10 @@ void OpenCDMSessionPrivate::notifyApplicationState(firebolt::rialto::Application
     {
         m_callbacks->keys_updated_callback(this, m_context);
     }
+    if (m_callbacks->error_message_callback)
+    {
+        m_callbacks->error_message_callback(this, m_context, "Rialto Session Server crashed.");
+    }
 }
 
 void OpenCDMSessionPrivate::updateChallenge(const std::vector<unsigned char> &challenge)

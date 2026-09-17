@@ -484,6 +484,7 @@ void OpenCDMSessionPrivate::notifyApplicationState(firebolt::rialto::Application
         std::unique_lock<std::mutex> lock{m_mutex};
         if (m_currentAppState == firebolt::rialto::ApplicationState::RUNNING && m_currentAppState != state)
         {
+            m_log << warn << "Rialto Server probably crashed. Resetting session and key statuses.";
             m_currentAppState = state;
             m_rialtoSessionId = firebolt::rialto::kInvalidSessionId;
             m_challengeData.clear();

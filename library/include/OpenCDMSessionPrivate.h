@@ -52,6 +52,7 @@ public:
                           const std::string &url) override;
     void onLicenseRenewal(int32_t keySessionId, const std::vector<unsigned char> &licenseRenewalMessage) override;
     void onKeyStatusesChanged(int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses) override;
+    void notifyApplicationState(firebolt::rialto::ApplicationState state) override;
 
     bool initialize() override;
     bool generateRequest(const std::string &initDataType, const std::vector<uint8_t> &initData,
@@ -80,7 +81,7 @@ private:
 
 private:
     Logger m_log;
-    std::mutex m_mutex;
+    mutable std::mutex m_mutex;
     std::condition_variable m_challengeCv;
     void *m_context;
     std::shared_ptr<ICdmBackend> m_cdmBackend;
@@ -97,6 +98,7 @@ private:
     std::vector<uint8_t> m_playreadyKeyId;
     std::vector<uint8_t> m_queuedDrmHeader;
     std::map<std::vector<unsigned char>, firebolt::rialto::KeyStatus> m_keyStatuses;
+    firebolt::rialto::ApplicationState m_currentAppState;
 
     firebolt::rialto::KeySessionType getRialtoSessionType(const LicenseType licenseType);
     firebolt::rialto::InitDataType getRialtoInitDataType(const std::string &type);

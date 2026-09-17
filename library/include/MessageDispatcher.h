@@ -27,7 +27,9 @@
 #include <string>
 #include <vector>
 
-class MessageDispatcher : public IMessageDispatcher, public firebolt::rialto::IMediaKeysClient
+class MessageDispatcher : public IMessageDispatcher,
+                          public firebolt::rialto::IMediaKeysClient,
+                          public firebolt::rialto::IControlClient
 {
     class MessageDispatcherSubscription : public IMessageDispatcherSubscription
     {
@@ -50,6 +52,7 @@ public:
                           const std::string &url) override;
     void onLicenseRenewal(int32_t keySessionId, const std::vector<unsigned char> &licenseRenewalMessage) override;
     void onKeyStatusesChanged(int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses) override;
+    void notifyApplicationState(firebolt::rialto::ApplicationState state) override;
 
 private:
     void addClient(IMessageDispatcherClient *client);

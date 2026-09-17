@@ -20,6 +20,7 @@
 #ifndef I_MESSAGE_DISPATCHER_H_
 #define I_MESSAGE_DISPATCHER_H_
 
+#include <IControlClient.h>
 #include <IMediaKeysClient.h>
 #include <memory>
 
@@ -29,7 +30,7 @@ public:
     virtual ~IMessageDispatcherSubscription() = default;
 };
 
-class IMessageDispatcherClient : public firebolt::rialto::IMediaKeysClient
+class IMessageDispatcherClient : public firebolt::rialto::IMediaKeysClient, public firebolt::rialto::IControlClient
 {
 public:
     virtual ~IMessageDispatcherClient() = default;

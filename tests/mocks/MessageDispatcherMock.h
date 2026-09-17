@@ -20,6 +20,7 @@
 #ifndef MESSAGE_DISPATCHER_MOCK_H_
 #define MESSAGE_DISPATCHER_MOCK_H_
 
+#include "ControlCommon.h"
 #include "IMessageDispatcher.h"
 #include "MediaCommon.h"
 #include <gmock/gmock.h>
@@ -39,6 +40,7 @@ public:
                 (override));
     MOCK_METHOD(void, onKeyStatusesChanged,
                 (int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses), (override));
+    MOCK_METHOD(void, notifyApplicationState, (firebolt::rialto::ApplicationState state), (override));
 };
 
 class MessageDispatcherMock : public IMessageDispatcher

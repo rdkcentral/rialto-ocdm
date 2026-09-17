@@ -68,7 +68,7 @@ OpenCDMSessionPrivate::OpenCDMSessionPrivate(const std::shared_ptr<ICdmBackend> 
     : m_log{"OpenCDMSessionPrivate"}, m_context(context), m_cdmBackend(cdm), m_messageDispatcher(messageDispatcher),
       m_rialtoSessionId(firebolt::rialto::kInvalidSessionId), m_callbacks(callbacks),
       m_sessionType(getRialtoSessionType(sessionType)), m_initDataType(getRialtoInitDataType(initDataType)),
-      m_initData(initData), m_isInitialized{false}
+      m_initData(initData), m_isInitialized{false}, m_currentAppState{firebolt::rialto::ApplicationState::RUNNING}
 {
     m_log << debug << "constructed: " << static_cast<void *>(this);
 }
@@ -477,6 +477,36 @@ void OpenCDMSessionPrivate::onLicenseRenewal(int32_t keySessionId, const std::ve
     }
 }
 
+void OpenCDMSessionPrivate::notifyApplicationState(firebolt::rialto::ApplicationState state)
+{
+    std::vector<std::vector<uint8_t>> keysToNotify{};
+    {
+        std::unique_lock<std::mutex> lock{m_mutex};
+        if (m_currentAppState == firebolt::rialto::ApplicationState::RUNNING && m_currentAppState != state)
+        {
+            m_currentAppState = state;
+            m_rialtoSessionId = firebolt::rialto::kInvalidSessionId;
+            m_challengeData.clear();
+            for (auto &[key, status] : m_keyStatuses)
+            {
+                keysToNotify.push_back(key);
+                status = firebolt::rialto::KeyStatus::INTERNAL_ERROR;
+            }
+        }
+    }
+    for (const auto &key : keysToNotify)
+    {
+        if ((m_callbacks) && (m_callbacks->key_update_callback))
+        {
+            m_callbacks->key_update_callback(this, m_context, key.data(), key.size());
+        }
+    }
+    if (m_callbacks->keys_updated_callback)
+    {
+        m_callbacks->keys_updated_callback(this, m_context);
+    }
+}
+
 void OpenCDMSessionPrivate::updateChallenge(const std::vector<unsigned char> &challenge)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
@@ -491,8 +521,11 @@ void OpenCDMSessionPrivate::onKeyStatusesChanged(int32_t keySessionId,
     {
         for (const std::pair<std::vector<uint8_t>, firebolt::rialto::KeyStatus> &keyStatus : keyStatuses)
         {
-            // Update internal key statuses
-            m_keyStatuses[keyStatus.first] = keyStatus.second;
+            {
+                std::unique_lock<std::mutex> lock{m_mutex};
+                // Update internal key statuses
+                m_keyStatuses[keyStatus.first] = keyStatus.second;
+            }
 
             const std::vector<uint8_t> &key = keyStatus.first;
             m_callbacks->key_update_callback(this, m_context, key.data(), key.size());
@@ -507,6 +540,7 @@ void OpenCDMSessionPrivate::onKeyStatusesChanged(int32_t keySessionId,
 
 KeyStatus OpenCDMSessionPrivate::status(const std::vector<uint8_t> &key) const
 {
+    std::unique_lock<std::mutex> lock{m_mutex};
     auto it = m_keyStatuses.find(key);
     if (it != m_keyStatuses.end())
     {

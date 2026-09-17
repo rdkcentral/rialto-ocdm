@@ -75,3 +75,12 @@ void MessageDispatcher::onKeyStatusesChanged(int32_t keySessionId, const firebol
         client->onKeyStatusesChanged(keySessionId, keyStatuses);
     }
 }
+
+void MessageDispatcher::notifyApplicationState(firebolt::rialto::ApplicationState state)
+{
+    std::unique_lock<std::mutex> lock{m_mutex};
+    for (auto *client : m_clients)
+    {
+        client->notifyApplicationState(state);
+    }
+}

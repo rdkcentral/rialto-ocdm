@@ -39,7 +39,7 @@ struct _GstBuffer;
 typedef struct _GstCaps GstCaps;
 typedef struct _GstBuffer GstBuffer;
 
-class OpenCDMSessionPrivate : public OpenCDMSession, public firebolt::rialto::IMediaKeysClient
+class OpenCDMSessionPrivate : public OpenCDMSession, public IMessageDispatcherClient
 {
 public:
     OpenCDMSessionPrivate(const std::shared_ptr<ICdmBackend> &cdm,
@@ -85,7 +85,7 @@ private:
     void *m_context;
     std::shared_ptr<ICdmBackend> m_cdmBackend;
     std::shared_ptr<IMessageDispatcher> m_messageDispatcher;
-    std::unique_ptr<IMessageDispatcherClient> m_messageDispatcherClient;
+    std::unique_ptr<IMessageDispatcherSubscription> m_messageDispatcherSubscription;
     int32_t m_rialtoSessionId;
     std::string m_cdmKeySessionId;
     OpenCDMSessionCallbacks *m_callbacks;

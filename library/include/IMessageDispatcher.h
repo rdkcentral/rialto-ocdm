@@ -23,7 +23,13 @@
 #include <IMediaKeysClient.h>
 #include <memory>
 
-class IMessageDispatcherClient
+class IMessageDispatcherSubscription
+{
+public:
+    virtual ~IMessageDispatcherSubscription() = default;
+};
+
+class IMessageDispatcherClient : public firebolt::rialto::IMediaKeysClient
 {
 public:
     virtual ~IMessageDispatcherClient() = default;
@@ -33,7 +39,7 @@ class IMessageDispatcher
 {
 public:
     virtual ~IMessageDispatcher() = default;
-    virtual std::unique_ptr<IMessageDispatcherClient> createClient(firebolt::rialto::IMediaKeysClient *client) = 0;
+    virtual std::unique_ptr<IMessageDispatcherSubscription> subscribe(IMessageDispatcherClient *client) = 0;
 };
 
 #endif // I_MESSAGE_DISPATCHER_H_

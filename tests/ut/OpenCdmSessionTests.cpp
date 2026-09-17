@@ -22,7 +22,6 @@
 #include "OcdmSessionsCallbacksMock.h"
 #include "OpenCDMSessionPrivate.h"
 #include "RialtoGStreamerEMEProtectionMetadata.h"
-#include <MessageDispatcherClientMock.h>
 #include <gst/gst.h>
 #include <gtest/gtest.h>
 
@@ -90,8 +89,8 @@ protected:
     {
         EXPECT_CALL(*m_cdmBackendMock, createKeySession(sessionType, _))
             .WillOnce(DoAll(SetArgReferee<1>(kKeySessionId), Return(true)));
-        EXPECT_CALL(*m_messageDispatcherMock, createClient(_))
-            .WillOnce(Return(ByMove(std::make_unique<StrictMock<MessageDispatcherClientMock>>())));
+        EXPECT_CALL(*m_messageDispatcherMock, subscribe(_))
+            .WillOnce(Return(ByMove(std::make_unique<StrictMock<MessageDispatcherSubscriptionMock>>())));
         EXPECT_TRUE(m_sut->initialize());
     }
 

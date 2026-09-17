@@ -96,7 +96,7 @@ bool OpenCDMSessionPrivate::initialize()
             m_log << error << "Failed to create a session. Got drm error %u", getLastDrmError();
             return false;
         }
-        m_messageDispatcherClient = m_messageDispatcher->createClient(this);
+        m_messageDispatcherSubscription = m_messageDispatcher->subscribe(this);
         m_isInitialized = true;
         m_log << info << "Successfully created a session";
 
@@ -352,7 +352,7 @@ bool OpenCDMSessionPrivate::closeSession()
         if (m_cdmBackend->closeKeySession(m_rialtoSessionId))
         {
             m_log << info << "Successfully closed the session";
-            m_messageDispatcherClient.reset();
+            m_messageDispatcherSubscription.reset();
             m_challengeData.clear();
             m_keyStatuses.clear();
             return true;

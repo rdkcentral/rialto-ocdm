@@ -29,22 +29,22 @@
 
 class MessageDispatcher : public IMessageDispatcher, public firebolt::rialto::IMediaKeysClient
 {
-    class MessageDispatcherClient : public IMessageDispatcherClient
+    class MessageDispatcherSubscription : public IMessageDispatcherSubscription
     {
     public:
-        MessageDispatcherClient(MessageDispatcher &dispatcher, firebolt::rialto::IMediaKeysClient *client);
-        ~MessageDispatcherClient() override;
+        MessageDispatcherSubscription(MessageDispatcher &dispatcher, IMessageDispatcherClient *client);
+        ~MessageDispatcherSubscription() override;
 
     private:
         MessageDispatcher &m_dispatcher;
-        firebolt::rialto::IMediaKeysClient *m_client;
+        IMessageDispatcherClient *m_client;
     };
 
 public:
     MessageDispatcher() = default;
     ~MessageDispatcher() override = default;
 
-    std::unique_ptr<IMessageDispatcherClient> createClient(firebolt::rialto::IMediaKeysClient *client) override;
+    std::unique_ptr<IMessageDispatcherSubscription> subscribe(IMessageDispatcherClient *client) override;
 
     void onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage,
                           const std::string &url) override;
@@ -52,12 +52,12 @@ public:
     void onKeyStatusesChanged(int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses) override;
 
 private:
-    void addClient(firebolt::rialto::IMediaKeysClient *client);
-    void removeClient(firebolt::rialto::IMediaKeysClient *client);
+    void addClient(IMessageDispatcherClient *client);
+    void removeClient(IMessageDispatcherClient *client);
 
 private:
     std::mutex m_mutex;
-    std::set<firebolt::rialto::IMediaKeysClient *> m_clients;
+    std::set<IMessageDispatcherClient *> m_clients;
 };
 
 #endif // MESSAGE_DISPATCHER_H_

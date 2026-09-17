@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#include "MediaKeysClientMock.h"
 #include "MessageDispatcher.h"
+#include "MessageDispatcherMock.h"
 #include <gtest/gtest.h>
 
 using testing::StrictMock;
@@ -35,30 +35,30 @@ const firebolt::rialto::KeyStatusVector kKeyStatusVec{std::make_pair(kKeyId, fir
 class MessageDispatcherTests : public testing::Test
 {
 protected:
-    StrictMock<firebolt::rialto::MediaKeysClientMock> m_mediaKeysClientMock;
+    StrictMock<MessageDispatcherClientMock> m_clientMock;
     MessageDispatcher m_sut{};
 };
 
 TEST_F(MessageDispatcherTests, shouldForwardLicenseRequest)
 {
-    auto client{m_sut.createClient(&m_mediaKeysClientMock)};
-    EXPECT_CALL(m_mediaKeysClientMock, onLicenseRequest(kKeySessionId, kMessage, kUrl));
+    auto client{m_sut.subscribe(&m_clientMock)};
+    EXPECT_CALL(m_clientMock, onLicenseRequest(kKeySessionId, kMessage, kUrl));
     m_sut.onLicenseRequest(kKeySessionId, kMessage, kUrl);
     client.reset();
 }
 
 TEST_F(MessageDispatcherTests, shouldForwardLicenseRenewal)
 {
-    auto client{m_sut.createClient(&m_mediaKeysClientMock)};
-    EXPECT_CALL(m_mediaKeysClientMock, onLicenseRenewal(kKeySessionId, kMessage));
+    auto client{m_sut.subscribe(&m_clientMock)};
+    EXPECT_CALL(m_clientMock, onLicenseRenewal(kKeySessionId, kMessage));
     m_sut.onLicenseRenewal(kKeySessionId, kMessage);
     client.reset();
 }
 
 TEST_F(MessageDispatcherTests, shouldForwardKeyStatusChange)
 {
-    auto client{m_sut.createClient(&m_mediaKeysClientMock)};
-    EXPECT_CALL(m_mediaKeysClientMock, onKeyStatusesChanged(kKeySessionId, kKeyStatusVec));
+    auto client{m_sut.subscribe(&m_clientMock)};
+    EXPECT_CALL(m_clientMock, onKeyStatusesChanged(kKeySessionId, kKeyStatusVec));
     m_sut.onKeyStatusesChanged(kKeySessionId, kKeyStatusVec);
     client.reset();
 }
@@ -72,7 +72,7 @@ TEST_F(MessageDispatcherTests, shouldNotForwardMessagesWhenNoClientIsCreated)
 
 TEST_F(MessageDispatcherTests, shouldNotForwardMessagesWhenClientIsRemoved)
 {
-    auto client{m_sut.createClient(&m_mediaKeysClientMock)};
+    auto client{m_sut.subscribe(&m_clientMock)};
     client.reset();
     m_sut.onLicenseRequest(kKeySessionId, kMessage, kUrl);
     m_sut.onLicenseRenewal(kKeySessionId, kMessage);

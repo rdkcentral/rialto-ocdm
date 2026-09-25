@@ -22,7 +22,6 @@
 #include "OcdmSessionsCallbacksMock.h"
 #include "OpenCDMSessionPrivate.h"
 #include "RialtoGStreamerEMEProtectionMetadata.h"
-#include <MessageDispatcherClientMock.h>
 #include <gst/gst.h>
 #include <gtest/gtest.h>
 
@@ -90,8 +89,8 @@ protected:
     {
         EXPECT_CALL(*m_cdmBackendMock, createKeySession(sessionType, _))
             .WillOnce(DoAll(SetArgReferee<1>(kKeySessionId), Return(true)));
-        EXPECT_CALL(*m_messageDispatcherMock, createClient(_))
-            .WillOnce(Return(ByMove(std::make_unique<StrictMock<MessageDispatcherClientMock>>())));
+        EXPECT_CALL(*m_messageDispatcherMock, subscribe(_))
+            .WillOnce(Return(ByMove(std::make_unique<StrictMock<MessageDispatcherSubscriptionMock>>())));
         EXPECT_TRUE(m_sut->initialize());
     }
 
@@ -763,4 +762,22 @@ TEST_F(OpenCdmSessionTests, TeardownFailure)
     createSut();
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock, releaseKeySession(kKeySessionId)).WillOnce(Return(false));
+}
+
+TEST_F(OpenCdmSessionTests, ShouldForwardCrashInfo)
+{
+    createSut();
+    initializeSut();
+    // Notify that we are RUNNING first:
+    m_sut->notifyApplicationState(firebolt::rialto::ApplicationState::RUNNING);
+    // Add some usable key:
+    updateKeyStatus(kBytes1, firebolt::rialto::KeyStatus::USABLE);
+    EXPECT_EQ(m_sut->status(kBytes1), Usable);
+
+    EXPECT_CALL(OcdmSessionsCallbacksMock::instance(), keyUpdateCallback(m_sut.get(), &m_userData, _, _));
+    EXPECT_CALL(OcdmSessionsCallbacksMock::instance(), keysUpdatedCallback(m_sut.get(), &m_userData));
+    EXPECT_CALL(OcdmSessionsCallbacksMock::instance(), errorMessageCallback(m_sut.get(), &m_userData, _));
+    m_sut->notifyApplicationState(firebolt::rialto::ApplicationState::UNKNOWN);
+
+    EXPECT_EQ(m_sut->status(kBytes1), InternalError);
 }

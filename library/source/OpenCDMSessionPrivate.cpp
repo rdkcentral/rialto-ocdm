@@ -68,7 +68,7 @@ OpenCDMSessionPrivate::OpenCDMSessionPrivate(const std::shared_ptr<ICdmBackend> 
     : m_log{"OpenCDMSessionPrivate"}, m_context(context), m_cdmBackend(cdm), m_messageDispatcher(messageDispatcher),
       m_rialtoSessionId(firebolt::rialto::kInvalidSessionId), m_callbacks(callbacks),
       m_sessionType(getRialtoSessionType(sessionType)), m_initDataType(getRialtoInitDataType(initDataType)),
-      m_initData(initData), m_isInitialized{false}
+      m_initData(initData), m_isInitialized{false}, m_currentAppState{firebolt::rialto::ApplicationState::RUNNING}
 {
     m_log << debug << "constructed: " << static_cast<void *>(this);
 }
@@ -96,7 +96,7 @@ bool OpenCDMSessionPrivate::initialize()
             m_log << error << "Failed to create a session. Got drm error %u", getLastDrmError();
             return false;
         }
-        m_messageDispatcherClient = m_messageDispatcher->createClient(this);
+        m_messageDispatcherSubscription = m_messageDispatcher->subscribe(this);
         m_isInitialized = true;
         m_log << info << "Successfully created a session";
 
@@ -352,7 +352,7 @@ bool OpenCDMSessionPrivate::closeSession()
         if (m_cdmBackend->closeKeySession(m_rialtoSessionId))
         {
             m_log << info << "Successfully closed the session";
-            m_messageDispatcherClient.reset();
+            m_messageDispatcherSubscription.reset();
             m_challengeData.clear();
             m_keyStatuses.clear();
             return true;
@@ -477,6 +477,49 @@ void OpenCDMSessionPrivate::onLicenseRenewal(int32_t keySessionId, const std::ve
     }
 }
 
+void OpenCDMSessionPrivate::notifyApplicationState(firebolt::rialto::ApplicationState state)
+{
+    std::vector<std::vector<uint8_t>> keysToNotify{};
+    {
+        std::unique_lock<std::mutex> lock{m_mutex};
+        if (m_currentAppState == firebolt::rialto::ApplicationState::RUNNING && m_currentAppState != state)
+        {
+            m_log << warn << "Rialto Server probably crashed. Resetting session and key statuses.";
+            m_currentAppState = state;
+            m_rialtoSessionId = firebolt::rialto::kInvalidSessionId;
+            m_challengeData.clear();
+            for (auto &[key, status] : m_keyStatuses)
+            {
+                keysToNotify.push_back(key);
+                status = firebolt::rialto::KeyStatus::INTERNAL_ERROR;
+            }
+        }
+        else
+        {
+            m_currentAppState = state;
+            return;
+        }
+    }
+    if (!keysToNotify.empty())
+    {
+        for (const auto &key : keysToNotify)
+        {
+            if ((m_callbacks) && (m_callbacks->key_update_callback))
+            {
+                m_callbacks->key_update_callback(this, m_context, key.data(), key.size());
+            }
+        }
+        if (m_callbacks && m_callbacks->keys_updated_callback)
+        {
+            m_callbacks->keys_updated_callback(this, m_context);
+        }
+    }
+    if (m_callbacks && m_callbacks->error_message_callback)
+    {
+        m_callbacks->error_message_callback(this, m_context, "Rialto Session Server crashed.");
+    }
+}
+
 void OpenCDMSessionPrivate::updateChallenge(const std::vector<unsigned char> &challenge)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
@@ -491,8 +534,11 @@ void OpenCDMSessionPrivate::onKeyStatusesChanged(int32_t keySessionId,
     {
         for (const std::pair<std::vector<uint8_t>, firebolt::rialto::KeyStatus> &keyStatus : keyStatuses)
         {
-            // Update internal key statuses
-            m_keyStatuses[keyStatus.first] = keyStatus.second;
+            {
+                std::unique_lock<std::mutex> lock{m_mutex};
+                // Update internal key statuses
+                m_keyStatuses[keyStatus.first] = keyStatus.second;
+            }
 
             const std::vector<uint8_t> &key = keyStatus.first;
             m_callbacks->key_update_callback(this, m_context, key.data(), key.size());
@@ -507,6 +553,7 @@ void OpenCDMSessionPrivate::onKeyStatusesChanged(int32_t keySessionId,
 
 KeyStatus OpenCDMSessionPrivate::status(const std::vector<uint8_t> &key) const
 {
+    std::unique_lock<std::mutex> lock{m_mutex};
     auto it = m_keyStatuses.find(key);
     if (it != m_keyStatuses.end())
     {

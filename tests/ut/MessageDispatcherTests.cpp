@@ -78,3 +78,12 @@ TEST_F(MessageDispatcherTests, shouldNotForwardMessagesWhenClientIsRemoved)
     m_sut.onLicenseRenewal(kKeySessionId, kMessage);
     m_sut.onKeyStatusesChanged(kKeySessionId, kKeyStatusVec);
 }
+
+TEST_F(MessageDispatcherTests, shouldForwardAppStateNotification)
+{
+    constexpr firebolt::rialto::ApplicationState kAppState{firebolt::rialto::ApplicationState::RUNNING};
+    auto client{m_sut.subscribe(&m_clientMock)};
+    EXPECT_CALL(m_clientMock, notifyApplicationState(kAppState));
+    m_sut.notifyApplicationState(kAppState);
+    client.reset();
+}

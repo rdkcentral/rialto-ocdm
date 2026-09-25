@@ -494,17 +494,25 @@ void OpenCDMSessionPrivate::notifyApplicationState(firebolt::rialto::Application
                 status = firebolt::rialto::KeyStatus::INTERNAL_ERROR;
             }
         }
-    }
-    for (const auto &key : keysToNotify)
-    {
-        if ((m_callbacks) && (m_callbacks->key_update_callback))
+        else
         {
-            m_callbacks->key_update_callback(this, m_context, key.data(), key.size());
+            m_currentAppState = state;
+            return;
         }
     }
-    if (m_callbacks->keys_updated_callback)
+    if (!keysToNotify.empty())
     {
-        m_callbacks->keys_updated_callback(this, m_context);
+        for (const auto &key : keysToNotify)
+        {
+            if ((m_callbacks) && (m_callbacks->key_update_callback))
+            {
+                m_callbacks->key_update_callback(this, m_context, key.data(), key.size());
+            }
+        }
+        if (m_callbacks->keys_updated_callback)
+        {
+            m_callbacks->keys_updated_callback(this, m_context);
+        }
     }
     if (m_callbacks->error_message_callback)
     {

@@ -25,6 +25,8 @@
 #include "MediaCommon.h"
 #include <gmock/gmock.h>
 #include <memory>
+#include <string>
+#include <vector>
 
 class MessageDispatcherSubscriptionMock : public IMessageDispatcherSubscription
 {

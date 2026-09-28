@@ -19,30 +19,30 @@
 
 #include "MessageDispatcher.h"
 
-MessageDispatcher::MessageDispatcherClient::MessageDispatcherClient(MessageDispatcher &dispatcher,
-                                                                    firebolt::rialto::IMediaKeysClient *client)
+MessageDispatcher::MessageDispatcherSubscription::MessageDispatcherSubscription(MessageDispatcher &dispatcher,
+                                                                                IMessageDispatcherClient *client)
     : m_dispatcher{dispatcher}, m_client{client}
 {
     m_dispatcher.addClient(m_client);
 }
 
-MessageDispatcher::MessageDispatcherClient::~MessageDispatcherClient()
+MessageDispatcher::MessageDispatcherSubscription::~MessageDispatcherSubscription()
 {
     m_dispatcher.removeClient(m_client);
 }
 
-std::unique_ptr<IMessageDispatcherClient> MessageDispatcher::createClient(firebolt::rialto::IMediaKeysClient *client)
+std::unique_ptr<IMessageDispatcherSubscription> MessageDispatcher::subscribe(IMessageDispatcherClient *client)
 {
-    return std::make_unique<MessageDispatcherClient>(*this, client);
+    return std::make_unique<MessageDispatcherSubscription>(*this, client);
 }
 
-void MessageDispatcher::addClient(firebolt::rialto::IMediaKeysClient *client)
+void MessageDispatcher::addClient(IMessageDispatcherClient *client)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
     m_clients.emplace(client);
 }
 
-void MessageDispatcher::removeClient(firebolt::rialto::IMediaKeysClient *client)
+void MessageDispatcher::removeClient(IMessageDispatcherClient *client)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
     m_clients.erase(client);
@@ -73,5 +73,14 @@ void MessageDispatcher::onKeyStatusesChanged(int32_t keySessionId, const firebol
     for (auto *client : m_clients)
     {
         client->onKeyStatusesChanged(keySessionId, keyStatuses);
+    }
+}
+
+void MessageDispatcher::notifyApplicationState(firebolt::rialto::ApplicationState state)
+{
+    std::unique_lock<std::mutex> lock{m_mutex};
+    for (auto *client : m_clients)
+    {
+        client->notifyApplicationState(state);
     }
 }

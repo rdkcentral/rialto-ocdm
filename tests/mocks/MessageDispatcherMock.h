@@ -20,14 +20,35 @@
 #ifndef MESSAGE_DISPATCHER_MOCK_H_
 #define MESSAGE_DISPATCHER_MOCK_H_
 
+#include "ControlCommon.h"
 #include "IMessageDispatcher.h"
+#include "MediaCommon.h"
 #include <gmock/gmock.h>
 #include <memory>
+#include <string>
+#include <vector>
+
+class MessageDispatcherSubscriptionMock : public IMessageDispatcherSubscription
+{
+};
+
+class MessageDispatcherClientMock : public IMessageDispatcherClient
+{
+public:
+    MOCK_METHOD(void, onLicenseRequest,
+                (int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage, const std::string &url),
+                (override));
+    MOCK_METHOD(void, onLicenseRenewal, (int32_t keySessionId, const std::vector<unsigned char> &licenseRenewalMessage),
+                (override));
+    MOCK_METHOD(void, onKeyStatusesChanged,
+                (int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses), (override));
+    MOCK_METHOD(void, notifyApplicationState, (firebolt::rialto::ApplicationState state), (override));
+};
 
 class MessageDispatcherMock : public IMessageDispatcher
 {
 public:
-    MOCK_METHOD(std::unique_ptr<IMessageDispatcherClient>, createClient, (firebolt::rialto::IMediaKeysClient * client),
+    MOCK_METHOD(std::unique_ptr<IMessageDispatcherSubscription>, subscribe, (IMessageDispatcherClient * client),
                 (override));
 };
 

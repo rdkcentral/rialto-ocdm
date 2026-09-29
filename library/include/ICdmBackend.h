@@ -39,7 +39,9 @@ public:
     virtual bool createKeySession(firebolt::rialto::KeySessionType sessionType, int32_t &keySessionId) = 0;
     virtual bool generateRequest(int32_t keySessionId, firebolt::rialto::InitDataType initDataType,
                                  const std::vector<uint8_t> &initData,
-                                 const firebolt::rialto::LimitedDurationLicense &ldlState) = 0;
+                                 const std::vector<uint8_t> &cdmData = std::vector<uint8_t>{},
+                                 const firebolt::rialto::LimitedDurationLicense &ldlState =
+                                     firebolt::rialto::LimitedDurationLicense::NOT_SPECIFIED) = 0;
     virtual bool loadSession(int32_t keySessionId) = 0;
     virtual bool updateSession(int32_t keySessionId, const std::vector<uint8_t> &responseData) = 0;
     virtual bool setDrmHeader(int32_t keySessionId, const std::vector<uint8_t> &requestData) = 0;

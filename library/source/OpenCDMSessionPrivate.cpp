@@ -125,9 +125,13 @@ bool OpenCDMSessionPrivate::generateRequest(const std::string &initDataType, con
 
     if ((dataType != firebolt::rialto::InitDataType::UNKNOWN) && (-1 != m_rialtoSessionId))
     {
-        if (m_cdmBackend->generateRequest(m_rialtoSessionId, dataType, initData,
+        if (m_cdmBackend->generateRequest(m_rialtoSessionId, dataType, initData, cdmData,
                                           firebolt::rialto::LimitedDurationLicense::NOT_SPECIFIED))
         {
+            {
+                std::lock_guard<std::mutex> lock{m_mutex};
+                m_lastCdmData = cdmData;
+            }
             m_log << info << "Successfully generated the request for the session";
             initializeCdmKeySessionId();
             return true;
@@ -205,11 +209,13 @@ bool OpenCDMSessionPrivate::getChallengeDataSize(uint32_t &size, bool isLdl)
     }
 
     // Challenge will be reinitialized. Clear any previous data.
+    std::vector<uint8_t> cdmData;
     {
         std::unique_lock<std::mutex> lock{m_mutex};
         // Wait for previous challenge to be received before clearing it.
         m_challengeCv.wait_for(lock, std::chrono::milliseconds{250}, [this]() { return !m_challengeData.empty(); });
         m_challengeData.clear();
+        cdmData = m_lastCdmData;
     }
 
     if ((m_initDataType != firebolt::rialto::InitDataType::UNKNOWN) && (-1 != m_rialtoSessionId))
@@ -217,7 +223,7 @@ bool OpenCDMSessionPrivate::getChallengeDataSize(uint32_t &size, bool isLdl)
         const firebolt::rialto::LimitedDurationLicense kLdlState =
             isLdl ? firebolt::rialto::LimitedDurationLicense::ENABLED
                   : firebolt::rialto::LimitedDurationLicense::DISABLED;
-        if (m_cdmBackend->generateRequest(m_rialtoSessionId, m_initDataType, m_initData, kLdlState))
+        if (m_cdmBackend->generateRequest(m_rialtoSessionId, m_initDataType, m_initData, cdmData, kLdlState))
         {
             m_log << info << "Successfully generated the request for the session";
         }

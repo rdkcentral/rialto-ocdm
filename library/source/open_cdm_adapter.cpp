@@ -54,6 +54,7 @@ OpenCDMError opencdm_gstreamer_session_decrypt_buffer(struct OpenCDMSession *ses
         kLog << error << "Failed to decrypt - session is NULL";
         return ERROR_FAIL;
     }
+	printf("VRN gstreamer_session_decrypt_buffer IN\n");
 
     if (!session->addProtectionMeta(buffer))
     {

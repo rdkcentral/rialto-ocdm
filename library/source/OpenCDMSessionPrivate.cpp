@@ -129,6 +129,7 @@ bool OpenCDMSessionPrivate::generateRequest(const std::string &initDataType, con
                                           firebolt::rialto::LimitedDurationLicense::NOT_SPECIFIED))
         {
             m_log << info << "Successfully generated the request for the session";
+			printf("VRN Successfully generated the request for the session \n");
             initializeCdmKeySessionId();
             return true;
         }
@@ -280,6 +281,8 @@ void OpenCDMSessionPrivate::addProtectionMeta(GstBuffer *buffer, GstBuffer *subS
             }
         }
     }
+
+	printf("VRN add protec metadata via rialto mse \n");
 
     rialto_mse_add_protection_metadata(buffer, info);
 

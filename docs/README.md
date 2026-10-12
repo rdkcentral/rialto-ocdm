@@ -345,7 +345,7 @@ Rialto-OCDM interacts with the Rialto client library on its southbound interface
 
 **Primary Request / Response Flow:**
 
-All DRM operation calls are dispatched synchronously through `CdmBackend` to `IMediaKeys`. The Rialto client library handles the underlying IPC channel; rialto-ocdm sees only a synchronous return value indicating `MediaKeyErrorStatus::OK` or a failure code.
+Operations forwarded to Rialto are dispatched synchronously through `CdmBackend` to `IMediaKeys`. The Rialto client library handles the underlying IPC; rialto-ocdm sees a synchronous success or failure for those calls, while key-selection metadata is handled locally and license/key-status notifications arrive asynchronously.
 
 ```mermaid
 sequenceDiagram

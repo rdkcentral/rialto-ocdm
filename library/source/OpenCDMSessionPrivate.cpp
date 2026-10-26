@@ -151,7 +151,7 @@ bool OpenCDMSessionPrivate::loadSession()
 
     if (-1 != m_rialtoSessionId)
     {
-        if (m_cdmBackend->loadSession(m_rialtoSessionId))
+        if (m_cdmBackend->loadSession(m_rialtoSessionId, m_cdmKeySessionId))
         {
             m_log << info << "Successfully loaded the session";
             return true;
@@ -565,6 +565,11 @@ KeyStatus OpenCDMSessionPrivate::status(const std::vector<uint8_t> &key) const
 const std::string &OpenCDMSessionPrivate::getSessionId() const
 {
     return m_cdmKeySessionId;
+}
+
+void OpenCDMSessionPrivate::setCdmSessionId(const std::string &cdmSessionId)
+{
+    m_cdmKeySessionId = cdmSessionId;
 }
 
 void OpenCDMSessionPrivate::initializeCdmKeySessionId()

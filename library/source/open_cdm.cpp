@@ -248,7 +248,12 @@ OpenCDMError opencdm_construct_session(struct OpenCDMSystem *system, const Licen
     std::vector<uint8_t> cdmDataVec(reinterpret_cast<const uint8_t *>(CDMData),
                                     reinterpret_cast<const uint8_t *>(CDMData) + CDMDataLength);
 
-    if (!newSession->generateRequest(initializationDataType, initDataVec, cdmDataVec /*not used yet*/))
+    if (LicenseType::PersistentLicense == licenseType && !cdmDataVec.empty())
+    {
+        // Persistent license restore scenario, no generateRequest call, loadSession should be called later.
+        newSession->setCdmSessionId(std::string(cdmDataVec.begin(), cdmDataVec.end()));
+    }
+    else if (!newSession->generateRequest(initializationDataType, initDataVec, cdmDataVec))
     {
         kLog << error << "Failed to generate request";
 

@@ -45,7 +45,7 @@ const std::string kWidevineKeySystem{"com.widevine.alpha"};
 constexpr LicenseType kLicenseType{LicenseType::Temporary};
 const std::string kInitDataType{"drmheader"};
 const std::vector<uint8_t> kInitData{1, 2, 3, 4};
-const std::vector<uint8_t> kCdmData{5, 6, 7, 8};
+const std::vector<uint8_t> kCdmData{'c', 'd', 'm', 'd', 'a', 't', 'a'};
 const std::string kSessionId{"abc"};
 } // namespace
 
@@ -220,6 +220,22 @@ TEST_F(OpenCdmTests, ShouldConstructWidevineSession)
     EXPECT_EQ(ERROR_NONE, opencdm_construct_session(&m_openCdmSystemMock, kLicenseType, kInitDataType.c_str(),
                                                     kInitData.data(), kInitData.size(), kCdmData.data(),
                                                     kCdmData.size(), &m_callbacks, &m_userData, &resultSession));
+    EXPECT_EQ(&m_openCdmSessionMock, resultSession);
+}
+
+TEST_F(OpenCdmTests, ShouldRenewPersistentLicenseSession)
+{
+    const std::string kCdmDataStr{"cdmdata"};
+    OpenCDMSession *resultSession{nullptr};
+    EXPECT_CALL(m_openCdmSystemMock,
+                createSession(LicenseType::PersistentLicense, &m_callbacks, &m_userData, kInitDataType, kInitData))
+        .WillOnce(Return(&m_openCdmSessionMock));
+    EXPECT_CALL(m_openCdmSessionMock, initialize()).WillOnce(Return(true));
+    EXPECT_CALL(m_openCdmSessionMock, setCdmSessionId(kCdmDataStr));
+    EXPECT_EQ(ERROR_NONE,
+              opencdm_construct_session(&m_openCdmSystemMock, LicenseType::PersistentLicense, kInitDataType.c_str(),
+                                        kInitData.data(), kInitData.size(), kCdmData.data(), kCdmData.size(),
+                                        &m_callbacks, &m_userData, &resultSession));
     EXPECT_EQ(&m_openCdmSessionMock, resultSession);
 }
 

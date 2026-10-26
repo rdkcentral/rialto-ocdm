@@ -51,6 +51,7 @@ const std::string kCipherMode{"ciphermode"};
 constexpr uint32_t kPatternCryptoBlocks{14};
 constexpr uint32_t kPatternClearBlocks{53};
 constexpr firebolt::rialto::LimitedDurationLicense kLdlState{firebolt::rialto::LimitedDurationLicense::NOT_SPECIFIED};
+const std::string kCdmSessionId{"cdmSessionId"};
 } // namespace
 
 class OpenCdmSessionTests : public testing::Test
@@ -298,7 +299,10 @@ TEST_F(OpenCdmSessionTests, ShouldFailToLoadSessionWhenOperationFails)
 {
     createSut();
     initializeSut();
-    EXPECT_CALL(*m_cdmBackendMock, loadSession(kKeySessionId)).WillOnce(Return(false));
+
+    m_sut->setCdmSessionId(kCdmSessionId);
+
+    EXPECT_CALL(*m_cdmBackendMock, loadSession(kKeySessionId, kCdmSessionId)).WillOnce(Return(false));
     EXPECT_CALL(*m_cdmBackendMock, getLastDrmError(kKeySessionId, _)).WillOnce(Return(false));
     EXPECT_FALSE(m_sut->loadSession());
     teardownSut();
@@ -308,7 +312,10 @@ TEST_F(OpenCdmSessionTests, ShouldLoadSession)
 {
     createSut();
     initializeSut();
-    EXPECT_CALL(*m_cdmBackendMock, loadSession(kKeySessionId)).WillOnce(Return(true));
+
+    m_sut->setCdmSessionId(kCdmSessionId);
+
+    EXPECT_CALL(*m_cdmBackendMock, loadSession(kKeySessionId, kCdmSessionId)).WillOnce(Return(true));
     EXPECT_TRUE(m_sut->loadSession());
     teardownSut();
 }
@@ -728,15 +735,14 @@ TEST_F(OpenCdmSessionTests, ShouldReturnDefaultSessionIdWhenGetCdmKeySessionIdFa
 
 TEST_F(OpenCdmSessionTests, ShouldReturnSessionId)
 {
-    const std::string cdmSessionId{"id"};
     createSut();
     initializeSut();
     EXPECT_CALL(*m_cdmBackendMock, generateRequest(kKeySessionId, kRialtoInitDataType, kBytes1, kLdlState))
         .WillOnce(Return(true));
     EXPECT_CALL(*m_cdmBackendMock, getCdmKeySessionId(kKeySessionId, _))
-        .WillOnce(DoAll(SetArgReferee<1>(cdmSessionId), Return(true)));
+        .WillOnce(DoAll(SetArgReferee<1>(kCdmSessionId), Return(true)));
     EXPECT_TRUE(m_sut->generateRequest(kInitDataType, kBytes1, kBytes2));
-    EXPECT_EQ(m_sut->getSessionId(), cdmSessionId);
+    EXPECT_EQ(m_sut->getSessionId(), kCdmSessionId);
     teardownSut();
 }
 

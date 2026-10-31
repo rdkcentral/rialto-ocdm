@@ -19,6 +19,8 @@
 #
 # Entry script for building the dependencies for Rialto-OCDM Native Build.
 
+set -eu
+
 # Read input variables.
 BRANCH=master
 WORK_DIR=${HOME}
@@ -41,8 +43,10 @@ apt-get install -y protobuf-compiler
 
 # Clone the rialto repository and build the dependencies for Rialto-Gstreamer Native Build.
 cd "${WORK_DIR}"
-git clone --branch "${BRANCH}" --depth 1 https://github.com/rdkcentral/rialto.git
+git clone --no-checkout --depth 1 https://github.com/rdkcentral/rialto.git
 cd "${WORK_DIR}/rialto"
+git fetch --depth 1 origin "${BRANCH}"
+git checkout --detach FETCH_HEAD
 NATIVE_DIR="${WORK_DIR}/native"
 cmake . -B build  -DCMAKE_INSTALL_PREFIX="${NATIVE_DIR}" -DNATIVE_BUILD=ON -DRIALTO_BUILD_TYPE="Debug"
 make -C build install -j$(nproc)

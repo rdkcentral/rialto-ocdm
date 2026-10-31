@@ -39,23 +39,11 @@ jobs:
       # Check, from which rialto branch should we download headers
       - name: Check if rialto branch with the same name exists
         id: check-branch
-        shell: sh +e {0}
-        run: |
-          branch="${{ github.ref_name }}"
-          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-            git ls-remote --exit-code --heads "https://github.com/rdkcentral/rialto.git" ${{ github.event.pull_request.head.ref }} > /dev/null
-            if [ $? -eq 0 ]; then
-              branch="${{ github.event.pull_request.head.ref }}"
-            else
-              git ls-remote --exit-code --heads "https://github.com/rdkcentral/rialto.git" ${{ github.event.pull_request.base.ref}} > /dev/null
-              if [ $? -eq 0 ]; then
-                branch="${{ github.event.pull_request.base.ref }}"
-              else
-                branch="master"
-              fi
-            fi
-          fi
-          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+        working-directory: rialto-ocdm
+        env:
+          PR_HEAD_BRANCH: ${{ github.head_ref }}
+          TARGET_BRANCH: ${{ github.base_ref || github.ref_name }}
+        run: sh scripts/select_rialto_ref.sh
 
       - name: Install Dependencies
         run: |
@@ -65,13 +53,15 @@ jobs:
           echo "Work dir: ${WORK_DIR}"
 
           cd rialto-ocdm
-          sudo sh -x install_dependencies_for_native_build.sh "${{ steps.check-branch.outputs.branch }}" "${WORK_DIR}" &> "${WORK_DIR}/output_file.txt"
+          set -o pipefail
+          sudo sh -x install_dependencies_for_native_build.sh "${{ steps.check-branch.outputs.branch }}" "${WORK_DIR}" 2>&1 | tee "${WORK_DIR}/output_file.txt"
 
       - name: Native build OCDM
         run: |
           WORK_DIR=$(pwd)
           cd rialto-ocdm
-          sh -x build_native.sh "${WORK_DIR}" &>> "${WORK_DIR}/output_file.txt"
+          set -o pipefail
+          sh -x build_native.sh "${WORK_DIR}" 2>&1 | tee -a "${WORK_DIR}/output_file.txt"
 
       - name: Report Build Status Success
         if: success()

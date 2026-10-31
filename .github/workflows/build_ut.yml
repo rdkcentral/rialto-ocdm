@@ -26,9 +26,9 @@ name: build_ut
 on:
   # Triggers the workflow on push or pull request events but only for the "master" and "release/*" branches
   push:
-    branches: ["master", "release/*"]
+    branches: ["master", "release/*", "support/*"]
   pull_request:
-    branches: ["master", "release/*"]
+    branches: ["master", "release/*", "support/*"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -75,18 +75,10 @@ jobs:
       # Check, from which rialto branch should we download headers
       - name: Check if rialto branch with the same name exists
         id: check-branch
-        shell: sh +e {0}
-        run: |
-          branch="${{ github.ref_name }}"
-          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-            git ls-remote --exit-code --heads "https://github.com/rdkcentral/rialto.git" ${{ github.event.pull_request.head.ref }} > /dev/null
-            if [ $? -eq 0 ]; then
-              branch="${{ github.event.pull_request.head.ref }}"
-            else
-              branch="${{ github.event.pull_request.base.ref }}"
-            fi
-          fi
-          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+        env:
+          PR_HEAD_BRANCH: ${{ github.head_ref }}
+          TARGET_BRANCH: ${{ github.base_ref || github.ref_name }}
+        run: sh scripts/select_rialto_ref.sh
 
       # Run the build script
       - name: build_ut.py script
@@ -127,9 +119,48 @@ jobs:
         with:
           name: coverage_report_stats
           path: build/coverage_statistics.txt
+          if-no-files-found: error
+
+      - name: Checkout target commit for coverage baseline
+        if: ${{ github.event_name == 'pull_request' && github.base_ref != 'master' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: coverage-baseline
+          persist-credentials: false
+
+      - name: Build target commit coverage
+        if: ${{ github.event_name == 'pull_request' && github.base_ref != 'master' }}
+        working-directory: coverage-baseline
+        env:
+          RIALTO_REF: ${{ steps.check-branch.outputs.branch }}
+        run: python3 build_ut.py -c -xml -f -cov -b "$RIALTO_REF"
+
+      - name: Upload Target Commit Coverage Statistics
+        if: ${{ github.event_name == 'pull_request' && github.base_ref != 'master' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: baseline_coverage_report_stats
+          path: coverage-baseline/build/coverage_statistics.txt
+          if-no-files-found: error
+
+      - name: Upload baseline logs on failure
+        if: ${{ failure() && github.event_name == 'pull_request' && github.base_ref != 'master' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: baseline_logs
+          path: |
+            coverage-baseline/gtest_result.log
+            coverage-baseline/build/*gtest_result.xml
 
   checks-the-cov-report:
     name: Checks the Coverage Report
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    permissions:
+      contents: read
+      actions: read
+      issues: write
+      pull-requests: write
 
     # Runs on ubuntu
     runs-on: ubuntu-24.04
@@ -141,6 +172,12 @@ jobs:
     needs: [build-test]
     
     steps:
+      - name: Require successful coverage builds
+        if: ${{ needs.build-test.result != 'success' }}
+        run: |
+          echo "PR or baseline coverage build did not succeed; coverage comparison cannot pass." >&2
+          exit 1
+
       - name: Checkout repo
         uses: actions/checkout@v4
     
@@ -159,28 +196,25 @@ jobs:
           workflow_conclusion: success
           branch: master
           name: coverage_report_stats
-          path: master_artifacts
+          path: baseline_artifacts
+
+      - name: Download Target Commit Coverage Statistics
+        if: ${{ github.base_ref != 'master' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: baseline_coverage_report_stats
+          path: baseline_artifacts
       
       # Run the process_coverage_stats script
       - name: Process Coverage Statistics
-        if: ${{ success() && github.event_name == 'pull_request' && github.base_ref == 'master' }}
-        run: python scripts/coverage/process_coverage_stats.py ./master_artifacts/coverage_statistics.txt build/coverage_statistics.txt
-      
-      # Get process_coverage_stats script output
-      - id: get-comment-body
-        if: ${{ (success() || failure()) && github.ref != 'refs/heads/master' }}
-        run: |
-          body="$(cat comparison_output.txt)"
-          body="${body//'%'/'%25'}"
-          body="${body//$'\n'/'%0A'}"
-          body="${body//$'\r'/'%0D'}"
-          echo "::set-output name=body::$body"
+        id: compare-coverage
+        run: python3 scripts/coverage/process_coverage_stats.py baseline_artifacts/coverage_statistics.txt build/coverage_statistics.txt
       
       # Create comment with coverage info
       - name: Create Coverage Comment
-        if: ${{ (success() || failure()) && github.ref != 'refs/heads/master' }}
+        if: ${{ (success() || failure()) && (steps.compare-coverage.outcome == 'success' || steps.compare-coverage.outcome == 'failure') && hashFiles('comparison_output.txt') != '' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.get-comment-body.outputs.body }}
+          body-path: comparison_output.txt
  

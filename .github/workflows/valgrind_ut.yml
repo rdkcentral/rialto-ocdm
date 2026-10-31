@@ -20,6 +20,7 @@
 # This workflow builds and runs the rialto-ocdm unittests with valgrind to check for memory leaks.
 # The workflow shall fail if leaks are detected and the results are summarized in github.
 # Logs are uploaded on failure.
+# test
 
 name: valgrind_ut
 

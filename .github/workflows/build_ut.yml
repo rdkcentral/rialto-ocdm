@@ -155,7 +155,7 @@ jobs:
 
   checks-the-cov-report:
     name: Checks the Coverage Report
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ always() && github.event_name == 'pull_request' }}
     permissions:
       contents: read
       actions: read
@@ -172,6 +172,12 @@ jobs:
     needs: [build-test]
     
     steps:
+      - name: Require successful coverage builds
+        if: ${{ needs.build-test.result != 'success' }}
+        run: |
+          echo "PR or baseline coverage build did not succeed; coverage comparison cannot pass." >&2
+          exit 1
+
       - name: Checkout repo
         uses: actions/checkout@v4
     

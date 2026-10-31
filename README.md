@@ -20,6 +20,10 @@ from the 8.6.3.0 platform manifest; `release/v0.9.3` uses
 Other targets try the matching Rialto feature branch and then the target branch.
 Missing mappings or remote lookup errors fail explicitly.
 
+Native builds use the same selector. The native dependency installer accepts
+both branch names and pinned commit SHAs and stops on command failures.
+Build output is shown in the job log and retained in the failure-log artifact.
+
 Master PRs retain the existing successful-master coverage artifact lookup.
 Release/support PRs build the exact target commit in a separate directory with
 the same Rialto ref as the PR, generating both reports in the current run.

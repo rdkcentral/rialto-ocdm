@@ -32,8 +32,8 @@ case "$TARGET_BRANCH" in
         branch=""
         for candidate in "${PR_HEAD_BRANCH:-}" "$TARGET_BRANCH"; do
             [ -n "$candidate" ] || continue
-            if git ls-remote --exit-code --heads https://github.com/rdkcentral/rialto.git "refs/heads/$candidate" > /dev/null; then
-                branch="$candidate"
+            if resolved_ref=$(git ls-remote --exit-code --heads https://github.com/rdkcentral/rialto.git "refs/heads/$candidate"); then
+                branch="${resolved_ref%%[[:space:]]*}"
                 break
             else
                 status=$?
@@ -49,5 +49,9 @@ case "$TARGET_BRANCH" in
         fi
         ;;
 esac
+if ! printf '%s\n' "$branch" | grep -Eq '^[0-9a-f]{40}$'; then
+    echo "Could not resolve the Rialto dependency to a commit SHA" >&2
+    exit 1
+fi
 echo "Using Rialto ref: $branch"
 echo "branch=$branch" >> "$GITHUB_OUTPUT"

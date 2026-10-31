@@ -19,6 +19,9 @@ from the 8.6.3.0 platform manifest; `release/v0.9.3` uses
 `ed056254aed65af575aa0f44fdf5a44aed992952` from the 8.4.4.0 manifest.
 Other targets try the matching Rialto feature branch and then the target branch.
 Missing mappings or remote lookup errors fail explicitly.
+Branch selections are resolved once to an immutable Rialto commit SHA.
+The PR and automatic baseline builds reuse that SHA. The coverage check runs
+even when its prerequisite build fails and explicitly rejects that failure.
 
 Native builds use the same selector. The native dependency installer accepts
 both branch names and pinned commit SHAs and stops on command failures.

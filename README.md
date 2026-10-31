@@ -20,6 +20,10 @@ from the 8.6.3.0 platform manifest; `release/v0.9.3` uses
 Other targets try the matching Rialto feature branch and then the target branch.
 Missing mappings or remote lookup errors fail explicitly.
 
+The native-build workflow uses the same Rialto selector and installs
+`libyaml-cpp-dev`. Build output is shown in the job log and saved in the
+`Output Logs` artifact on failure.
+
 Master PRs retain the existing successful-master coverage artifact lookup.
 Release/support PRs build the exact target commit in a separate directory with
 the same Rialto ref as the PR, generating both reports in the current run.

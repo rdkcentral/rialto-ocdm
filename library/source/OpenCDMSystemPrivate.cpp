@@ -68,7 +68,7 @@ OpenCDMSession *OpenCDMSystemPrivate::createSession(const LicenseType licenseTyp
                                                     void *userData, const std::string &initDataType,
                                                     const std::vector<uint8_t> &initData) const
 {
-    return ActiveSessions::instance().create(m_cdmBackend, m_messageDispatcher, licenseType, callbacks, userData,
+    return ActiveSessions::instance().create(this, m_cdmBackend, m_messageDispatcher, licenseType, callbacks, userData,
                                              initDataType, initData);
 }
 

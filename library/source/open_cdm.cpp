@@ -199,7 +199,7 @@ struct OpenCDMSession *opencdm_get_system_session(struct OpenCDMSystem *system, 
                                                   const uint8_t length, const uint32_t waitTime)
 {
     kLog << debug << __func__;
-    return ActiveSessions::instance().get(std::vector<uint8_t>(keyId, keyId + length));
+    return ActiveSessions::instance().get(std::vector<uint8_t>(keyId, keyId + length), system, waitTime);
 }
 
 OpenCDMError opencdm_system_set_server_certificate(struct OpenCDMSystem *system, const uint8_t serverCertificate[],

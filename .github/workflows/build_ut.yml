@@ -61,7 +61,7 @@ jobs:
       - name: Build gstreamer library
         run: |
           sudo apt-get update
-          sudo apt-get install libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-base 
+          sudo apt-get install libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-base libyaml-cpp-dev
 
       # Setup github for lcov 2.0
       - name: Build lcov library
@@ -75,6 +75,8 @@ jobs:
       # Check, from which rialto branch should we download headers
       - name: Check if rialto branch with the same name exists
         id: check-branch
+        env:
+          RIALTO_FALLBACK_BRANCH: release/v0.22.4
         shell: sh +e {0}
         run: |
           branch="${{ github.ref_name }}"
@@ -84,6 +86,9 @@ jobs:
               branch="${{ github.event.pull_request.head.ref }}"
             else
               branch="${{ github.event.pull_request.base.ref }}"
+              if [ $? -ne 0 ]; then
+                branch="$RIALTO_FALLBACK_BRANCH"
+              fi
             fi
           fi
           echo "branch=$branch" >> "$GITHUB_OUTPUT"

@@ -77,6 +77,7 @@ jobs:
         id: check-branch
         env:
           RIALTO_FALLBACK_BRANCH: release/v0.22.4
+          PR_BRANCH: ${{ github.head_ref }}
         shell: sh +e {0}
         run: |
           branch="${{ github.ref_name }}"
@@ -85,8 +86,10 @@ jobs:
             if [ $? -eq 0 ]; then
               branch="${{ github.event.pull_request.head.ref }}"
             else
-              branch="${{ github.event.pull_request.base.ref }}"
+              git ls-remote --exit-code --heads "https://github.com/rdkcentral/rialto.git" ${{ github.event.pull_request.base.ref}} > /dev/null
               if [ $? -ne 0 ]; then
+                branch="${{ github.event.pull_request.base.ref }}"
+              else
                 branch="$RIALTO_FALLBACK_BRANCH"
               fi
             fi

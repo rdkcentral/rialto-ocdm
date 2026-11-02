@@ -92,8 +92,10 @@ jobs:
             if [ $? -eq 0 ]; then
               branch="${{ github.event.pull_request.head.ref }}"
             else
-              branch="${{ github.event.pull_request.base.ref }}"
-              if [ $? -ne 0 ]; then
+              git ls-remote --exit-code --heads "https://github.com/rdkcentral/rialto.git" ${{ github.event.pull_request.base.ref}} > /dev/null
+              if [ $? -eq 0 ]; then
+                branch="${{ github.event.pull_request.base.ref }}"
+              else
                 branch="$RIALTO_FALLBACK_BRANCH"
               fi
             fi

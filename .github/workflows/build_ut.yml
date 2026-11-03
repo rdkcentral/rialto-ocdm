@@ -64,7 +64,7 @@ jobs:
       - name: Build gstreamer library
         run: |
           sudo apt-get update
-          sudo apt-get install libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-base 
+          sudo apt-get install libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-base libyaml-cpp-dev
 
       # Setup github for lcov 2.0
       - name: Build lcov library
@@ -172,7 +172,7 @@ jobs:
       # Run the process_coverage_stats script
       - name: Process Coverage Statistics
         id: compare-coverage
-        if: ${{ success() && github.event_name == 'pull_request' && github.base_ref == env.RIALTO_FALLBACK_BRANCH }}
+        if: ${{ success() && github.event_name == 'pull_request' && github.base_ref == 'master' }}
         run: python scripts/coverage/process_coverage_stats.py ./master_artifacts/coverage_statistics.txt build/coverage_statistics.txt
       
       # Get process_coverage_stats script output
@@ -187,9 +187,9 @@ jobs:
       
       # Create comment with coverage info
       - name: Create Coverage Comment
-        if: ${{ (success() || failure()) && github.event_name == 'pull_request' && github.base_ref == env.RIALTO_FALLBACK_BRANCH && steps.get-comment-body.outcome == 'success' }}
+        if: ${{ (success() || failure()) && github.event_name == 'pull_request' && github.base_ref == 'master' && (steps.compare-coverage.outcome == 'success' || steps.compare-coverage.outcome == 'failure') }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.get-comment-body.outputs.body }}
+          body-path: comparison_output.txt
  

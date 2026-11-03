@@ -33,6 +33,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  RIALTO_FALLBACK_BRANCH: release/v0.15.2
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This job sets up the repo with the dependancies then runs the tests
@@ -61,7 +64,7 @@ jobs:
       - name: Build gstreamer library
         run: |
           sudo apt-get update
-          sudo apt-get install libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-base 
+          sudo apt-get install libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-base libyaml-cpp-dev
 
       # Setup github for lcov 2.0
       - name: Build lcov library
@@ -83,7 +86,12 @@ jobs:
             if [ $? -eq 0 ]; then
               branch="${{ github.event.pull_request.head.ref }}"
             else
-              branch="${{ github.event.pull_request.base.ref }}"
+              git ls-remote --exit-code --heads "https://github.com/rdkcentral/rialto.git" ${{ github.event.pull_request.base.ref }} > /dev/null
+              if [ $? -eq 0 ]; then
+                branch="${{ github.event.pull_request.base.ref }}"
+              else
+                branch="$RIALTO_FALLBACK_BRANCH"
+              fi
             fi
           fi
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
@@ -163,12 +171,13 @@ jobs:
       
       # Run the process_coverage_stats script
       - name: Process Coverage Statistics
+        id: compare-coverage
         if: ${{ success() && github.event_name == 'pull_request' && github.base_ref == 'master' }}
         run: python scripts/coverage/process_coverage_stats.py ./master_artifacts/coverage_statistics.txt build/coverage_statistics.txt
       
       # Get process_coverage_stats script output
       - id: get-comment-body
-        if: ${{ (success() || failure()) && github.ref != 'refs/heads/master' }}
+        if: ${{ (success() || failure()) && (steps.compare-coverage.outcome == 'success' || steps.compare-coverage.outcome == 'failure') }}
         run: |
           body="$(cat comparison_output.txt)"
           body="${body//'%'/'%25'}"
@@ -178,9 +187,9 @@ jobs:
       
       # Create comment with coverage info
       - name: Create Coverage Comment
-        if: ${{ (success() || failure()) && github.ref != 'refs/heads/master' }}
+        if: ${{ (success() || failure()) && github.event_name == 'pull_request' && github.base_ref == 'master' && (steps.compare-coverage.outcome == 'success' || steps.compare-coverage.outcome == 'failure') }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ steps.get-comment-body.outputs.body }}
+          body-path: comparison_output.txt
  

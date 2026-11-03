@@ -26,6 +26,8 @@ on:
     branches: ["master", "release/*"]
   workflow_dispatch:
 
+env:
+  RIALTO_FALLBACK_BRANCH: release/v0.15.2
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -40,7 +42,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: rdkcentral/rialto
-          ref: release/v0.22.4
+          ref: ${{ env.RIALTO_FALLBACK_BRANCH }}
           path: ./rialto
           fetch-depth: 0
 
@@ -58,7 +60,7 @@ jobs:
       - name: Switch branch
         continue-on-error: true
         run: |
-          BRANCH=${GITHUB_HEAD_REF##*/}
+          BRANCH=$RIALTO_FALLBACK_BRANCH
           cd rialto
           # This will fail if there's no corresponding branch in rialto
           # ...but that's ok since we set continue-on-error

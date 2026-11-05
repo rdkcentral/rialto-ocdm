@@ -675,6 +675,22 @@ TEST_F(OpenCdmSessionTests, ShouldProcessLicenseRenewal)
     teardownSut();
 }
 
+TEST_F(OpenCdmSessionTests, ShouldNotProcessLicenseReleaseWhenNotInitialized)
+{
+    createSut();
+    m_sut->onLicenseRelease(kKeySessionId, kBytes1, kUrl);
+}
+
+TEST_F(OpenCdmSessionTests, ShouldProcessLicenseRelease)
+{
+    createSut();
+    initializeSut();
+    EXPECT_CALL(OcdmSessionsCallbacksMock::instance(),
+                processChallengeCallback(m_sut.get(), &m_userData, kUrl.c_str(), kBytes1.data(), kBytes1.size()));
+    m_sut->onLicenseRelease(kKeySessionId, kBytes1, kUrl);
+    teardownSut();
+}
+
 TEST_F(OpenCdmSessionTests, ShouldNotProcessKeyStatusUpdateWhenNotInitialized)
 {
     createSut();

@@ -55,6 +55,14 @@ TEST_F(MessageDispatcherTests, shouldForwardLicenseRenewal)
     client.reset();
 }
 
+TEST_F(MessageDispatcherTests, shouldForwardLicenseRelease)
+{
+    auto client{m_sut.subscribe(&m_clientMock)};
+    EXPECT_CALL(m_clientMock, onLicenseRelease(kKeySessionId, kMessage, kUrl));
+    m_sut.onLicenseRelease(kKeySessionId, kMessage, kUrl);
+    client.reset();
+}
+
 TEST_F(MessageDispatcherTests, shouldForwardKeyStatusChange)
 {
     auto client{m_sut.subscribe(&m_clientMock)};

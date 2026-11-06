@@ -67,6 +67,16 @@ void MessageDispatcher::onLicenseRenewal(int32_t keySessionId, const std::vector
     }
 }
 
+void MessageDispatcher::onLicenseRelease(int32_t keySessionId, const std::vector<unsigned char> &licenseReleaseMessage,
+                                         const std::string &url)
+{
+    std::unique_lock<std::mutex> lock{m_mutex};
+    for (auto *client : m_clients)
+    {
+        client->onLicenseRelease(keySessionId, licenseReleaseMessage, url);
+    }
+}
+
 void MessageDispatcher::onKeyStatusesChanged(int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses)
 {
     std::unique_lock<std::mutex> lock{m_mutex};

@@ -50,6 +50,7 @@ public:
     MOCK_METHOD(KeyStatus, status, (const std::vector<uint8_t> &key), (const, override));
     MOCK_METHOD(const std::string &, getSessionId, (), (const, override));
     MOCK_METHOD(uint32_t, getLastDrmError, (), (const, override));
+    MOCK_METHOD(void, setCdmSessionId, (const std::string &cdmSessionId), (override));
 };
 
 #endif // OPENCDM_SESSION_MOCK_H_

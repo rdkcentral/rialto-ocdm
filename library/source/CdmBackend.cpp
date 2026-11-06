@@ -119,14 +119,14 @@ bool CdmBackend::generateRequest(int32_t keySessionId, firebolt::rialto::InitDat
            m_mediaKeys->generateRequest(keySessionId, initDataType, initData, ldlState);
 }
 
-bool CdmBackend::loadSession(int32_t keySessionId)
+bool CdmBackend::loadSession(int32_t keySessionId, const std::string &cdmKeySessionId)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
     if (!m_mediaKeys)
     {
         return false;
     }
-    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->loadSession(keySessionId);
+    return firebolt::rialto::MediaKeyErrorStatus::OK == m_mediaKeys->loadSession(keySessionId, cdmKeySessionId);
 }
 
 bool CdmBackend::updateSession(int32_t keySessionId, const std::vector<uint8_t> &responseData)

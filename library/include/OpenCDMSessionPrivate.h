@@ -75,6 +75,7 @@ public:
 
     const std::string &getSessionId() const override;
     uint32_t getLastDrmError() const override;
+    void setCdmSessionId(const std::string &cdmSessionId) override;
 
 private:
     void initializeCdmKeySessionId();

@@ -36,6 +36,7 @@ constexpr int32_t kKeySessionId{17};
 constexpr firebolt::rialto::KeySessionType kSessionType{firebolt::rialto::KeySessionType::TEMPORARY};
 constexpr firebolt::rialto::InitDataType kInitDataType{firebolt::rialto::InitDataType::DRMHEADER};
 constexpr firebolt::rialto::LimitedDurationLicense kLdlState{firebolt::rialto::LimitedDurationLicense::NOT_SPECIFIED};
+const std::string kCdmKeySessionId{"cdmKeySessionId"};
 } // namespace
 
 class CdmBackendTests : public testing::Test
@@ -206,21 +207,23 @@ TEST_F(CdmBackendTests, ShouldGenerateRequest)
 
 TEST_F(CdmBackendTests, ShouldFailToLoadSessionWhenMediaKeysIsNotPresent)
 {
-    EXPECT_FALSE(m_sut.loadSession(kKeySessionId));
+    EXPECT_FALSE(m_sut.loadSession(kKeySessionId, kCdmKeySessionId));
 }
 
 TEST_F(CdmBackendTests, ShouldFailToLoadSession)
 {
-    EXPECT_CALL(*m_mediaKeysMock, loadSession(kKeySessionId)).WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::FAIL));
+    EXPECT_CALL(*m_mediaKeysMock, loadSession(kKeySessionId, kCdmKeySessionId))
+        .WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::FAIL));
     changeStateToRunning();
-    EXPECT_FALSE(m_sut.loadSession(kKeySessionId));
+    EXPECT_FALSE(m_sut.loadSession(kKeySessionId, kCdmKeySessionId));
 }
 
 TEST_F(CdmBackendTests, ShouldLoadSession)
 {
-    EXPECT_CALL(*m_mediaKeysMock, loadSession(kKeySessionId)).WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::OK));
+    EXPECT_CALL(*m_mediaKeysMock, loadSession(kKeySessionId, kCdmKeySessionId))
+        .WillOnce(Return(firebolt::rialto::MediaKeyErrorStatus::OK));
     changeStateToRunning();
-    EXPECT_TRUE(m_sut.loadSession(kKeySessionId));
+    EXPECT_TRUE(m_sut.loadSession(kKeySessionId, kCdmKeySessionId));
 }
 
 TEST_F(CdmBackendTests, ShouldFailToUpdateSessionWhenMediaKeysIsNotPresent)

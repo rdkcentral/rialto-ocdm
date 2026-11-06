@@ -63,6 +63,7 @@ public:
 
     virtual const std::string &getSessionId() const = 0;
     virtual uint32_t getLastDrmError() const = 0;
+    virtual void setCdmSessionId(const std::string &cdmSessionId) = 0;
 };
 
 #endif // OPENCDM_SESSION_H_

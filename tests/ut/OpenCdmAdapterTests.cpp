@@ -59,6 +59,10 @@ TEST_F(OpenCdmAdapterTests, ShouldDecrypt)
 // function not declared in official interface (?)
 // NOLINTNEXTLINE(build/function_format)
 OpenCDMError opencdm_gstreamer_transform_caps(GstCaps **caps);
+// function not declared in official interface (?)
+// NOLINTNEXTLINE(build/function_format)
+OpenCDMError opencdm_gstreamer_session_decrypt_buffer_once(struct OpenCDMSession *session, GstBuffer *buffer,
+                                                           GstCaps *caps);
 TEST_F(OpenCdmAdapterTests, ShouldTransformCaps)
 {
     EXPECT_EQ(ERROR_NONE, opencdm_gstreamer_transform_caps(nullptr));
@@ -79,4 +83,21 @@ TEST_F(OpenCdmAdapterTests, ShouldDecryptBuffer)
 {
     EXPECT_CALL(m_openCdmSessionMock, addProtectionMeta(&m_buffer)).WillOnce(Return(true));
     EXPECT_EQ(ERROR_NONE, opencdm_gstreamer_session_decrypt_buffer(&m_openCdmSessionMock, &m_buffer, &m_caps));
+}
+
+TEST_F(OpenCdmAdapterTests, ShouldFailToDecryptBufferOnceWhenSessionIsNull)
+{
+    EXPECT_EQ(ERROR_FAIL, opencdm_gstreamer_session_decrypt_buffer_once(nullptr, &m_buffer, &m_caps));
+}
+
+TEST_F(OpenCdmAdapterTests, ShouldFailToDecryptBufferOnceWhenOperationFails)
+{
+    EXPECT_CALL(m_openCdmSessionMock, addProtectionMeta(&m_buffer)).WillOnce(Return(false));
+    EXPECT_EQ(ERROR_FAIL, opencdm_gstreamer_session_decrypt_buffer_once(&m_openCdmSessionMock, &m_buffer, &m_caps));
+}
+
+TEST_F(OpenCdmAdapterTests, ShouldDecryptBufferOnce)
+{
+    EXPECT_CALL(m_openCdmSessionMock, addProtectionMeta(&m_buffer)).WillOnce(Return(true));
+    EXPECT_EQ(ERROR_NONE, opencdm_gstreamer_session_decrypt_buffer_once(&m_openCdmSessionMock, &m_buffer, &m_caps));
 }

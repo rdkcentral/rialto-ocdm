@@ -24,6 +24,7 @@
 #include "IMessageDispatcher.h"
 #include "OpenCDMSession.h"
 #include <MediaCommon.h>
+#include <condition_variable>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -31,25 +32,34 @@
 #include <string>
 #include <vector>
 
+struct OpenCDMSystem;
+
 class ActiveSessions
 {
 public:
     static ActiveSessions &instance();
 
-    OpenCDMSession *create(const std::shared_ptr<ICdmBackend> &cdm,
+    OpenCDMSession *create(const OpenCDMSystem *system, const std::shared_ptr<ICdmBackend> &cdm,
                            const std::shared_ptr<IMessageDispatcher> &messageDispatcher, const LicenseType &sessionType,
                            OpenCDMSessionCallbacks *callbacks, void *context, const std::string &initDataType,
                            const std::vector<uint8_t> &initData);
-    OpenCDMSession *get(const std::vector<uint8_t> &keyId);
+    OpenCDMSession *get(const std::vector<uint8_t> &keyId, const OpenCDMSystem *system, uint32_t waitTimeMs);
     void remove(OpenCDMSession *session);
 
 private:
     ActiveSessions() = default;
     ~ActiveSessions() = default;
 
+    struct SessionEntry
+    {
+        int refCount;
+        const OpenCDMSystem *system;
+    };
+
 private:
     std::mutex m_mutex;
-    std::map<OpenCDMSession *, int> m_activeSessions;
+    std::condition_variable m_cv;
+    std::map<OpenCDMSession *, SessionEntry> m_activeSessions;
 };
 
 #endif // ACTIVE_SESSIONS_H_

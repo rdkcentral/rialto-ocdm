@@ -82,18 +82,10 @@ jobs:
       # Check, from which rialto branch should we download headers
       - name: Check if rialto branch with the same name exists
         id: check-branch
-        shell: sh +e {0}
-        run: |
-          branch="${{ github.ref_name }}"
-          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-            git ls-remote --exit-code --heads "https://github.com/rdkcentral/rialto.git" ${{ github.event.pull_request.head.ref }} > /dev/null
-            if [ $? -eq 0 ]; then
-              branch="${{ github.event.pull_request.head.ref }}"
-            else
-              branch="${{ github.event.pull_request.base.ref }}"
-            fi
-          fi
-          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+        env:
+          PR_HEAD_BRANCH: ${{ github.head_ref }}
+          TARGET_BRANCH: ${{ github.base_ref || github.ref_name }}
+        run: sh scripts/select_rialto_ref.sh
 
       # Run the build script with valgrind
       - name: Run unittests with valgrind

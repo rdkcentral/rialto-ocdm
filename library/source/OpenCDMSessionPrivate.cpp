@@ -477,6 +477,20 @@ void OpenCDMSessionPrivate::onLicenseRenewal(int32_t keySessionId, const std::ve
     }
 }
 
+void OpenCDMSessionPrivate::onLicenseRelease(int32_t keySessionId,
+                                             const std::vector<unsigned char> &licenseReleaseMessage,
+                                             const std::string &url)
+{
+    if (keySessionId == m_rialtoSessionId)
+    {
+        if ((m_callbacks) && (m_callbacks->process_challenge_callback))
+        {
+            m_callbacks->process_challenge_callback(this, m_context, url.c_str(), licenseReleaseMessage.data(),
+                                                    licenseReleaseMessage.size());
+        }
+    }
+}
+
 void OpenCDMSessionPrivate::notifyApplicationState(firebolt::rialto::ApplicationState state)
 {
     std::vector<std::vector<uint8_t>> keysToNotify{};

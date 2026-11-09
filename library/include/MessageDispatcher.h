@@ -51,6 +51,8 @@ public:
     void onLicenseRequest(int32_t keySessionId, const std::vector<unsigned char> &licenseRequestMessage,
                           const std::string &url) override;
     void onLicenseRenewal(int32_t keySessionId, const std::vector<unsigned char> &licenseRenewalMessage) override;
+    void onLicenseRelease(int32_t keySessionId, const std::vector<unsigned char> &licenseReleaseMessage,
+                          const std::string &url) override;
     void onKeyStatusesChanged(int32_t keySessionId, const firebolt::rialto::KeyStatusVector &keyStatuses) override;
     void notifyApplicationState(firebolt::rialto::ApplicationState state) override;
 

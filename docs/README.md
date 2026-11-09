@@ -132,7 +132,7 @@ graph TD
 
 #### Threading Model
 
-- **Threading Architecture**: Multi-threaded. Callers may invoke OpenCDM API functions from any thread. Rialto client delivers DRM event callbacks on its own internal thread.
+- **Threading Architecture**: Multi-threaded. Callers may invoke OpenCDM API functions from any thread — with one exception: `MessageDispatcher` holds its non-recursive `m_mutex` while invoking application callbacks, and session construction (`addClient`) or destruction (`removeClient`) acquires that same mutex. Calling `opencdm_construct_session`/`opencdm_destruct_session`/`opencdm_session_close` from inside a `key_update_callback`, `process_challenge_callback`, or `error_message_callback` therefore deadlocks; lifecycle operations must be deferred to a caller thread after the callback returns. Rialto client delivers DRM event callbacks on its own internal thread.
 - **Main / Caller Threads**: Any thread that calls an OpenCDM API function. The library operates without a designated main thread; per-object mutexes serialise access to fields such as the `IMediaKeys` pointer and the challenge buffer, though not every shared field is covered (see Synchronization).
 - **Worker Threads** (if applicable):
   - _Rialto client callback thread_: Owned by the Rialto client library; delivers `onLicenseRequest`, `onLicenseRenewal`, `onKeyStatusesChanged`, and `notifyApplicationState` callbacks into `MessageDispatcher`, which fans them out to registered session clients.
@@ -208,7 +208,7 @@ sequenceDiagram
 
 - When the Rialto server transitions to INACTIVE (e.g., server restart), `CdmBackend::notifyApplicationState(INACTIVE)` releases the `IMediaKeys` instance. DRM operation calls return an inactive-state error until the server resumes the RUNNING state.
 - When the Rialto server returns to RUNNING, `notifyApplicationState(RUNNING)` re-creates the `IMediaKeys` instance and notifies any thread blocked in `createKeySession` via `m_cv.notify_one()`.
-- Application-state notifications also reach each live session through `MessageDispatcher` (which implements `IControlClient`). On a RUNNING → non-RUNNING transition, `OpenCDMSessionPrivate::notifyApplicationState` invalidates the Rialto session ID, clears the buffered challenge, marks all tracked keys `INTERNAL_ERROR`, invokes `key_update_callback`/`keys_updated_callback` for every affected key, and calls `error_message_callback` with a session-server-crash message.
+- Application-state notifications also reach each live session through `MessageDispatcher` (which implements `IControlClient`). On a RUNNING → non-RUNNING transition, `OpenCDMSessionPrivate::notifyApplicationState` invalidates the Rialto session ID, clears the buffered challenge, marks all tracked keys `INTERNAL_ERROR`, invokes `key_update_callback` once per affected key, then invokes `keys_updated_callback` once after the loop (only when there are tracked keys), and calls `error_message_callback` with a session-server-crash message.
 
 **Context Switching Scenarios:**
 
@@ -249,7 +249,7 @@ sequenceDiagram
 
 #### Request Processing Call Flow
 
-The DRM session establishment flow begins when the caller constructs a session. The library validates parameters, creates the session object, calls `initialize()` to obtain a Rialto session ID, then calls `generateRequest()`. The Rialto server asynchronously delivers a license challenge via `onLicenseRequest`, which `MessageDispatcher` fans out to the owning `OpenCDMSessionPrivate`. The session stores the challenge and signals the waiting `getChallengeDataSize` caller via a condition variable; the subsequent `getChallengeData` call copies the buffered challenge. The caller then delivers the license response via `opencdm_session_update`.
+The DRM session establishment flow begins when the caller constructs a session. The library validates parameters, creates the session object, calls `initialize()` to obtain a Rialto session ID, then calls `generateRequest()`. The Rialto server asynchronously delivers a license challenge via `onLicenseRequest`, which `MessageDispatcher` fans out to the owning `OpenCDMSessionPrivate`. The session stores the challenge, delivers it to the application through `process_challenge_callback`, and also unblocks any waiter on the internal condition variable. Note that `getChallengeDataSize` is not a passive size query: it clears the buffered challenge, calls `generateRequest()` again with the requested LDL setting, and waits (up to 1 s) for a fresh challenge, which `getChallengeData` then copies. The caller then delivers the license response via `opencdm_session_update`.
 
 ```mermaid
 sequenceDiagram
@@ -275,6 +275,7 @@ sequenceDiagram
     Sess->>CdmB: generateRequest(keySessionId, initDataType, initData, ldlState)
     CdmB->>IMK: generateRequest(...)
     IMK-->>CdmB: OK
+    Note over OpenCDM,Sess: New sessions only. For PersistentLicense with non-empty CDMData, open_cdm.cpp stores CDMData as the saved CDM session ID and skips generateRequest - no initial challenge is emitted; the caller must invoke opencdm_session_load to restore.
 
     Note over IMK,MsgD: Rialto server delivers license challenge asynchronously
     IMK->>MsgD: onLicenseRequest(keySessionId, challenge, url)
@@ -341,7 +342,7 @@ Rialto-OCDM interacts with the Rialto client library on its southbound interface
 | ---------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
 | `process_challenge_callback` | `OpenCDMSessionCallbacks::process_challenge_callback` | Rialto server delivers a license challenge via `onLicenseRequest`, or a license renewal via `onLicenseRenewal` (delivered through the same callback, with an empty URL) | OpenCDM caller (browser / app) |
 | `key_update_callback`        | `OpenCDMSessionCallbacks::key_update_callback`        | Invoked once per key entry when `onKeyStatusesChanged` reports a key-status change                                                                                      | OpenCDM caller (browser / app) |
-| `keys_updated_callback`      | `OpenCDMSessionCallbacks::keys_updated_callback`      | Invoked once after all key entries in an `onKeyStatusesChanged` batch have been processed, and after a server-exit key-status reset                                     | OpenCDM caller (browser / app) |
+| `keys_updated_callback`      | `OpenCDMSessionCallbacks::keys_updated_callback`      | Invoked once after all key entries in an `onKeyStatusesChanged` batch have been processed, and after a server-exit key-status reset. Requires `key_update_callback` to also be registered — `onKeyStatusesChanged` enters the notification branch only when `key_update_callback` is non-null, so registering `keys_updated_callback` alone produces no notification; on server exit it fires only when tracked keys exist | OpenCDM caller (browser / app) |
 | `error_message_callback`     | `OpenCDMSessionCallbacks::error_message_callback`     | Invoked when the session detects the Rialto session server has left the RUNNING state (e.g. crashed); all keys are marked `INTERNAL_ERROR` before it fires             | OpenCDM caller (browser / app) |
 
 ### IPC Flow Patterns

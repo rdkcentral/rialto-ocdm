@@ -64,6 +64,24 @@ OpenCDMError opencdm_gstreamer_session_decrypt_buffer(struct OpenCDMSession *ses
     return ERROR_NONE;
 }
 
+OpenCDMError opencdm_gstreamer_session_decrypt_buffer_once(struct OpenCDMSession *session, GstBuffer *buffer,
+                                                           GstCaps *caps)
+{
+    if (nullptr == session)
+    {
+        kLog << error << "Failed to decrypt - session is NULL";
+        return ERROR_FAIL;
+    }
+
+    if (!session->addProtectionMeta(buffer))
+    {
+        kLog << error << "Failed to decrypt - could not append protection meta";
+        return ERROR_FAIL;
+    }
+
+    return ERROR_NONE;
+}
+
 OpenCDMError opencdm_gstreamer_transform_caps(GstCaps **caps)
 {
     return ERROR_NONE;

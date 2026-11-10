@@ -25,6 +25,7 @@ CdmBackend::CdmBackend(const std::string &keySystem,
     : m_log{"CdmBackend"}, m_appState{firebolt::rialto::ApplicationState::UNKNOWN}, m_keySystem{keySystem},
       m_mediaKeysClient{mediaKeysClient}, m_mediaKeysFactory{mediaKeysFactory}
 {
+    printf("VRN CdmBackend created for key system [%s] \n", keySystem.c_str());
 }
 
 void CdmBackend::notifyApplicationState(firebolt::rialto::ApplicationState state)
@@ -37,6 +38,7 @@ void CdmBackend::notifyApplicationState(firebolt::rialto::ApplicationState state
     if (firebolt::rialto::ApplicationState::RUNNING == state)
     {
         m_log << info << "Rialto state changed to: RUNNING";
+        printf("VRN CdmBackend notified about RUNNING state for key system [%s] \n", m_keySystem.c_str());
         if (createMediaKeys())
         {
             m_appState = state;
@@ -46,6 +48,7 @@ void CdmBackend::notifyApplicationState(firebolt::rialto::ApplicationState state
     else
     {
         m_log << info << "Rialto state changed to: INACTIVE";
+        printf("VRN CdmBackend notified about INACTIVE state for key system [%s] \n", m_keySystem.c_str());
         m_mediaKeys.reset();
         m_appState = state;
     }
@@ -68,6 +71,8 @@ bool CdmBackend::initialize(const firebolt::rialto::ApplicationState &initialSta
     }
     m_log << info << "CdmBackend initialized in "
           << (firebolt::rialto::ApplicationState::RUNNING == initialState ? "RUNNING" : "INACTIVE") << " state";
+    printf("VRN CdmBackend initialized in [%s] state for key system [%s] \n",
+           (firebolt::rialto::ApplicationState::RUNNING == initialState ? "RUNNING" : "INACTIVE"), m_keySystem.c_str());
     m_appState = initialState;
     return true;
 }
@@ -102,6 +107,7 @@ bool CdmBackend::createKeySession(firebolt::rialto::KeySessionType sessionType, 
     {
         return false;
     }
+	printf("VRN createKeySession IN \n");
     return firebolt::rialto::MediaKeyErrorStatus::OK ==
            m_mediaKeys->createKeySession(sessionType, m_mediaKeysClient, keySessionId);
 }
@@ -111,6 +117,7 @@ bool CdmBackend::generateRequest(int32_t keySessionId, firebolt::rialto::InitDat
                                  const firebolt::rialto::LimitedDurationLicense &ldlState)
 {
     std::unique_lock<std::mutex> lock{m_mutex};
+	printf("VRN generateRequest IN\n");
     if (!m_mediaKeys)
     {
         return false;
